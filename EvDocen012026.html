@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Dashboard Académico</title>
+<title>Dashboard Evaluación Docente 01-2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -80,12 +80,12 @@ tbody td{padding:10px 16px;color:#4a5568}
 <body>
 <header>
   <div class="icon"><svg viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h6v2H7v-2z"/></svg></div>
-  <h1>Dashboard Académico <span>/ Facultades</span></h1>
+  <h1>Dashboard Evaluación Docente Ciclo 01-2026 <span>/ Facultades</span></h1>
 </header>
 
 <div class="container">
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab(0)">🏠 General</button>
+    <button class="tab-btn active" onclick="switchTab(0)">🏠 Dashboard General</button>
     <button class="tab-btn" onclick="switchTab(1)">⚖️ Jurídicas</button>
     <button class="tab-btn" onclick="switchTab(2)">📊 Económicas</button>
     <button class="tab-btn" onclick="switchTab(3)">🎓 Humanidades</button>
@@ -237,7 +237,7 @@ function renderRankings(){
           <div class="rank-list">${renderList(top5,'top')}</div>
         </div>
         <div class="card">
-          <div class="card-header"><h2>⚠️ Top 5 más retrasados</h2></div>
+          <div class="card-header"><h2>⚠️ Top 5 más demorados</h2></div>
           <div class="rank-list">${renderList(bot5,'bot')}</div>
         </div>
       </div>
