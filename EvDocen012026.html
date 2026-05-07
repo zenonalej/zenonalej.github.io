@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard Académico</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Montserrat', sans-serif; background: #f4f6f9; color: #2d3748; min-height: 100vh; }
+
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 18px 40px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    header .icon {
+      width: 36px; height: 36px; background: #1a56db;
+      border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    }
+    header .icon svg { width: 20px; height: 20px; fill: #fff; }
+    header h1 { font-size: 1.05rem; font-weight: 600; color: #1a202c; letter-spacing: -0.3px; }
+    header span { font-size: 0.75rem; font-weight: 400; color: #718096; margin-left: 4px; }
+
+    .container { max-width: 1200px; margin: 32px auto; padding: 0 24px; }
+
+    /* TABS */
+    .tabs {
+      display: flex; gap: 4px;
+      background: #e2e8f0; border-radius: 10px;
+      padding: 4px; width: fit-content; margin-bottom: 24px;
+    }
+    .tab-btn {
+      padding: 9px 20px; border: none; background: transparent;
+      border-radius: 7px; font-family: 'Montserrat', sans-serif;
+      font-size: 0.82rem; font-weight: 500; color: #718096;
+      cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    }
+    .tab-btn:hover { color: #2d3748; }
+    .tab-btn.active {
+      background: #fff; color: #1a56db; font-weight: 600;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* KPI CARDS */
+    .kpi-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 16px; margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: #fff; border-radius: 12px;
+      padding: 20px 22px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+      border-left: 4px solid #1a56db;
+    }
+    .kpi-card.green { border-left-color: #38a169; }
+    .kpi-card.purple { border-left-color: #805ad5; }
+    .kpi-card.orange { border-left-color: #dd6b20; }
+    .kpi-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #718096; margin-bottom: 8px; }
+    .kpi-value { font-size: 1.8rem; font-weight: 700; color: #1a202c; line-height: 1; }
+    .kpi-sub { font-size: 0.72rem; color: #a0aec0; margin-top: 4px; font-weight: 400; }
+
+    /* SUMMARY TABLE */
+    .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+
+    /* CARD */
+    .card { background: #fff; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); overflow: hidden; }
+    .card-header {
+      padding: 16px 22px; border-bottom: 1px solid #f0f0f0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-header h2 { font-size: 0.92rem; font-weight: 600; color: #1a202c; }
+    .badge {
+      background: #ebf4ff; color: #1a56db;
+      font-size: 0.7rem; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+    }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.81rem; }
+    thead th {
+      background: #1a56db;
+      padding: 11px 16px; text-align: left;
+      font-weight: 600; font-size: 0.75rem;
+      text-transform: uppercase; letter-spacing: 0.4px;
+      color: #fff; border-bottom: none; white-space: nowrap;
+    }
+    thead th:first-child { border-radius: 0; }
+    tbody tr { border-bottom: 1px solid #f0f4f8; transition: background 0.15s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #f0f6ff; }
+    tbody td { padding: 10px 16px; color: #4a5568; font-weight: 400; }
+
+    /* LOADING */
+    .state-msg { padding: 48px 24px; text-align: center; color: #a0aec0; font-size: 0.85rem; font-weight: 500; }
+    .spinner {
+      width: 26px; height: 26px; border: 3px solid #e2e8f0;
+      border-top-color: #1a56db; border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .footer { text-align: center; margin-top: 28px; font-size: 0.7rem; color: #a0aec0; }
+
+    /* MINI TABLE inside summary card */
+    .mini-table thead th { font-size: 0.7rem; padding: 8px 12px; }
+    .mini-table tbody td { font-size: 0.78rem; padding: 8px 12px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="icon">
+    <svg viewBox="0 0 24 24"><path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm2 2h10v2H7V7zm0 4h10v2H7v-2zm0 4h6v2H7v-2z"/></svg>
+  </div>
+  <h1>Dashboard Académico <span>/ Facultades</span></h1>
+</header>
+
+<div class="container">
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab(0)">🏠 General</button>
+    <button class="tab-btn" onclick="switchTab(1)">⚖️ Jurídicas</button>
+    <button class="tab-btn" onclick="switchTab(2)">📊 Económicas</button>
+    <button class="tab-btn" onclick="switchTab(3)">🎓 Humanidades</button>
+  </div>
+
+  <!-- PANEL GENERAL -->
+  <div id="panel-0" class="panel active">
+    <div class="kpi-grid" id="kpi-grid">
+      <div class="kpi-card"><div class="kpi-label">Total Materias</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub">todas las facultades</div></div>
+      <div class="kpi-card green"><div class="kpi-label">Jurídicas</div><div class="kpi-value" id="kpi-j">—</div><div class="kpi-sub">registros</div></div>
+      <div class="kpi-card purple"><div class="kpi-label">Económicas</div><div class="kpi-value" id="kpi-e">—</div><div class="kpi-sub">registros</div></div>
+      <div class="kpi-card orange"><div class="kpi-label">Humanidades</div><div class="kpi-value" id="kpi-h">—</div><div class="kpi-sub">registros</div></div>
+    </div>
+    <div class="summary-grid" id="summary-grid">
+      <div class="card">
+        <div class="card-header"><h2>⚖️ Jurídicas — vista previa</h2><span class="badge" id="sbadge-0">—</span></div>
+        <div class="table-wrap" id="summary-0"><div class="state-msg"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>📊 Económicas — vista previa</h2><span class="badge" id="sbadge-1">—</span></div>
+        <div class="table-wrap" id="summary-1"><div class="state-msg"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>🎓 Humanidades — vista previa</h2><span class="badge" id="sbadge-2">—</span></div>
+        <div class="table-wrap" id="summary-2"><div class="state-msg"><div class="spinner"></div>Cargando...</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANELES DE HOJAS -->
+  <div id="panel-1" class="panel">
+    <div class="card">
+      <div class="card-header"><h2>⚖️ Jurídicas</h2><span class="badge" id="badge-0">—</span></div>
+      <div class="table-wrap" id="table-0"><div class="state-msg"><div class="spinner"></div>Cargando datos...</div></div>
+    </div>
+  </div>
+  <div id="panel-2" class="panel">
+    <div class="card">
+      <div class="card-header"><h2>📊 Económicas</h2><span class="badge" id="badge-1">—</span></div>
+      <div class="table-wrap" id="table-1"><div class="state-msg"><div class="spinner"></div>Cargando datos...</div></div>
+    </div>
+  </div>
+  <div id="panel-3" class="panel">
+    <div class="card">
+      <div class="card-header"><h2>🎓 Humanidades</h2><span class="badge" id="badge-2">—</span></div>
+      <div class="table-wrap" id="table-2"><div class="state-msg"><div class="spinner"></div>Cargando datos...</div></div>
+    </div>
+  </div>
+
+  <div class="footer">Fuente: Google Sheets · Columnas A–F · Datos desde fila 2 · Actualizado al cargar</div>
+</div>
+
+<script>
+  const SHEET_ID = '1u-n_zr6AIWXXtJiAG7oX-ib-_LvdDQHP89kuD-OJ1Ro';
+  const SHEETS  = ['Juridicas','Economicas','Humanidades'];
+  const allData = [null, null, null]; // cache por hoja
+  const loaded  = [false, false, false];
+
+  function csvUrl(sheet) {
+    return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheet)}&range=A:F`;
+  }
+
+  function parseCSV(text) {
+    const rows = [];
+    for (let line of text.split('\n')) {
+      if (!line.trim()) continue;
+      const cols = []; let cur = '', inQ = false;
+      for (let i = 0; i < line.length; i++) {
+        const c = line[i];
+        if (c === '"') { inQ = !inQ; }
+        else if (c === ',' && !inQ) { cols.push(cur); cur = ''; }
+        else { cur += c; }
+      }
+      cols.push(cur);
+      rows.push(cols.map(c => c.replace(/^"|"$/g,'').trim()));
+    }
+    return rows;
+  }
+
+  function buildTable(headers, rows, mini = false) {
+    let html = `<table${mini?' class="mini-table"':''}><thead><tr>`;
+    headers.forEach(h => { html += `<th>${h||'—'}</th>`; });
+    html += '</tr></thead><tbody>';
+    rows.forEach(row => {
+      html += '<tr>';
+      headers.forEach((_, i) => { html += `<td>${row[i]??''}</td>`; });
+      html += '</tr>';
+    });
+    return html + '</tbody></table>';
+  }
+
+  function updateKPIs() {
+    const counts = allData.map(d => d ? d.body.length : 0);
+    const total  = counts.reduce((a,b)=>a+b,0);
+    document.getElementById('kpi-total').textContent = total || '—';
+    document.getElementById('kpi-j').textContent = counts[0] || '—';
+    document.getElementById('kpi-e').textContent = counts[1] || '—';
+    document.getElementById('kpi-h').textContent = counts[2] || '—';
+  }
+
+  function renderSummary(idx) {
+    const d = allData[idx];
+    if (!d) return;
+    const el = document.getElementById(`summary-${idx}`);
+    const badge = document.getElementById(`sbadge-${idx}`);
+    const preview = d.body.slice(0, 5);
+    badge.textContent = `${d.body.length} registros`;
+    el.innerHTML = buildTable(d.headers, preview, true);
+  }
+
+  async function loadSheet(idx) {
+    if (loaded[idx]) return;
+    loaded[idx] = true;
+
+    try {
+      const res  = await fetch(csvUrl(SHEETS[idx]));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      const rows = parseCSV(text);
+
+      // Fila 1 = encabezados, desde fila 2 = datos
+      const [headers, ...body] = rows;
+      const dataRows = body.filter(r => r.some(c => c !== ''));
+      allData[idx] = { headers, body: dataRows };
+
+      // Tabla completa
+      const el    = document.getElementById(`table-${idx}`);
+      const badge = document.getElementById(`badge-${idx}`);
+      badge.textContent = `${dataRows.length} registros`;
+      el.innerHTML = dataRows.length
+        ? buildTable(headers, dataRows)
+        : '<div class="state-msg">Sin datos disponibles</div>';
+
+      // Resumen en dashboard general
+      renderSummary(idx);
+      updateKPIs();
+
+    } catch(e) {
+      ['table-','summary-'].forEach((pre, pi) => {
+        const el = document.getElementById(`${pre}${idx}`);
+        if (el) el.innerHTML = `<div class="state-msg">⚠️ Error al cargar<br><small>${e.message}</small></div>`;
+      });
+      const b1 = document.getElementById(`badge-${idx}`);
+      const b2 = document.getElementById(`sbadge-${idx}`);
+      if (b1) b1.textContent = 'Error';
+      if (b2) b2.textContent = 'Error';
+    }
+  }
+
+  function switchTab(idx) {
+    document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', i===idx));
+    document.querySelectorAll('.panel').forEach((p,i) => p.classList.toggle('active', i===idx));
+    if (idx === 0) {
+      // Cargar todo para el dashboard general
+      [0,1,2].forEach(loadSheet);
+    } else {
+      loadSheet(idx - 1);
+    }
+  }
+
+  // Arranque: cargar las 3 hojas para el dashboard general
+  [0,1,2].forEach(loadSheet);
+</script>
+</body>
+</html>
