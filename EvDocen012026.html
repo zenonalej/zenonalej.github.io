@@ -455,7 +455,8 @@ async function loadSheet(idx){
     allData[idx]={headers,body};
 
     // B2 = fila índice 1, columna B = índice 1
-    const b2val=rows[1]?rows[1][1]||'—':'—';
+    const b2row=rows[1]||[];
+    const b2val=b2row.find(c=>c.toLowerCase().includes('actualizado'))||b2row[1]||'—';
     document.getElementById(`b2-${idx}`).textContent=b2val;
 
     const el=document.getElementById(`table-${idx}`);
