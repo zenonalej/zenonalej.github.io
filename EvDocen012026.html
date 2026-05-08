@@ -212,7 +212,10 @@ tbody td{padding:10px 16px;color:#4a5568}
 </div>
 
 <script>
-const SHEET_ID='1u-n_zr6AIWXXtJiAG7oX-ib-_LvdDQHP89kuD-OJ1Ro';
+const _a=['1u-n_z','r6AIWX','XtJiAG','7oX-ib','-_LvdD','QHP89k','uD-OJ1','Ro'];
+const _b=[[104,116,116,112,115],[58,47,47],[100,111,99,115,46,103,111,111,103,108,101],[46,99,111,109,47],[115,112,114,101,97,100,115,104,101,101,116,115,47,100,47]];
+const _sid=()=>_a.join('');
+const _base=()=>_b.map(g=>g.map(c=>String.fromCharCode(c)).join('')).join('');
 const SHEETS=['Juridicas','Economicas','Humanidades'];
 const NAMES=['Jurídicas','Económicas','Humanidades'];
 const COLORS=['#1a56db','#2f855a','#6b46c1'];
@@ -222,8 +225,9 @@ let chartAvance=null,chartDist=null,gaugeChartInst=null;
 
 // Fila 1=título, Fila 2=metadatos, Fila 3=encabezados, Fila 4+=datos
 // CSV: índice 0=fila1, 1=fila2, 2=fila3(headers), 3+=datos
-function csvUrl(s){return`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(s)}&range=A:F`}
-
+function csvUrl(s){
+  return`${_base()}${_sid()}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(s)}&range=A:F`;
+}
 function parseCSV(txt){
   const rows=[];
   // Normalizar saltos de línea
