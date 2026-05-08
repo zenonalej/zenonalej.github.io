@@ -283,7 +283,7 @@ function onSearch(idx,q){
     return;
   }
   sr.classList.add('open');
-  sr.innerHTML=hits.map((r,i)=>{
+  sr.innerHTML=hits.map((r,origIdx)=>{
     const pct=parsePct(r[4]);
     const pctStr=pct!==null?`${pct.toFixed(1)}%`:'—';
     const origIdx=d.body.indexOf(r);
