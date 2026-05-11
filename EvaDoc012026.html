@@ -6,7 +6,12 @@
 <title>Dashboard Evaluación del Desempeño Docente Ciclo 01-2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
+.btn-pdf{display:flex;align-items:center;gap:6px;background:#e53e3e;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;transition:background .2s;white-space:nowrap}
+.btn-pdf:hover{background:#c53030}
+.btn-pdf svg{width:15px;height:15px;fill:#fff;flex-shrink:0}
   #visit-count{
   color:#1a56db;
   font-weight:700;
@@ -132,6 +137,12 @@ tbody td{padding:10px 16px;color:#4a5568}
 
   <!-- GENERAL -->
   <div id="panel-0" class="panel active">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+  <button class="btn-pdf" onclick="exportPDF(-1)">
+    <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8 17v-1h8v1H8zm0-3v-1h8v1H8zm0-3v-1h5v1H8z"/></svg>
+    Descargar Reporte General
+  </button>
+</div>
     <div class="kpi-grid">
       <div class="kpi-card orange"><div class="kpi-label">Total Materias</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub">todas las facultades</div></div>
       <div class="kpi-card blue" style="cursor:pointer" onclick="switchTab(1)"><div class="kpi-label">Jurídicas</div><div class="kpi-value" id="kpi-j">—</div><div class="kpi-sub">materias →</div></div>
@@ -158,35 +169,37 @@ tbody td{padding:10px 16px;color:#4a5568}
 
   <!-- FACULTADES -->
   <div id="panel-1" class="panel">
-    <div class="card">
-      <div class="card-header"><h2>⚖️ Jurídicas</h2><span class="badge" id="badge-0">—</span></div>
-      <div class="search-bar">
-        <input id="search-0" type="text" placeholder="Buscar por materia o docente..." oninput="onSearch(0,this.value)" autocomplete="off"/>
-        <div class="search-results" id="sresults-0"></div>
-      </div>
-      <div class="table-wrap" id="table-0"><div class="state-msg"><div class="spinner"></div>Cargando...</div></div>
-    </div>
+    <div class="card-header">
+  <h2>⚖️ Jurídicas</h2>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="badge" id="badge-0">—</span>
+    <button class="btn-pdf" onclick="exportPDF(0)">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8 17v-1h8v1H8zm0-3v-1h8v1H8zm0-3v-1h5v1H8z"/></svg>
+      Descargar PDF
+    </button>
   </div>
-  <div id="panel-2" class="panel">
-    <div class="card">
-      <div class="card-header"><h2>📊 Económicas</h2><span class="badge" id="badge-1">—</span></div>
-      <div class="search-bar">
-        <input id="search-1" type="text" placeholder="Buscar por materia o docente..." oninput="onSearch(1,this.value)" autocomplete="off"/>
-        <div class="search-results" id="sresults-1"></div>
-      </div>
-      <div class="table-wrap" id="table-1"><div class="state-msg"><div class="spinner"></div>Cargando...</div></div>
-    </div>
+</div>  <div id="panel-2" class="panel">
+    <div class="card-header">
+  <h2>📊 Económicas</h2>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="badge" id="badge-1">—</span>
+    <button class="btn-pdf" onclick="exportPDF(1)">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8 17v-1h8v1H8zm0-3v-1h8v1H8zm0-3v-1h5v1H8z"/></svg>
+      Descargar PDF
+    </button>
   </div>
+</div>
   <div id="panel-3" class="panel">
-    <div class="card">
-      <div class="card-header"><h2>🎓 Humanidades</h2><span class="badge" id="badge-2">—</span></div>
-      <div class="search-bar">
-        <input id="search-2" type="text" placeholder="Buscar por materia o docente..." oninput="onSearch(2,this.value)" autocomplete="off"/>
-        <div class="search-results" id="sresults-2"></div>
-      </div>
-      <div class="table-wrap" id="table-2"><div class="state-msg"><div class="spinner"></div>Cargando...</div></div>
-    </div>
+    <div class="card-header">
+  <h2>🎓 Humanidades</h2>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="badge" id="badge-2">—</span>
+    <button class="btn-pdf" onclick="exportPDF(2)">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM8 17v-1h8v1H8zm0-3v-1h8v1H8zm0-3v-1h5v1H8z"/></svg>
+      Descargar PDF
+    </button>
   </div>
+</div>
 
   <div class="footer">Creado en Universidad Modular Abierta Regional Sonsonate - Solo para uso informativo. Año 2026</div>
 </div>
@@ -496,7 +509,220 @@ async function loadSheet(idx){
     document.getElementById(`b2-${idx}`).textContent='Error';
   }
 }
+async function exportPDF(idx){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF('p','mm','a4');
+  const pw=doc.internal.pageSize.getWidth();
+  const ph=doc.internal.pageSize.getHeight();
+  const margin=14;
+  const usable=pw-(margin*2);
+  let y=margin;
 
+  // Fuente Montserrat no está en jsPDF, usamos helvetica como fallback
+  doc.setFont('helvetica');
+
+  // ENCABEZADO CENTRADO
+  doc.setFillColor(26,86,219);
+  doc.rect(0,0,pw,28,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(13);
+  doc.setFont('helvetica','bold');
+  doc.text('Universidad Modular Abierta',pw/2,10,{align:'center'});
+  doc.setFontSize(10);
+  doc.setFont('helvetica','normal');
+  doc.text('Evaluación del Desempeño Docente — Ciclo 01-2026',pw/2,17,{align:'center'});
+  const titulo=idx===-1?'Reporte General':['Facultad de CC.JJ.','Facultad de CC.EE.','Facultad de Humanidades'][idx];
+  doc.setFont('helvetica','bold');
+  doc.setFontSize(11);
+  doc.text(titulo,pw/2,24,{align:'center'});
+  y=36;
+
+  // FECHA
+  doc.setTextColor(100,100,100);
+  doc.setFontSize(8);
+  doc.setFont('helvetica','normal');
+  doc.text(`Generado el ${new Date().toLocaleString('es-SV')}`,pw/2,y,{align:'center'});
+  y+=8;
+
+  if(idx===-1){
+    // REPORTE GENERAL — KPIs
+    doc.setTextColor(26,86,219);
+    doc.setFontSize(10);
+    doc.setFont('helvetica','bold');
+    doc.text('RESUMEN GENERAL',margin,y);
+    y+=6;
+    const kpis=[
+      ['Total Materias', allData.map(d=>d?d.body.length:0).reduce((a,b)=>a+b,0)],
+      ['Jurídicas', allData[0]?allData[0].body.length:'—'],
+      ['Económicas', allData[1]?allData[1].body.length:'—'],
+      ['Humanidades', allData[2]?allData[2].body.length:'—'],
+    ];
+    const kw=(usable/4)-2;
+    kpis.forEach(([label,val],i)=>{
+      const x=margin+(i*(kw+2.5));
+      doc.setFillColor(245,247,250);
+      doc.roundedRect(x,y,kw,16,2,2,'F');
+      doc.setTextColor(100,100,100);doc.setFontSize(7);doc.setFont('helvetica','normal');
+      doc.text(label.toUpperCase(),x+kw/2,y+5,{align:'center'});
+      doc.setTextColor(26,32,44);doc.setFontSize(14);doc.setFont('helvetica','bold');
+      doc.text(String(val),x+kw/2,y+13,{align:'center'});
+    });
+    y+=22;
+
+    // PROMEDIOS POR FACULTAD
+    doc.setTextColor(26,86,219);doc.setFontSize(10);doc.setFont('helvetica','bold');
+    doc.text('PROMEDIO DE AVANCE POR FACULTAD',margin,y);y+=6;
+    allData.forEach((d,i)=>{
+      if(!d)return;
+      const vals=d.body.map(r=>parsePct(r[4])).filter(v=>v!==null);
+      const avg=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length):0;
+      const col=[[26,86,219],[47,133,90],[107,70,193]][i];
+      doc.setFillColor(...col);
+      doc.rect(margin,y,usable*(avg/100),7,'F');
+      doc.setFillColor(230,230,230);
+      doc.rect(margin+usable*(avg/100),y,usable*(1-avg/100),7,'F');
+      doc.setTextColor(26,32,44);doc.setFontSize(8);doc.setFont('helvetica','bold');
+      doc.text(NAMES[i],margin,y-1);
+      doc.text(`${avg.toFixed(1)}%`,margin+usable+2,y+5);
+      y+=12;
+    });
+    y+=4;
+
+    // TOP 5 / BOTTOM 5 POR FACULTAD
+    allData.forEach((d,idx2)=>{
+      if(!d)return;
+      if(y>ph-40){doc.addPage();y=margin;}
+      const col=[[26,86,219],[47,133,90],[107,70,193]][idx2];
+      doc.setFillColor(...col);
+      doc.rect(margin,y,usable,7,'F');
+      doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont('helvetica','bold');
+      doc.text(NAMES[idx2].toUpperCase(),pw/2,y+5,{align:'center'});
+      y+=10;
+
+      const withPct=d.body.map(r=>({name:r[0]||'—',doc:r[1]||'—',pct:parsePct(r[4])})).filter(x=>x.pct!==null);
+      const sorted=[...withPct].sort((a,b)=>b.pct-a.pct);
+      const top5=sorted.slice(0,5);
+      const bot5=[...sorted].reverse().slice(0,5);
+
+      const half=(usable/2)-3;
+      // Cabecera Top
+      doc.setFillColor(209,250,229);doc.roundedRect(margin,y,half,6,1,1,'F');
+      doc.setTextColor(6,95,70);doc.setFontSize(8);doc.setFont('helvetica','bold');
+      doc.text('🏆 Top 5 más avanzados',margin+2,y+4);
+      // Cabecera Bottom
+      doc.setFillColor(254,226,226);doc.roundedRect(margin+half+6,y,half,6,1,1,'F');
+      doc.setTextColor(127,29,29);
+      doc.text('⚠️ Top 5 más demorados',margin+half+8,y+4);
+      y+=8;
+
+      for(let i=0;i<5;i++){
+        const t=top5[i],b=bot5[i];
+        doc.setFontSize(7.5);
+        if(t){
+          doc.setTextColor(26,32,44);doc.setFont('helvetica','bold');
+          const tn=t.name.length>28?t.name.substring(0,26)+'…':t.name;
+          doc.text(`${i+1}. ${tn}`,margin,y+3);
+          doc.setFont('helvetica','normal');doc.setTextColor(100,100,100);
+          const td=t.doc.length>28?t.doc.substring(0,26)+'…':t.doc;
+          doc.text(td,margin,y+7);
+          doc.setTextColor(56,161,105);doc.setFont('helvetica','bold');
+          doc.text(`${t.pct.toFixed(1)}%`,margin+half-2,y+3,{align:'right'});
+        }
+        if(b){
+          const bx=margin+half+6;
+          doc.setTextColor(26,32,44);doc.setFont('helvetica','bold');
+          const bn=b.name.length>28?b.name.substring(0,26)+'…':b.name;
+          doc.text(`${i+1}. ${bn}`,bx,y+3);
+          doc.setFont('helvetica','normal');doc.setTextColor(100,100,100);
+          const bd=b.doc.length>28?b.doc.substring(0,26)+'…':b.doc;
+          doc.text(bd,bx,y+7);
+          doc.setTextColor(229,62,62);doc.setFont('helvetica','bold');
+          doc.text(`${b.pct.toFixed(1)}%`,bx+half-2,y+3,{align:'right'});
+        }
+        y+=10;
+      }
+      y+=6;
+    });
+
+  } else {
+    // REPORTE POR FACULTAD
+    const d=allData[idx];
+    if(!d){doc.setTextColor(200,0,0);doc.text('Datos no cargados aún.',margin,y);doc.save(`reporte-${NAMES[idx]}.pdf`);return;}
+
+    // KPIs facultad
+    const vals=d.body.map(r=>parsePct(r[4])).filter(v=>v!==null);
+    const avg=vals.length?(vals.reduce((a,b)=>a+b,0)/vals.length):0;
+    const completed=vals.filter(v=>v>=75).length;
+
+    const kpis2=[['Total Materias',d.body.length],['Promedio %',avg.toFixed(1)+'%'],['Al día (≥75%)',completed],['Pendientes',d.body.length-completed]];
+    const kw2=(usable/4)-2;
+    kpis2.forEach(([label,val],i)=>{
+      const x=margin+(i*(kw2+2.5));
+      doc.setFillColor(245,247,250);doc.roundedRect(x,y,kw2,16,2,2,'F');
+      doc.setTextColor(100,100,100);doc.setFontSize(7);doc.setFont('helvetica','normal');
+      doc.text(label.toUpperCase(),x+kw2/2,y+5,{align:'center'});
+      doc.setTextColor(26,32,44);doc.setFontSize(12);doc.setFont('helvetica','bold');
+      doc.text(String(val),x+kw2/2,y+13,{align:'center'});
+    });
+    y+=22;
+
+    // TABLA COMPLETA
+    doc.setTextColor(26,86,219);doc.setFontSize(10);doc.setFont('helvetica','bold');
+    doc.text('LISTADO COMPLETO DE MATERIAS',margin,y);y+=5;
+
+    // Encabezados tabla
+    const cols2=['Materia','Docente','Alumnos','Hechos','%','AutoEv'];
+    const cw=[60,60,18,18,15,15];
+    doc.setFillColor(26,86,219);doc.rect(margin,y,usable,7,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','bold');
+    let cx=margin;
+    cols2.forEach((c,i)=>{doc.text(c,cx+1,y+5);cx+=cw[i];});
+    y+=8;
+
+    d.body.forEach((r,i)=>{
+      if(y>ph-20){doc.addPage();y=margin;
+        doc.setFillColor(26,86,219);doc.rect(margin,y,usable,7,'F');
+        doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','bold');
+        let cx2=margin;cols2.forEach((c,i)=>{doc.text(c,cx2+1,y+5);cx2+=cw[i];});y+=8;
+      }
+      doc.setFillColor(i%2===0?255:248,i%2===0?255:250,i%2===0?255:252);
+      doc.rect(margin,y,usable,7,'F');
+      doc.setTextColor(74,85,104);doc.setFontSize(6.5);doc.setFont('helvetica','normal');
+      const pct=parsePct(r[4]);
+      if(pct!==null){
+        const pc=pctColor(pct);
+        const rgb=pc==='#38a169'?[56,161,105]:pc==='#dd6b20'?[221,107,32]:[229,62,62];
+        doc.setTextColor(...rgb);
+      }
+      const cells=[
+        (r[0]||'').length>30?(r[0]).substring(0,28)+'…':(r[0]||''),
+        (r[1]||'').length>30?(r[1]).substring(0,28)+'…':(r[1]||''),
+        r[2]||'',r[3]||'',r[4]||'',r[5]||''
+      ];
+      let cx3=margin;
+      cells.forEach((c,ci)=>{
+        if(ci===4&&pct!==null){const pc=pctColor(pct);const rgb=pc==='#38a169'?[56,161,105]:pc==='#dd6b20'?[221,107,32]:[229,62,62];doc.setTextColor(...rgb);doc.setFont('helvetica','bold');}
+        else{doc.setTextColor(74,85,104);doc.setFont('helvetica','normal');}
+        doc.text(String(c),cx3+1,y+5);cx3+=cw[ci];
+      });
+      y+=7;
+    });
+  }
+
+  // PIE DE PÁGINA en todas las páginas
+  const total=doc.internal.getNumberOfPages();
+  for(let p=1;p<=total;p++){
+    doc.setPage(p);
+    doc.setFillColor(245,247,250);doc.rect(0,ph-10,pw,10,'F');
+    doc.setTextColor(160,174,192);doc.setFontSize(7);doc.setFont('helvetica','normal');
+    doc.text('Universidad Modular Abierta Regional Sonsonate — Solo para uso informativo — 2026',pw/2,ph-4,{align:'center'});
+    doc.text(`Página ${p} de ${total}`,pw-margin,ph-4,{align:'right'});
+  }
+
+  const fname=idx===-1?'Reporte-General-UMA':`Reporte-${NAMES[idx].replace(/[^a-zA-Z]/g,'')}-UMA`;
+  doc.save(`${fname}-${new Date().toLocaleDateString('es-SV').replace(/\//g,'-')}.pdf`);
+}
+  
 function switchTab(idx){
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
   document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===idx));
