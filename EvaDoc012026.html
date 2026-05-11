@@ -9,19 +9,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
-  .pwd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
-.pwd-overlay.open{opacity:1;pointer-events:all}
-.pwd-box{background:#fff;border-radius:16px;padding:28px 28px 24px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:translateY(20px);transition:transform .25s}
-.pwd-overlay.open .pwd-box{transform:translateY(0)}
-.pwd-title{font-size:1rem;font-weight:700;color:#1a202c;margin-bottom:4px}
-.pwd-sub{font-size:.78rem;color:#718096;margin-bottom:16px}
-.pwd-input{width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.88rem;outline:none;transition:border .2s;margin-bottom:10px}
-.pwd-input:focus{border-color:#1a56db}
-.pwd-error{font-size:.75rem;color:#e53e3e;margin-bottom:10px;display:none}
-.pwd-btns{display:flex;gap:8px}
-.pwd-btn{flex:1;padding:10px;border:none;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;transition:background .2s}
-.pwd-btn.confirm{background:#1a56db;color:#fff}.pwd-btn.confirm:hover{background:#1e429f}
-.pwd-btn.cancel{background:#e2e8f0;color:#4a5568}.pwd-btn.cancel:hover{background:#cbd5e0}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Montserrat',sans-serif;background:#f4f6f9;color:#2d3748;min-height:100vh}
 header{background:#fff;border-bottom:1px solid #e2e8f0;padding:16px 36px;display:flex;align-items:center;gap:12px}
@@ -130,6 +117,21 @@ tbody td{padding:10px 16px;color:#4a5568}
 .footer{text-align:center;margin-top:24px;font-size:.7rem;color:#a0aec0}
 </style>
 </head>
+<style>
+.pwd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .25s}
+.pwd-overlay.open{opacity:1;pointer-events:all}
+.pwd-box{background:#fff;border-radius:16px;padding:28px 28px 24px;width:100%;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,.2);transform:translateY(20px);transition:transform .25s}
+.pwd-overlay.open .pwd-box{transform:translateY(0)}
+.pwd-title{font-size:1rem;font-weight:700;color:#1a202c;margin-bottom:4px}
+.pwd-sub{font-size:.78rem;color:#718096;margin-bottom:16px}
+.pwd-input{width:100%;padding:10px 14px;border:1px solid #e2e8f0;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.88rem;outline:none;transition:border .2s;margin-bottom:10px}
+.pwd-input:focus{border-color:#1a56db}
+.pwd-error{font-size:.75rem;color:#e53e3e;margin-bottom:10px;display:none}
+.pwd-btns{display:flex;gap:8px}
+.pwd-btn{flex:1;padding:10px;border:none;border-radius:8px;font-family:'Montserrat',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;transition:background .2s}
+.pwd-btn.confirm{background:#1a56db;color:#fff}.pwd-btn.confirm:hover{background:#1e429f}
+.pwd-btn.cancel{background:#e2e8f0;color:#4a5568}.pwd-btn.cancel:hover{background:#cbd5e0}
+</style>
 <body>
 <header>
   <img src="logo-uma.png" alt="Logo UMA" style="height:48px;width:auto;object-fit:contain"/>
@@ -274,6 +276,19 @@ tbody td{padding:10px 16px;color:#4a5568}
         <div class="mstat"><div class="mstat-label">¿Falta AutoEv?</div><div class="mstat-val" id="m-autoev">—</div></div>
         <div class="mstat"><div class="mstat-label">Estado</div><div class="mstat-val" id="m-estado" style="font-size:.85rem">—</div></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="pwd-overlay" id="pwd-modal">
+  <div class="pwd-box">
+    <div class="pwd-title">🔒 Acceso restringido</div>
+    <div class="pwd-sub">Ingresa la contraseña para generar el reporte PDF</div>
+    <input class="pwd-input" id="pwd-input" type="password" placeholder="Contraseña..." onkeydown="if(event.key==='Enter')confirmPwd()"/>
+    <div class="pwd-error" id="pwd-error">Contraseña incorrecta. Intenta de nuevo.</div>
+    <div class="pwd-btns">
+      <button class="pwd-btn cancel" onclick="closePwd()">Cancelar</button>
+      <button class="pwd-btn confirm" onclick="confirmPwd()">Confirmar</button>
     </div>
   </div>
 </div>
@@ -532,8 +547,7 @@ function requestPDF(idx){
   const overlay=document.getElementById('pwd-modal');
   const input=document.getElementById('pwd-input');
   const err=document.getElementById('pwd-error');
-  input.value='';
-  err.style.display='none';
+  input.value='';err.style.display='none';
   overlay.classList.add('open');
   setTimeout(()=>input.focus(),300);
 }
@@ -546,17 +560,17 @@ function closePwd(){
 function confirmPwd(){
   const input=document.getElementById('pwd-input');
   const err=document.getElementById('pwd-error');
-  // Contraseña ofuscada en base64
   const _k=atob('VW1hMjAyNio=');
   if(input.value===_k){
     document.getElementById('pwd-modal').classList.remove('open');
     exportPDF(_pendingPdfIdx);
   }else{
     err.style.display='block';
-    input.value='';
-    input.focus();
+    input.value='';input.focus();
   }
 }
+
+async function exportPDF(idx){
   const{jsPDF}=window.jspdf;
   const doc=new jsPDF('p','mm','a4');
   const pw=doc.internal.pageSize.getWidth();
