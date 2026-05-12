@@ -432,45 +432,40 @@ function gradeWorkbook(wb) {
 
       if (monto === null) continue;
 
-      const tieneConyuge = norm(String(conyugeRaw || '')).startsWith('s'); // 'Sí' o 'Si'
+      // Detectar si tiene cónyuge: acepta "Sí"/"Si", 1, true — y "No", 0, false como negativo
+      const cNorm = norm(String(conyugeRaw ?? ''));
+      const tieneConyuge = cNorm === 'si' || cNorm === 'sí' || conyugeRaw === 1 || conyugeRaw === true;
       const nHijos = typeof hijos === 'number' ? Math.round(hijos) : parseInt(hijos) || 0;
 
-      // ── Reglas exactas ──
-      // Columna F (cónyuge):
-      //   cónyuge=Sí e hijos>0  → monto / 2
-      //   cónyuge=Sí e hijos=0  → monto (todo al cónyuge)
-      //   cónyuge=No            → 0
-      let espConyuge;
-      if (tieneConyuge && nHijos > 0) {
-        espConyuge = monto / 2;
-      } else if (tieneConyuge && nHijos === 0) {
-        espConyuge = monto;
-      } else {
-        espConyuge = 0;
-      }
+      // ── Fórmulas exactas del ejercicio ──
+      // Col F: =SI(C="No"; 0; SI(D>0; E/2; E))
+      //   → Sin cónyuge (No/0)    → 0
+      //   → Con cónyuge + hijos   → E/2
+      //   → Con cónyuge sin hijos → E (todo al cónyuge)
+      const espConyuge = !tieneConyuge ? 0
+                       : nHijos > 0   ? monto / 2
+                       :                monto;
 
-      // Columna G (cada hijo):
-      //   cónyuge=Sí e hijos>0  → (monto/2) / nHijos
-      //   cónyuge=No  e hijos>0 → monto / nHijos
-      //   hijos=0                → 0
-      let espHijos;
-      if (nHijos === 0) {
-        espHijos = 0;
-      } else if (tieneConyuge) {
-        espHijos = (monto / 2) / nHijos;
-      } else {
-        espHijos = monto / nHijos;
-      }
+      // Col G: =SI(D=0; 0; SI(C="Sí"; (E/2)/D; E/D))
+      //   → Sin hijos             → 0
+      //   → Con cónyuge e hijos   → (E/2)/D
+      //   → Sin cónyuge con hijos → E/D
+      const espHijos = nHijos === 0    ? 0
+                     : tieneConyuge    ? (monto / 2) / nHijos
+                     :                   monto / nHijos;
 
       const fNum = Math.round(fallecido);
       const label = `Fallecido ${fNum}`;
-      const casoConyuge = tieneConyuge
-        ? (nHijos > 0 ? 'Sí+hijos → monto/2' : 'Sí sin hijos → monto completo')
-        : 'No → 0';
+      const casoConyuge = !tieneConyuge ? 'No/0 → 0'
+                        : nHijos > 0   ? 'Sí+hijos → E/2'
+                        :                'Sí sin hijos → E completo';
+      const casoHijos = nHijos === 0  ? 'D=0 → 0'
+                      : tieneConyuge  ? `Sí → (E/2)/${nHijos}`
+                      :                 `No → E/${nHijos}`;
 
-      // Calificar columna F (cónyuge) — siempre se evalúa
+      // Calificar columna F
       const vC = typeof cantColF === 'number' ? cantColF
-               : parseFloat(String(cantColF ?? '').replace(',','.'));
+               : parseFloat(String(cantColF ?? '').replace(',', '.'));
       const okC = cantColF !== null && !isNaN(vC) && numClose(vC, espConyuge, 0.02);
       items.push(mkItem('Herencias', `${label} — Col F Cónyuge`,
         XLSX.utils.encode_cell({ r, c: 5 }),
@@ -478,12 +473,9 @@ function gradeWorkbook(wb) {
         `${espConyuge.toFixed(2)} (${casoConyuge})`,
         okC ? 1 : 0, 1, okC ? 'correct' : 'fail'));
 
-      // Calificar columna G (cada hijo) — siempre se evalúa
-      const casoHijos = nHijos === 0 ? 'Sin hijos → 0'
-                      : tieneConyuge ? `Sí+${nHijos} hijos → monto/2/n`
-                      : `No cónyuge+${nHijos} hijos → monto/n`;
+      // Calificar columna G
       const vH = typeof cantColG === 'number' ? cantColG
-               : parseFloat(String(cantColG ?? '').replace(',','.'));
+               : parseFloat(String(cantColG ?? '').replace(',', '.'));
       const okH = cantColG !== null && !isNaN(vH) && numClose(vH, espHijos, 0.02);
       items.push(mkItem('Herencias', `${label} — Col G Cada hijo`,
         XLSX.utils.encode_cell({ r, c: 6 }),
