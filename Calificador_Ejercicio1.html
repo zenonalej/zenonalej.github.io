@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calificador — Ejercicio 1 Excel</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --primary: #2563EB;
+    --primary-light: #EFF6FF;
+    --success: #16A34A;
+    --success-bg: #F0FDF4;
+    --error: #DC2626;
+    --error-bg: #FEF2F2;
+    --warning: #D97706;
+    --warning-bg: #FFFBEB;
+    --gray-50: #F9FAFB;
+    --gray-100: #F3F4F6;
+    --gray-200: #E5E7EB;
+    --gray-400: #9CA3AF;
+    --gray-600: #4B5563;
+    --gray-800: #1F2937;
+    --gray-900: #111827;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.10), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--gray-50); color: var(--gray-800); min-height: 100vh; }
+
+  /* ---- LAYOUT ---- */
+  .page { max-width: 860px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  .app-header { text-align: center; margin-bottom: 2rem; }
+  .app-header h1 { font-size: 1.6rem; font-weight: 700; color: var(--gray-900); margin-bottom: .4rem; }
+  .app-header p { color: var(--gray-600); font-size: .9rem; }
+
+  /* ---- UPLOAD ZONE ---- */
+  .upload-zone { border: 2px dashed var(--gray-200); border-radius: var(--radius); padding: 2.5rem 1.5rem; text-align: center; background: #fff; cursor: pointer; transition: all .2s; margin-bottom: 1.5rem; }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--primary); background: var(--primary-light); }
+  .upload-zone input { display: none; }
+  .upload-icon { font-size: 2.5rem; margin-bottom: .75rem; }
+  .upload-zone h3 { font-size: 1rem; color: var(--gray-800); margin-bottom: .3rem; }
+  .upload-zone p { font-size: .82rem; color: var(--gray-400); }
+  .upload-zone .file-name { margin-top: .75rem; font-size: .85rem; font-weight: 600; color: var(--primary); }
+
+  /* ---- PROGRESS ---- */
+  .progress-wrap { display:none; text-align:center; padding: 1.5rem; background:#fff; border-radius:var(--radius); box-shadow:var(--shadow); margin-bottom:1.5rem; }
+  .spinner { width:36px;height:36px;border:3px solid var(--gray-200);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1rem; }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .progress-bar-outer { height:6px;background:var(--gray-200);border-radius:3px;overflow:hidden;margin-top:.75rem; }
+  .progress-bar-inner { height:100%;background:var(--primary);border-radius:3px;transition:width .3s ease; }
+
+  /* ---- CARD ---- */
+  .card { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.5rem; margin-bottom: 1.25rem; }
+  .card-title { font-size: 1rem; font-weight: 600; color: var(--gray-900); margin-bottom: 1rem; display:flex; align-items:center; gap:.5rem; }
+  .card-title .badge { font-size: .72rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
+
+  /* ---- METRICS ---- */
+  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+  .metric { background: #fff; border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.25rem; text-align: center; }
+  .metric .val { font-size: 2.2rem; font-weight: 700; line-height: 1; margin-bottom: .3rem; }
+  .metric .lbl { font-size: .78rem; color: var(--gray-600); }
+  .metric .sub { font-size: .72rem; color: var(--gray-400); margin-top: .2rem; }
+
+  /* ---- RESULT TABLE ---- */
+  .result-table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  .result-table th { text-align: left; padding: 7px 10px; background: var(--gray-50); color: var(--gray-600); font-weight: 600; font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--gray-200); }
+  .result-table td { padding: 8px 10px; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+  .result-table tr:last-child td { border-bottom: none; }
+  .result-table tr:hover td { background: var(--gray-50); }
+  .pill { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 20px; font-size: .72rem; font-weight: 600; }
+  .pill-ok { background: var(--success-bg); color: var(--success); }
+  .pill-fail { background: var(--error-bg); color: var(--error); }
+  .pill-partial { background: var(--warning-bg); color: var(--warning); }
+
+  /* ---- SHEET BARS ---- */
+  .sheet-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:.75rem; }
+  .sheet-row .name { font-size:.87rem; font-weight:500; flex:1; }
+  .bar-wrap { flex:2; height:8px; background:var(--gray-100); border-radius:4px; overflow:hidden; margin:0 .75rem; }
+  .bar-fill { height:100%; border-radius:4px; transition: width .6s ease; }
+  .sheet-row .pts { font-size:.8rem; color:var(--gray-600); white-space:nowrap; }
+
+  /* ---- STUDENT BOX ---- */
+  .student-box { background: var(--primary-light); border: 1px solid #BFDBFE; border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.5rem; display:none; }
+  .student-box .label { font-size:.78rem; color:#1D4ED8; font-weight:600; margin-bottom:.2rem; }
+  .student-box .name { font-size:1.1rem; font-weight:700; color: var(--gray-900); }
+
+  /* ---- CHART ---- */
+  .chart-container { position: relative; height: 240px; }
+
+  /* ---- NOTE ---- */
+  .note { font-size:.75rem; color:var(--gray-400); line-height:1.6; margin-top:1rem; }
+
+  /* ---- ERRORS ---- */
+  .error-box { background: var(--error-bg); border: 1px solid #FECACA; border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; font-size:.85rem; color: var(--error); display:none; }
+
+  /* ---- RESPONSIVE ---- */
+  @media(max-width:600px){
+    .metrics-grid { grid-template-columns: 1fr 1fr; }
+    .result-table th:nth-child(3), .result-table td:nth-child(3) { display:none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="app-header">
+    <div style="font-size:2rem;margin-bottom:.5rem">📊</div>
+    <h1>Calificador — Ejercicio 1</h1>
+    <p>Sube el archivo Excel del estudiante para calificación automática</p>
+  </div>
+
+  <div class="error-box" id="errorBox"></div>
+
+  <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+    <input type="file" id="fileInput" accept=".xls,.xlsx,.xlsm" />
+    <div class="upload-icon">📂</div>
+    <h3>Haz clic o arrastra el archivo aquí</h3>
+    <p>Formatos aceptados: .xls · .xlsx · .xlsm</p>
+    <div class="file-name" id="fileName"></div>
+  </div>
+
+  <div class="progress-wrap" id="progressWrap">
+    <div class="spinner"></div>
+    <div id="progressMsg" style="font-size:.9rem;color:var(--gray-600)">Leyendo archivo…</div>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar" style="width:0%"></div></div>
+  </div>
+
+  <div class="student-box" id="studentBox">
+    <div class="label">👤 Estudiante (Hoja 1 · Celda A1)</div>
+    <div class="name" id="studentName">—</div>
+  </div>
+
+  <div id="dashboard" style="display:none">
+
+    <!-- METRICS -->
+    <div class="metrics-grid">
+      <div class="metric">
+        <div class="val" id="mFinal" style="color:var(--primary)">—</div>
+        <div class="lbl">Calificación</div>
+        <div class="sub">sobre 100</div>
+      </div>
+      <div class="metric">
+        <div class="val" id="mPts">—</div>
+        <div class="lbl">Puntos</div>
+        <div class="sub" id="mPtsSub">de — totales</div>
+      </div>
+      <div class="metric">
+        <div class="val" id="mCorrect">—</div>
+        <div class="lbl">Correctas</div>
+        <div class="sub" id="mCorrectSub">de — ítems</div>
+      </div>
+      <div class="metric">
+        <div class="val" id="mStatus" style="font-size:1.1rem;padding-top:.6rem">—</div>
+        <div class="lbl">Estado</div>
+        <div class="sub">mín. aprobatorio: 60</div>
+      </div>
+    </div>
+
+    <!-- PUNTAJE POR HOJA -->
+    <div class="card">
+      <div class="card-title">📋 Puntaje por Hoja</div>
+      <div id="sheetBars"></div>
+    </div>
+
+    <!-- GRÁFICO -->
+    <div class="card">
+      <div class="card-title">📊 Distribución de Puntaje</div>
+      <div class="chart-container">
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+
+    <!-- DETALLE -->
+    <div class="card">
+      <div class="card-title">🔍 Detalle de Resultados</div>
+      <div style="overflow-x:auto">
+        <table class="result-table">
+          <thead>
+            <tr>
+              <th>Hoja</th>
+              <th>Ítem evaluado</th>
+              <th>Celda</th>
+              <th>Encontrado</th>
+              <th>Esperado</th>
+              <th>Resultado</th>
+              <th>Pts</th>
+            </tr>
+          </thead>
+          <tbody id="detailBody"></tbody>
+        </table>
+      </div>
+      <p class="note">* Valores numéricos con tolerancia ±2%. Textos aceptan variaciones de mayúsculas y acentos. Datos aleatorios del archivo original se usan para recalcular el resultado esperado en tiempo real.</p>
+    </div>
+
+  </div><!-- /dashboard -->
+</div><!-- /page -->
+
+<script>
+// ─────────────────────────────────────────────
+//  UPLOAD & DRAG-DROP
+// ─────────────────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('drag'); const f = e.dataTransfer.files[0]; if(f) processFile(f); });
+fileInput.addEventListener('change', e => { if(e.target.files[0]) processFile(e.target.files[0]); });
+
+function showError(msg) {
+  const b = document.getElementById('errorBox');
+  b.textContent = '⚠️ ' + msg;
+  b.style.display = 'block';
+}
+function hideError() { document.getElementById('errorBox').style.display = 'none'; }
+
+function processFile(file) {
+  hideError();
+  if (!/\.(xls|xlsx|xlsm)$/i.test(file.name)) { showError('Formato no soportado. Usa .xls, .xlsx o .xlsm'); return; }
+  document.getElementById('fileName').textContent = '📄 ' + file.name;
+  document.getElementById('progressWrap').style.display = 'block';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('studentBox').style.display = 'none';
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      setProgress(20, 'Parseando hojas…');
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array', cellText: false, cellNF: true });
+      setProgress(60, 'Calculando respuestas…');
+      const results = gradeWorkbook(wb);
+      setProgress(90, 'Generando dashboard…');
+      renderDashboard(results);
+      setProgress(100, 'Listo');
+      setTimeout(() => { document.getElementById('progressWrap').style.display = 'none'; }, 400);
+    } catch(err) {
+      document.getElementById('progressWrap').style.display = 'none';
+      showError('Error al leer el archivo: ' + err.message);
+      console.error(err);
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function setProgress(pct, msg) {
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressMsg').textContent = msg;
+}
+
+// ─────────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────────
+function getCell(ws, row, col) {
+  // row and col are 0-indexed
+  const addr = XLSX.utils.encode_cell({ r: row, c: col });
+  const cell = ws[addr];
+  if (!cell) return null;
+  return cell.v !== undefined ? cell.v : null;
+}
+
+function norm(v) {
+  if (v === null || v === undefined) return '';
+  return String(v).trim().toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function numClose(a, b, tol = 0.02) {
+  if (b === 0) return Math.abs(a) < 1;
+  return Math.abs(a - b) / Math.abs(b) <= tol;
+}
+
+function checkText(val, accepted) {
+  const n = norm(val);
+  return accepted.some(a => norm(a) === n || norm(a).includes(n) || n.includes(norm(a)));
+}
+
+function mkItem(sheet, label, cell, found, expected, pts, maxPts, status) {
+  return { sheet, label, cell, found: found ?? '—', expected: expected ?? '—', pts, maxPts, status };
+}
+
+// ─────────────────────────────────────────────
+//  GRADING LOGIC
+// ─────────────────────────────────────────────
+function gradeWorkbook(wb) {
+  const items = [];
+
+  // ── Find sheets by name (case-insensitive partial match) ──
+  function findSheet(keyword) {
+    const k = norm(keyword);
+    const name = wb.SheetNames.find(n => norm(n).includes(k));
+    return name ? wb.Sheets[name] : null;
+  }
+
+  // ── HOJA 1: Promociones ──
+  const wsP = findSheet('promo') || wb.Sheets[wb.SheetNames[0]];
+  if (wsP) {
+    // Student name in A1
+    const studentName = getCell(wsP, 0, 0);
+    document.getElementById('studentName').textContent = studentName || '(vacío)';
+    document.getElementById('studentBox').style.display = 'block';
+
+    // Headers at row 27 (index), data from row 28+
+    // Cols: B=1(Empleado), C=2(Años), D=3(Calificación), E=4(Respuesta)
+    let promoCorrect = 0, promoTotal = 0;
+
+    // Find header row dynamically
+    let headerRow = -1;
+    for (let r = 0; r < 35; r++) {
+      const v = norm(getCell(wsP, r, 1));
+      if (v.includes('empleado')) { headerRow = r; break; }
+    }
+    if (headerRow === -1) headerRow = 27;
+
+    // ── Inferir umbral de calificación dinámicamente del archivo ──
+    // Recorre los datos para encontrar el corte entre Sí y No cuando años>=3
+    let umbralCalif = 350; // valor por defecto
+    const siVals = [], noVals = [];
+    for (let r2 = headerRow + 1; r2 < headerRow + 200; r2++) {
+      const a2 = getCell(wsP, r2, 2);
+      const c2 = getCell(wsP, r2, 3);
+      const resp2 = getCell(wsP, r2, 4);
+      if (resp2 === null || resp2 === '') break;
+      if (a2 >= 3) {
+        if (norm(resp2).startsWith('s')) siVals.push(c2);
+        else noVals.push(c2);
+      }
+    }
+    if (siVals.length && noVals.length) {
+      const minSi = Math.min(...siVals);
+      const maxNo = Math.max(...noVals);
+      umbralCalif = (minSi + maxNo) / 2; // punto medio como umbral
+    }
+
+    for (let r = headerRow + 1; r < headerRow + 200; r++) {
+      const emp = getCell(wsP, r, 1);
+      if (emp === null || emp === '') break;
+      const anos = getCell(wsP, r, 2);
+      const calif = getCell(wsP, r, 3);
+      const respuesta = getCell(wsP, r, 4);
+
+      if (anos === null || calif === null) continue;
+
+      // Esperado calculado con umbral dinámico inferido del archivo
+      const esperado = (anos >= 3 && calif > umbralCalif) ? 'Sí' : 'No';
+
+      const r_norm = norm(respuesta);
+      let ok = false;
+      if (esperado === 'Sí') {
+        ok = ['si', 'sí', 'yes', 's', '1', 'true'].some(x => r_norm === x || r_norm.includes(x));
+      } else {
+        ok = ['no', 'n', '0', 'false'].some(x => r_norm === x || r_norm.startsWith(x));
+      }
+
+      const empName = `Empleado ${typeof emp === 'number' ? Math.round(emp) : emp}`;
+      items.push(mkItem('Promociones', empName,
+        XLSX.utils.encode_cell({ r, c: 4 }),
+        respuesta ?? '(vacío)', `${esperado} (Años=${anos}, Cal=${calif}, Umbral>${Math.round(umbralCalif)})`,
+        ok ? 1 : 0, 1, ok ? 'correct' : 'fail'));
+    }
+  }
+
+  // ── HOJA 2: Campamento ──
+  const wsC = findSheet('camp') || wb.Sheets[wb.SheetNames[1]];
+  if (wsC) {
+    let headerRow = -1;
+    for (let r = 0; r < 30; r++) {
+      const v = norm(getCell(wsC, r, 1));
+      if (v.includes('edad')) { headerRow = r; break; }
+    }
+    if (headerRow === -1) headerRow = 22;
+
+    for (let r = headerRow + 1; r < headerRow + 60; r++) {
+      const edad = getCell(wsC, r, 1);
+      if (edad === null || edad === '') break;
+      const act_des = getCell(wsC, r, 2);
+      const examen = getCell(wsC, r, 3);
+      const asignada = getCell(wsC, r, 4);
+
+      // Regla EXACTA del ejercicio Campamento:
+      // 1. Si edad >= 8 Y deseada = Equitación → Equitación
+      // 2. Si deseada = Natación Y examen = Sí → Natación
+      // 3. Cualquier otra circunstancia → Tenis
+
+      const exNorm = norm(examen);
+      const esSi = exNorm === 'si' || exNorm === 'sí' || exNorm === 'yes' || exNorm === '1';
+      const actNorm = norm(act_des);
+
+      let esperado;
+      if (edad >= 8 && actNorm === 'equitacion') {
+        esperado = 'equitacion';
+      } else if (actNorm === 'natacion' && esSi) {
+        esperado = 'natacion';
+      } else {
+        esperado = 'tenis';
+      }
+
+      const asNorm = norm(asignada);
+      const ok = asNorm === esperado;
+
+      const idx = r - headerRow;
+      items.push(mkItem('Campamento', `Participante ${idx}`,
+        XLSX.utils.encode_cell({ r, c: 4 }),
+        asignada ?? '(vacío)', `${esperado} (Des=${act_des}, Edad=${edad}, Exam=${examen})`,
+        ok ? 1 : 0, 1, ok ? 'correct' : 'fail'));
+    }
+  }
+
+  // ── HOJA 3: Herencias ──
+  const wsH = findSheet('heren') || wb.Sheets[wb.SheetNames[2]];
+  if (wsH) {
+    let headerRow = -1;
+    for (let r = 0; r < 35; r++) {
+      const v = norm(getCell(wsH, r, 1));
+      if (v.includes('fallecido')) { headerRow = r; break; }
+    }
+    if (headerRow === -1) headerRow = 23;
+
+    for (let r = headerRow + 1; r < headerRow + 50; r++) {
+      const fallecido = getCell(wsH, r, 1);
+      if (fallecido === null || fallecido === '') break;
+
+      // Col B=fallecido(1), C=cónyuge(2), D=hijos(3), E=monto(4), F=cant.cónyuge(5), G=cant.hijos(6)
+      const conyugeRaw  = getCell(wsH, r, 2);
+      const hijos       = getCell(wsH, r, 3);
+      const monto       = getCell(wsH, r, 4);
+      const cantColF    = getCell(wsH, r, 5); // columna F — respuesta cónyuge
+      const cantColG    = getCell(wsH, r, 6); // columna G — respuesta cada hijo
+
+      if (monto === null) continue;
+
+      const tieneConyuge = norm(String(conyugeRaw || '')).startsWith('s'); // 'Sí' o 'Si'
+      const nHijos = typeof hijos === 'number' ? Math.round(hijos) : parseInt(hijos) || 0;
+
+      // ── Reglas exactas ──
+      // Columna F (cónyuge):
+      //   cónyuge=Sí e hijos>0  → monto / 2
+      //   cónyuge=Sí e hijos=0  → monto (todo al cónyuge)
+      //   cónyuge=No            → 0
+      let espConyuge;
+      if (tieneConyuge && nHijos > 0) {
+        espConyuge = monto / 2;
+      } else if (tieneConyuge && nHijos === 0) {
+        espConyuge = monto;
+      } else {
+        espConyuge = 0;
+      }
+
+      // Columna G (cada hijo):
+      //   cónyuge=Sí e hijos>0  → (monto/2) / nHijos
+      //   cónyuge=No  e hijos>0 → monto / nHijos
+      //   hijos=0                → 0
+      let espHijos;
+      if (nHijos === 0) {
+        espHijos = 0;
+      } else if (tieneConyuge) {
+        espHijos = (monto / 2) / nHijos;
+      } else {
+        espHijos = monto / nHijos;
+      }
+
+      const fNum = Math.round(fallecido);
+      const label = `Fallecido ${fNum}`;
+      const casoConyuge = tieneConyuge
+        ? (nHijos > 0 ? 'Sí+hijos → monto/2' : 'Sí sin hijos → monto completo')
+        : 'No → 0';
+
+      // Calificar columna F (cónyuge) — siempre se evalúa
+      const vC = typeof cantColF === 'number' ? cantColF
+               : parseFloat(String(cantColF ?? '').replace(',','.'));
+      const okC = cantColF !== null && !isNaN(vC) && numClose(vC, espConyuge, 0.02);
+      items.push(mkItem('Herencias', `${label} — Col F Cónyuge`,
+        XLSX.utils.encode_cell({ r, c: 5 }),
+        cantColF !== null ? (isNaN(vC) ? cantColF : vC.toFixed(2)) : '(vacío)',
+        `${espConyuge.toFixed(2)} (${casoConyuge})`,
+        okC ? 1 : 0, 1, okC ? 'correct' : 'fail'));
+
+      // Calificar columna G (cada hijo) — siempre se evalúa
+      const casoHijos = nHijos === 0 ? 'Sin hijos → 0'
+                      : tieneConyuge ? `Sí+${nHijos} hijos → monto/2/n`
+                      : `No cónyuge+${nHijos} hijos → monto/n`;
+      const vH = typeof cantColG === 'number' ? cantColG
+               : parseFloat(String(cantColG ?? '').replace(',','.'));
+      const okH = cantColG !== null && !isNaN(vH) && numClose(vH, espHijos, 0.02);
+      items.push(mkItem('Herencias', `${label} — Col G Cada hijo`,
+        XLSX.utils.encode_cell({ r, c: 6 }),
+        cantColG !== null ? (isNaN(vH) ? cantColG : vH.toFixed(2)) : '(vacío)',
+        `${espHijos.toFixed(2)} (${casoHijos})`,
+        okH ? 1 : 0, 1, okH ? 'correct' : 'fail'));
+    }
+  }
+
+  // ── HOJA 4: Estados ──
+  const wsE = wb.SheetNames.find(n => norm(n).includes('estado') && !norm(n).includes('2'));
+  const wsEst = wsE ? wb.Sheets[wsE] : wb.Sheets[wb.SheetNames[3]];
+
+  if (wsEst) {
+    // Data rows: find header
+    let hdr = -1;
+    for (let r = 0; r < 20; r++) {
+      const v = norm(getCell(wsEst, r, 1));
+      if (v.includes('estado')) { hdr = r; break; }
+    }
+    if (hdr === -1) hdr = 12;
+
+    // Build reference data from the file itself
+    const regionCount = {}, regionSurf = {};
+    for (let r = hdr + 1; r < hdr + 45; r++) {
+      const est = getCell(wsEst, r, 1);
+      if (!est || typeof est !== 'string') continue;
+      const sup = getCell(wsEst, r, 2);
+      const reg = getCell(wsEst, r, 4);
+      if (!reg) continue;
+      regionCount[reg] = (regionCount[reg] || 0) + 1;
+      regionSurf[reg] = (regionSurf[reg] || 0) + (sup || 0);
+    }
+
+    // Find result table in the sheet (cols G=6, H=7, I=8)
+    // Header for results at same hdr row
+    const regions = Object.keys(regionCount).sort();
+
+    // Find where student wrote region answers
+    // Look for a region name in col G (index 6)
+    let resultHdr = -1;
+    for (let r = 0; r < 50; r++) {
+      const v = norm(getCell(wsEst, r, 6));
+      if (v.includes('region') || v.includes('región')) { resultHdr = r; break; }
+    }
+    if (resultHdr === -1) resultHdr = hdr;
+
+    // Read student answers from resultHdr+1 onwards
+    const studentRegions = {};
+    for (let r = resultHdr + 1; r < resultHdr + 20; r++) {
+      const regName = getCell(wsEst, r, 6);
+      const cnt = getCell(wsEst, r, 7);
+      const surf = getCell(wsEst, r, 8);
+      if (!regName || typeof regName !== 'string') continue;
+      studentRegions[regName.trim()] = { cnt, surf };
+    }
+
+    regions.forEach(reg => {
+      const espCount = regionCount[reg];
+      const espSurf = regionSurf[reg];
+      const sData = studentRegions[reg] || {};
+
+      // Count
+      const studCount = typeof sData.cnt === 'number' ? sData.cnt : null;
+      const okCount = studCount !== null && numClose(studCount, espCount, 0);
+      items.push(mkItem('Estados', `N° estados — ${reg}`,
+        '—',
+        studCount ?? '(vacío)', espCount,
+        okCount ? 2 : 0, 2, okCount ? 'correct' : 'fail'));
+
+      // Surface
+      const studSurf = typeof sData.surf === 'number' ? sData.surf : null;
+      const okSurf = studSurf !== null && numClose(studSurf, espSurf, 0.02);
+      items.push(mkItem('Estados', `Superficie (km²) — ${reg}`,
+        '—',
+        studSurf !== null ? studSurf.toFixed(0) : '(vacío)',
+        espSurf.toFixed(0),
+        okSurf ? 2 : 0, 2, okSurf ? 'correct' : 'fail'));
+    });
+  }
+
+  // ── HOJA 5: Estados (2) ──
+  const wsE2Name = wb.SheetNames.find(n => norm(n).includes('estado') && (n.includes('2') || n.includes('(')));
+  const wsEst2 = wsE2Name ? wb.Sheets[wsE2Name] : wb.Sheets[wb.SheetNames[4]];
+
+  if (wsEst2) {
+    let hdr = -1;
+    for (let r = 0; r < 25; r++) {
+      const v = norm(getCell(wsEst2, r, 1));
+      if (v.includes('estado')) { hdr = r; break; }
+    }
+    if (hdr === -1) hdr = 15;
+
+    // Rebuild expected data from the file (col B=sup, C=pob)
+    // Density: col E (idx 4) | Category: col F (idx 5)
+    // Thresholds (per exercise instructions):
+    //   Alta:  densidad >= 100
+    //   Media: 15 <= densidad < 100
+    //   Baja:  densidad < 15
+    const stateData = [];
+    for (let r = hdr + 1; r < hdr + 45; r++) {
+      const est = getCell(wsEst2, r, 1);
+      if (!est || typeof est !== 'string' || est.toLowerCase().includes('fuente')) break;
+      const sup = getCell(wsEst2, r, 2);
+      const pob = getCell(wsEst2, r, 3);
+      if (!sup || !pob) continue;
+      const densRaw = pob / sup;
+      const dens = Math.round(densRaw * 100) / 100;
+      const cat = dens >= 100 ? 'Alta' : dens >= 15 ? 'Media' : 'Baja';
+      stateData.push({ row: r, est, sup, pob, dens, cat });
+    }
+
+    // Grade density (col E = index 4) and category (col F = index 5) for each state
+    stateData.forEach(sd => {
+      const studDens = getCell(wsEst2, sd.row, 4);
+      const studCat  = getCell(wsEst2, sd.row, 5);
+
+      // Density
+      if (studDens !== null) {
+        const vD = typeof studDens === 'number' ? studDens : parseFloat(String(studDens).replace(',','.'));
+        const okD = !isNaN(vD) && numClose(vD, sd.dens, 0.02);
+        items.push(mkItem('Estados (2)', `Densidad — ${sd.est}`,
+          XLSX.utils.encode_cell({ r: sd.row, c: 4 }),
+          isNaN(vD) ? studDens : vD.toFixed(2),
+          sd.dens.toFixed(2),
+          okD ? 1 : 0, 1, okD ? 'correct' : 'fail'));
+      } else {
+        items.push(mkItem('Estados (2)', `Densidad — ${sd.est}`,
+          XLSX.utils.encode_cell({ r: sd.row, c: 4 }),
+          '(vacío)', sd.dens.toFixed(2), 0, 1, 'fail'));
+      }
+
+      // Category (Alta ≥100, Media ≥15, Baja <15)
+      if (studCat !== null) {
+        const catNorm = norm(String(studCat));
+        const expNorm = norm(sd.cat);
+        const okC = catNorm === expNorm || catNorm.includes(expNorm);
+        items.push(mkItem('Estados (2)', `Clasificación — ${sd.est}`,
+          XLSX.utils.encode_cell({ r: sd.row, c: 5 }),
+          studCat, `${sd.cat} (dens=${sd.dens})`,
+          okC ? 1 : 0, 1, okC ? 'correct' : 'fail'));
+      } else {
+        items.push(mkItem('Estados (2)', `Clasificación — ${sd.est}`,
+          XLSX.utils.encode_cell({ r: sd.row, c: 5 }),
+          '(vacío)', `${sd.cat} (dens=${sd.dens})`, 0, 1, 'fail'));
+      }
+    });
+
+    // ── Totales: el estudiante debe calcularlos con fórmulas en C53, C54, C55 ──
+    // Umbrales: Alta ≥100, Media ≥15, Baja <15
+    const totalSup    = stateData.reduce((s, d) => s + d.sup, 0);
+    const statesGt50k = stateData.filter(d => d.sup > 50000).length;
+    // Baja densidad = densidad < 15 (según instrucciones del ejercicio)
+    const supBaja     = stateData.filter(d => d.dens < 15).reduce((s, d) => s + d.sup, 0);
+
+    // Celdas fijas: C53=índice[52,2], C54=[53,2], C55=[54,2]
+    const summaryItems = [
+      { label: 'C53 — Superficie total República Mexicana', row: 52, expected: totalSup,    tol: 0.02, isInt: true  },
+      { label: 'C54 — N° estados superficie > 50,000 km²', row: 53, expected: statesGt50k, tol: 0,    isInt: false },
+      { label: 'C55 — Superficie estados Baja Densidad',    row: 54, expected: supBaja,     tol: 0.02, isInt: true  },
+    ];
+
+    summaryItems.forEach(si => {
+      const val = getCell(wsEst2, si.row, 2); // col C = índice 2
+      const v   = typeof val === 'number' ? val
+                : parseFloat(String(val ?? '').replace(/[^0-9.\-]/g, ''));
+      const ok  = !isNaN(v) && numClose(v, si.expected, si.tol);
+      items.push(mkItem('Estados (2)', si.label,
+        `C${si.row + 1}`,
+        val === null || val === '' ? '(vacío)' : (isNaN(v) ? val : si.isInt ? Math.round(v).toLocaleString() : v),
+        si.isInt ? Math.round(si.expected).toLocaleString() : si.expected,
+        ok ? 3 : 0, 3, ok ? 'correct' : 'fail'));
+    });
+  }
+
+
+
+  return items;
+}
+
+// ─────────────────────────────────────────────
+//  RENDER DASHBOARD
+// ─────────────────────────────────────────────
+let chartInst = null;
+
+function renderDashboard(items) {
+  const totalPts = items.reduce((s, i) => s + i.pts, 0);
+  const maxPts = items.reduce((s, i) => s + i.maxPts, 0);
+  const correct = items.filter(i => i.status === 'correct').length;
+  const pct = maxPts ? Math.round((totalPts / maxPts) * 100) : 0;
+
+  document.getElementById('mFinal').textContent = pct;
+  document.getElementById('mPts').textContent = totalPts;
+  document.getElementById('mPtsSub').textContent = `de ${maxPts} totales`;
+  document.getElementById('mCorrect').textContent = correct;
+  document.getElementById('mCorrectSub').textContent = `de ${items.length} ítems`;
+
+  const mStatus = document.getElementById('mStatus');
+  if (pct >= 90) { mStatus.textContent = '🏆 Excelente'; mStatus.style.color = '#16A34A'; }
+  else if (pct >= 70) { mStatus.textContent = '✅ Aprobado'; mStatus.style.color = '#2563EB'; }
+  else if (pct >= 60) { mStatus.textContent = '⚠️ Aprobado mínimo'; mStatus.style.color = '#D97706'; }
+  else { mStatus.textContent = '❌ No aprobado'; mStatus.style.color = '#DC2626'; }
+
+  // Sheet bars
+  const sheets = [...new Set(items.map(i => i.sheet))];
+  const sheetPts = {}, sheetMax = {};
+  sheets.forEach(s => { sheetPts[s] = 0; sheetMax[s] = 0; });
+  items.forEach(i => { sheetPts[i.sheet] += i.pts; sheetMax[i.sheet] += i.maxPts; });
+
+  const barsEl = document.getElementById('sheetBars');
+  barsEl.innerHTML = '';
+  sheets.forEach(s => {
+    const p = sheetPts[s], m = sheetMax[s];
+    const pf = m ? Math.round((p/m)*100) : 0;
+    const color = pf >= 70 ? '#16A34A' : pf >= 50 ? '#D97706' : '#DC2626';
+    barsEl.innerHTML += `
+      <div class="sheet-row">
+        <div class="name">${s}</div>
+        <div class="bar-wrap"><div class="bar-fill" style="width:${pf}%;background:${color}"></div></div>
+        <div class="pts">${p}/${m} pts (${pf}%)</div>
+      </div>`;
+  });
+
+  // Chart
+  if (chartInst) chartInst.destroy();
+  chartInst = new Chart(document.getElementById('myChart'), {
+    type: 'bar',
+    data: {
+      labels: sheets,
+      datasets: [
+        { label: 'Obtenido', data: sheets.map(s => sheetPts[s]), backgroundColor: '#2563EB', borderRadius: 5 },
+        { label: 'Máximo', data: sheets.map(s => sheetMax[s]), backgroundColor: '#E5E7EB', borderRadius: 5 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#F3F4F6' }, ticks: { font: { size: 11 } } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+
+  // Detail table
+  const tbody = document.getElementById('detailBody');
+  tbody.innerHTML = '';
+  items.forEach(item => {
+    const pillClass = item.status === 'correct' ? 'pill-ok' : item.status === 'partial' ? 'pill-partial' : 'pill-fail';
+    const pillText = item.status === 'correct' ? '✓ Correcto' : item.status === 'partial' ? '~ Parcial' : '✗ Incorrecto';
+    const foundStr = item.found !== null && item.found !== undefined ? String(item.found).slice(0,40) : '—';
+    const expStr = item.expected !== null && item.expected !== undefined ? String(item.expected).slice(0,40) : '—';
+    tbody.innerHTML += `
+      <tr>
+        <td style="white-space:nowrap;color:var(--gray-600);font-size:.75rem">${item.sheet}</td>
+        <td>${item.label}</td>
+        <td style="font-family:monospace;font-size:.75rem;color:var(--gray-400)">${item.cell}</td>
+        <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${foundStr}">${foundStr}</td>
+        <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--gray-600)" title="${expStr}">${expStr}</td>
+        <td><span class="pill ${pillClass}">${pillText}</span></td>
+        <td style="font-weight:600;text-align:right">${item.pts}/${item.maxPts}</td>
+      </tr>`;
+  });
+
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
