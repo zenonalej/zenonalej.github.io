@@ -398,7 +398,11 @@ function clearSearch(idx){
   if(sr){sr.classList.remove('open');sr.innerHTML='';}
 }
 
+  let _activeTabBeforeModal = 0;
+  
 function openModal(idx,rowIdx){
+    _activeTabBeforeModal = [...document.querySelectorAll('.tab-btn')].findIndex(b => b.classList.contains('active'));
+  const d = allData[idx]; if (!d) return;
   const d=allData[idx];if(!d)return;
   const r=d.body[rowIdx];if(!r)return;
   const pct=parsePct(r[4]);
@@ -451,7 +455,7 @@ function renderRankings(){
     const col=COLORS[idx];
     const renderList=(items,type)=>items.map((it,i)=>{
       const bc=type==='top'?'#38a169':'#e53e3e';
-      return`<div class="rank-item" onclick="switchTab(${idx+1});setTimeout(()=>openModal(${idx},${it.idx}),300)">
+        return`<div class="rank-item" onclick="openModal(${idx},${it.idx})">
         <div class="rank-num ${type}">${i+1}</div>
         <div class="rank-info">
           <div class="rank-name">${it.name}</div>
