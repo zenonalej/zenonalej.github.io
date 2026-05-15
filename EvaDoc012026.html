@@ -402,7 +402,6 @@ function clearSearch(idx){
   
 function openModal(idx,rowIdx){
     _activeTabBeforeModal = [...document.querySelectorAll('.tab-btn')].findIndex(b => b.classList.contains('active'));
-  const d = allData[idx]; if (!d) return;
   const d=allData[idx];if(!d)return;
   const r=d.body[rowIdx];if(!r)return;
   const pct=parsePct(r[4]);
