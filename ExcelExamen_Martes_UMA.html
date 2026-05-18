@@ -686,6 +686,7 @@ let answers = {};   // {idx: {value, correct, uploaded}}
 let uploads = {};   // {idx: filename}
 let currentQ = 0;
 const TOTAL = QUESTIONS.length; // 20
+let shuffledQuestions = []; // orden aleatorio por sesión
 
 // ══════════════════════════════════════════════════════
 // GOOGLE OAUTH2 — Real login via Google Identity Services
@@ -768,6 +769,8 @@ function launch(){
     av.outerHTML=`<div class="hdr-av" id="hdr-av">${ini}</div>`;
   }
   document.getElementById("hdr-name").textContent=user.name.split(" ")[0];
+  // Mezclar preguntas en cada sesión
+  shuffledQuestions = [...QUESTIONS].sort(() => Math.random() - 0.5);
   buildMap();
   buildCards();
   goTo(0);
@@ -778,14 +781,14 @@ function launch(){
 // ══════════════════════════════════════════════════════
 function buildMap(){
   const m=document.getElementById("qmap");m.innerHTML="";
-  QUESTIONS.forEach((_,i)=>{
+  shuffledQuestions.forEach((_,i)=>{
     const d=document.createElement("div");
     d.className="qd";d.textContent=i+1;d.id="qd-"+i;
     d.onclick=()=>goTo(i);m.appendChild(d);
   });
 }
 function syncMap(){
-  QUESTIONS.forEach((_,i)=>{
+  shuffledQuestions.forEach((_,i)=>{
     const d=document.getElementById("qd-"+i);
     d.className="qd"+(i===currentQ?" current":answers[i]?" done":"");
   });
@@ -796,7 +799,7 @@ function syncMap(){
 // ══════════════════════════════════════════════════════
 function buildCards(){
   const c=document.getElementById("qcont");c.innerHTML="";
-  QUESTIONS.forEach((q,i)=>c.appendChild(makeCard(q,i)));
+  shuffledQuestions.forEach((q,i)=>c.appendChild(makeCard(q,i)));
 }
 
 function makeCard(q,i){
@@ -910,7 +913,7 @@ function syncProgress(){
 // ══════════════════════════════════════════════════════
 function pick(qi,oi){
   if(answers[qi])return;
-  const q=QUESTIONS[qi];
+  const q=shuffledQuestions[qi];
   const correct=(oi===q.cor);
   answers[qi]={value:oi,correct,uploaded:!!uploads[qi]};
 
@@ -953,25 +956,42 @@ const EMAILJS_SERVICE  = "service_ah191vr";
 const EMAILJS_TEMPLATE = "template_xyj00pt";
 const EMAILJS_KEY      = "OSuqv26wpPl2xG8X4";
 
-(function(){
-  if(typeof emailjs !== "undefined") emailjs.init({publicKey: EMAILJS_KEY});
-})();
+// Init after DOM + SDK ready
+function initEmailJS(){
+  if(typeof emailjs !== "undefined"){
+    emailjs.init({ publicKey: EMAILJS_KEY });
+    console.log("[EmailJS] Inicializado correctamente");
+  } else {
+    console.warn("[EmailJS] SDK no disponible aún, reintentando...");
+    setTimeout(initEmailJS, 500);
+  }
+}
+document.addEventListener("DOMContentLoaded", initEmailJS);
 
 function sendStudentEmail(data){
-  if(typeof emailjs === "undefined") return;
+  if(typeof emailjs === "undefined"){
+    console.warn("[EmailJS] SDK no cargado, omitiendo envío de correo.");
+    return;
+  }
   const detail = data.detail.map((d,i)=>
     `${i+1}. ${d.title}: ${d.answered ? "Respondida" : "Sin responder"} | Evidencia: ${d.uploaded ? "Sí" : "No"}`
   ).join("\n");
 
-  emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-    to_name:    data.student.name,
-    to_email:   data.student.email,
-    version:    data.version,
-    timestamp:  new Date().toLocaleString("es-SV"),
-    answered:   data.answered + " de " + data.total,
-    uploads:    data.uploads_submitted + " de " + data.total,
-    detail:     detail
-  }).catch(()=>{}); // silencioso si falla
+  const params = {
+    to_name:   data.student.name,
+    to_email:  data.student.email,
+    version:   data.version,
+    timestamp: new Date().toLocaleString("es-SV"),
+    answered:  data.answered + " de " + data.total,
+    uploads:   (data.uploads_submitted || 0) + " de " + data.total,
+    detail:    detail
+  };
+
+  console.log("[EmailJS] Enviando correo a:", data.student.email, params);
+
+  emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, params)
+    .then(() => console.log("[EmailJS] Correo enviado exitosamente"))
+    .catch(err => console.error("[EmailJS] Error al enviar:", err));
 }
 
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwxX1gspnt7g2rWHuFP7Mkh5ToHa4l8XH62JaUIHmn_zE6ca5VI3OoyT_ETsJSbEsE/exec";
@@ -994,7 +1014,7 @@ function submitExam(){
     answered:         answered,
     internal_score:   correct,
     uploads_submitted: Object.keys(uploads).length,
-    detail: QUESTIONS.map((q, i) => ({
+    detail: shuffledQuestions.map((q, i) => ({
       id:       q.id,
       title:    q.title,
       answered: !!answers[i],
