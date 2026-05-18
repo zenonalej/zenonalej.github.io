@@ -222,7 +222,7 @@ table.dt{border-collapse:collapse;font-size:.81rem;}
 .qtext{font-size:.92rem;font-weight:600;color:var(--text);line-height:1.7;margin-bottom:14px;}
 
 /* MCQ */
-.mcq{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px;}
+.mcq{display:grid;grid-template-columns:1fr;gap:8px;}
 .mopt{
   background:var(--surface2);border:2px solid var(--border2);border-radius:var(--r2);
   padding:12px 14px;font-family:'Montserrat',sans-serif;font-size:.84rem;font-weight:600;
@@ -312,7 +312,7 @@ table.dt{border-collapse:collapse;font-size:.81rem;}
   .b-title{font-size:1.25rem;}
   .ch,.scenario,.tbl-wrap,.qbody,.qup,.qact,.qfb{padding-left:14px;padding-right:14px;}
   .qnum{font-size:1.5rem;}
-  .mcq{grid-template-columns:1fr;}
+  /* mcq always 1col */
   .hdr-counter{display:none;}
 }
 </style>
@@ -321,6 +321,7 @@ table.dt{border-collapse:collapse;font-size:.81rem;}
 
 <!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <!-- ─── LOGIN ─── -->
 <div id="login-screen">
@@ -459,7 +460,7 @@ opts:[
   "SUMA(A2+B2)",
   "=(A2:B2)"
 ], cor:1,
-upload_task:`Crea esta tabla en Excel. Escribe la fórmula en C2 y toma captura mostrando el resultado 30 y la fórmula en la barra de fórmulas.`},
+upload_task:`En Excel escribe los valores de la tabla, aplica la fórmula correspondiente en C2 y sube una captura de tu hoja mostrando la celda con resultado y la barra de fórmulas.`},
 
 {id:"M04", title:"Función SUMA con rango", dif:"Fácil", topic:"Básico",
 exref: null,
@@ -472,7 +473,7 @@ opts:[
   "=SUMA(B2:B6)",
   "Las opciones B y C son correctas"
 ], cor:3,
-upload_task:`Crea esta tabla en Excel. Usa =SUMA(B2:B6) en B7. Toma captura mostrando el total 393.`},
+upload_task:`Crea la tabla de notas en Excel. Calcula el total en B7 con la función que corresponda y sube captura de tu hoja con el resultado visible.`},
 
 {id:"M05", title:"Función PROMEDIO", dif:"Fácil", topic:"Básico",
 exref: null,
@@ -485,7 +486,7 @@ opts:[
   "=AVG(B2:B6)",
   "=SUMA(B2:B6)/4"
 ], cor:1,
-upload_task:`Con la misma tabla anterior, calcula el promedio en B7. Toma captura mostrando el resultado 78.6. ¿Aprueba el estudiante?`},
+upload_task:`Usando la tabla de notas, calcula el promedio en una celda aparte. Sube captura mostrando el resultado y concluye si el estudiante aprueba.`},
 
 {id:"M06", title:"MAX y MIN", dif:"Fácil", topic:"Básico",
 exref: null,
@@ -497,7 +498,7 @@ opts:[
   "=MAXIMO(B2:B31) y =MINIMO(B2:B31)",
   "=CIMA(B2:B31) y =BASE(B2:B31)"
 ], cor:1,
-upload_task:`Crea una lista de 10 notas ficticias en la columna B. Calcula MAX y MIN en celdas separadas. Toma captura mostrando los resultados.`},
+upload_task:`Crea una lista de al menos 10 notas en Excel. Calcula el valor máximo y mínimo en celdas aparte. Sube captura mostrando tu hoja.`},
 
 {id:"M07", title:"Formato de celdas — Número", dif:"Fácil", topic:"Básico",
 exref: null,
@@ -509,7 +510,7 @@ opts:[
   "Excel redondea el número automáticamente",
   "El valor se convierte en texto y ya no se puede calcular"
 ], cor:1,
-upload_task:`Escribe 1500 en una celda. Aplica formato Moneda (Ctrl+Shift+$). Toma captura mostrando que la barra de fórmulas muestra 1500 (valor real sin cambios) pero la celda muestra $1,500.00.`},
+upload_task:`Escribe el número 1500 en una celda y aplica un formato de moneda. Sube captura mostrando cómo se ve la celda y qué aparece en la barra de fórmulas.`},
 
 {id:"M08", title:"Referencias absolutas con $", dif:"Media", topic:"Básico",
 exref: null,
@@ -522,7 +523,7 @@ opts:[
   "=$A3*B$1",
   "=A3*$B1"
 ], cor:1,
-upload_task:`Crea la tabla. Escribe la fórmula correcta en B3 y arrástrala. Toma captura mostrando que los tres ISR son correctos: $51.00, $72.00 y $39.00.`},
+upload_task:`Crea la tabla con el porcentaje y los tres salarios. Escribe en B3 la fórmula para calcular el ISR y arrástrala hacia abajo. Sube captura con los tres resultados.`},
 
 {id:"M09", title:"Función SI — aprobado/reprobado", dif:"Media", topic:"Básico",
 exref: null,
@@ -535,7 +536,7 @@ opts:[
   "=SI(B2=60;\"Aprobado\";\"Reprobado\")",
   "=APROBADO(B2;60)"
 ], cor:1,
-upload_task:`Crea la tabla. Escribe la fórmula en C2 y cópiala hasta C4. Toma captura mostrando: Aprobado (85), Reprobado (55), Aprobado (60). Nota: el 60 DEBE aprobar.`},
+upload_task:`Crea la tabla con los tres estudiantes y sus notas. Escribe en C2 la función SI para clasificar y cópiala hacia abajo. Sube captura mostrando el estado de cada estudiante.`},
 
 {id:"M10", title:"CONTAR.SI en nómina docente", dif:"Media", topic:"Básico",
 exref: null,
@@ -548,7 +549,7 @@ opts:[
   "=SUMA.SI(A2:A6;\"Matemáticas\")",
   "=CONTARA(A2:A6;\"Matemáticas\")"
 ], cor:1,
-upload_task:`Crea esta tabla de docentes. Usa CONTAR.SI para contar cuántos son de Matemáticas. Toma captura mostrando el resultado (debe ser 3).`},
+upload_task:`Crea la tabla de docentes con sus especialidades. En una celda aparte, usa la función adecuada para contar cuántos son de Matemáticas. Sube captura con el resultado.`},
 
 {id:"M11", title:"SUMAR.SI — fondos por fuente", dif:"Media", topic:"Básico",
 exref: null,
@@ -561,7 +562,7 @@ opts:[
   "=SUMA(A2:A6;\"MINED\";B2:B6)",
   "=CONTAR.SI(A2:A6;\"MINED\")*PROMEDIO(B2:B6)"
 ], cor:1,
-upload_task:`Crea esta tabla. Usa SUMAR.SI para calcular el total del MINED. Toma captura mostrando el resultado ($10,400: 3500+2800+4100).`},
+upload_task:`Crea la tabla de fondos por fuente. Usa la función condicional adecuada para sumar solo los montos del MINED. Sube captura con la fórmula y el resultado.`},
 
 {id:"M12", title:"Formato Porcentaje", dif:"Fácil", topic:"Básico",
 exref: null,
@@ -573,7 +574,7 @@ opts:[
   "80%",
   "800%"
 ], cor:2,
-upload_task:`Escribe 28/35 como fórmula en una celda (=28/35). Aplica formato Porcentaje. Toma captura mostrando que aparece 80% y que la barra de fórmulas muestra el valor original.`},
+upload_task:`Escribe la división de asistentes entre total en una celda y aplica el formato de porcentaje. Sube captura mostrando cómo se visualiza la celda.`},
 
 {id:"M13", title:"Función SI anidado — tres categorías", dif:"Media", topic:"Básico",
 exref: null,
@@ -586,7 +587,7 @@ opts:[
   "=SI(A2<70;\"En riesgo\";SI(A2<90;\"Satisfactorio\")) ",
   "=ELEGIR(A2;\"Excelente\";\"Satisfactorio\";\"En riesgo\")"
 ], cor:1,
-upload_task:`Crea la tabla con los tres promedios. Aplica el SI anidado en B2 y cópialo. Toma captura mostrando: Excelente (94), Satisfactorio (75), En riesgo (58).`},
+upload_task:`Crea la tabla con los tres promedios. Escribe en B2 la función SI con múltiples condiciones para clasificar y cópiala. Sube captura mostrando la categoría de cada estudiante.`},
 
 {id:"M14", title:"Filtros automáticos", dif:"Fácil", topic:"Básico",
 exref: null,
@@ -611,7 +612,7 @@ opts:[
   "=NOMPROPIO(A2)",
   "=TEXTO(A2;\"título\")"
 ], cor:2,
-upload_task:`Crea la tabla con los tres nombres en mayúsculas. Aplica NOMPROPIO en B2 y cópiala. Toma captura mostrando los nombres correctamente formateados.`},
+upload_task:`Crea la tabla con los nombres en mayúsculas. Aplica la función de texto correspondiente en B2 para convertirlos al formato requerido. Sube captura del resultado.`},
 
 {id:"M16", title:"Fechas — calcular antigüedad", dif:"Media", topic:"Básico",
 exref: null,
@@ -624,7 +625,7 @@ opts:[
   "=DIFERENCIA(A2;HOY())",
   "=DIAS(A2;HOY())/365"
 ], cor:1,
-upload_task:`Crea la tabla. Calcula los años de servicio aproximados en B2:B4 usando la fórmula con AÑO(). Toma captura mostrando los resultados según el año actual.`},
+upload_task:`Crea la tabla con las fechas de ingreso. Calcula en B2:B4 los años de servicio de cada docente con la función de fecha apropiada. Sube captura con los resultados.`},
 
 {id:"M17", title:"Gráfico de barras — comparar secciones", dif:"Fácil", topic:"Básico",
 exref: null,
@@ -636,7 +637,7 @@ opts:[
   "Gráfico de líneas — para ver la tendencia de evolución en el tiempo",
   "Gráfico de dispersión — para analizar correlación entre dos variables"
 ], cor:1,
-upload_task:`Crea una tabla con las 6 secciones y sus promedios. Selecciona los datos e inserta un Gráfico de Columnas. Agrega título. Toma captura mostrando el gráfico completo.`},
+upload_task:`Crea la tabla con las secciones y promedios. Selecciona los datos e inserta el tipo de gráfico que mejor compare las categorías. Agrega título. Sube captura.`},
 
 {id:"M18", title:"Hoja Promociones — función SI", dif:"Media", topic:"Básico",
 exref: "Ejercicio 1.xls → Hoja: Promociones",
@@ -648,7 +649,7 @@ opts:[
   "=SI(O(C27>5;D27>180);\"Sí\";\"No\")",
   "=SI(C27>5+D27>180;\"Sí\";\"No\")"
 ], cor:1,
-upload_task:`Abre Ejercicio 1.xls, hoja Promociones. Escribe la fórmula correcta en la columna de "¿Se acepta la promoción?" para los primeros 5 empleados. Toma captura mostrando los resultados.`},
+upload_task:`Abre Ejercicio 1.xls, hoja Promociones. Escribe la función lógica en la columna de promoción para los primeros 5 empleados considerando ambas condiciones. Sube captura.`},
 
 {id:"M19", title:"Hoja Herencias — fórmulas con condición", dif:"Media", topic:"Básico",
 exref: "Ejercicio 1.xls → Hoja: Herencias",
@@ -660,7 +661,7 @@ opts:[
   "=SI(C23=\"Sí\";E23;E23/2)",
   "=PROMEDIO(E23;C23)"
 ], cor:1,
-upload_task:`Abre Ejercicio 1.xls, hoja Herencias. Escribe la fórmula SI para calcular la cantidad al cónyuge para los 7 casos. Toma captura mostrando los resultados (ej: Fallecido 1 sin cónyuge → $0; Fallecido 3 con cónyuge → 50% de la herencia).`},
+upload_task:`Abre Ejercicio 1.xls, hoja Herencias. Aplica la función condicional para calcular el monto al cónyuge según si existe o no. Sube captura con los 7 casos.`},
 
 {id:"M20", title:"CONTARA y datos no vacíos", dif:"Fácil", topic:"Básico",
 exref: null,
@@ -673,7 +674,7 @@ opts:[
   "=SUMA(B2:B6) — suma los valores del rango",
   "=CONTAR.BLANCO(B2:B6) — cuenta las vacías"
 ], cor:1,
-upload_task:`Crea una lista de asistencia de 8 estudiantes con mezcla de ✓ y celdas vacías. Usa CONTARA para contar cuántos asistieron. Toma captura mostrando el resultado.`},
+upload_task:`Crea una lista de asistencia con mezcla de marcas y celdas vacías. Usa la función adecuada para contar las celdas con contenido. Sube captura con el resultado.`},
 
 ]; // END QUESTIONS
 
@@ -947,6 +948,32 @@ function handleFile(qi,inp){
 // ══════════════════════════════════════════════════════
 // SUBMIT
 // ══════════════════════════════════════════════════════
+// ── EmailJS ──────────────────────────────────────────
+const EMAILJS_SERVICE  = "service_ah191vr";
+const EMAILJS_TEMPLATE = "template_xyj00pt";
+const EMAILJS_KEY      = "OSuqv26wpPl2xG8X4";
+
+(function(){
+  if(typeof emailjs !== "undefined") emailjs.init({publicKey: EMAILJS_KEY});
+})();
+
+function sendStudentEmail(data){
+  if(typeof emailjs === "undefined") return;
+  const detail = data.detail.map((d,i)=>
+    `${i+1}. ${d.title}: ${d.answered ? "Respondida" : "Sin responder"} | Evidencia: ${d.uploaded ? "Sí" : "No"}`
+  ).join("\n");
+
+  emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+    to_name:    data.student.name,
+    to_email:   data.student.email,
+    version:    data.version,
+    timestamp:  new Date().toLocaleString("es-SV"),
+    answered:   data.answered + " de " + data.total,
+    uploads:    data.uploads_submitted + " de " + data.total,
+    detail:     detail
+  }).catch(()=>{}); // silencioso si falla
+}
+
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwxX1gspnt7g2rWHuFP7Mkh5ToHa4l8XH62JaUIHmn_zE6ca5VI3OoyT_ETsJSbEsE/exec";
 
 function submitExam(){
