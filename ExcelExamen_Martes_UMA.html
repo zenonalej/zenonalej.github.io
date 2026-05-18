@@ -567,7 +567,7 @@ upload_task:`Crea la tabla de fondos por fuente. Usa la función condicional ade
 
 {id:"M12", title:"Formato Porcentaje", dif:"Fácil", topic:"Básico",
 exref: null,
-scenario:`El docente de Educación Física del Complejo Educativo "Thomas Jefferson" en Sonsonate registra la asistencia: de 35 estudiantes, asistieron 28 esta semana. Calcula el porcentaje como 28/35 = 0.8 en Excel. Necesita que se muestre como 80%.`,
+scenario:`El docente de Educación Física del Complejo Educativo "Thomas Jefferson" en Sonsonate registra la asistencia: de 35 estudiantes, asistieron 28 esta semana. Calcula el porcentaje como 28/35 = 0.8 en Excel. Necesita que se muestre como porcentaje.`,
 q:`Tienes el valor 0.8 en una celda. Al aplicarle formato <strong>Porcentaje</strong> en Excel, ¿qué verás en pantalla?`,
 opts:[
   "0.8%",
@@ -592,7 +592,7 @@ upload_task:`Crea la tabla con los tres promedios. Escribe en B2 la función SI 
 
 {id:"M14", title:"Filtros automáticos", dif:"Fácil", topic:"Básico",
 exref: null,
-scenario:`La secretaria del Ministerio de Educación tiene una base de 800 centros escolares de la región. Necesita ver únicamente los centros del departamento de Morazán para preparar el informe de supervisión, sin eliminar los demás registros.`,
+scenario:`La secretaria del Ministerio de Educación tiene una base de 800 centros escolares del país. Necesita ver únicamente los centros del departamento de Sonsonate para preparar el informe de supervisión, sin eliminar los demás registros.`,
 q:`Al aplicar un filtro en Excel para mostrar solo los centros de Sonsonate, ¿qué sucede con los registros de los otros departamentos?`,
 opts:[
   "Se eliminan permanentemente de la hoja",
@@ -600,13 +600,13 @@ opts:[
   "Se ocultan temporalmente; al quitar el filtro vuelven todos",
   "Excel guarda una copia en un archivo diferente"
 ], cor:2,
-upload_task:`Crea una tabla de 10 centros escolares con columna Departamento (mezcla San Salvador, Sonsonate, La Libertad). Aplica filtro para mostrar solo Morazán. Toma captura con el filtro activo y los números de fila en azul.`},
+upload_task:`Crea una tabla de 10 centros escolares con columna Departamento (mezcla San Salvador, Sonsonate, La Libertad). Aplica filtro para mostrar solo Sonsonate. Toma captura con el filtro activo y los números de fila en azul.`},
 
 {id:"M15", title:"Funciones de texto — NOMPROPIO", dif:"Media", topic:"Básico",
 exref: null,
-scenario:`La secretaria del Consejo Directivo Escolar del Centro Escolar "Juan Pablo Duarte" importó una lista de estudiantes de otro sistema donde los nombres quedaron todos en MAYÚSCULAS (ej. "ANA PATRICIA FUENTES"). El sistema del MINED requiere formato de título: "Ana Patricia Fuentes".`,
-tbl:{cols:["A","B"],rows:[["1","Nombre en sistema","Nombre MINED"],["2","ANA PATRICIA FUENTES","?"],["3","CARLOS ENRIQUE RIVAS","?"],["4","ROSA MARINA CASTRO","?"]]},
-q:`¿Qué función convierte "ANA PATRICIA FUENTES" en "Ana Patricia Fuentes" automáticamente?`,
+scenario:`La secretaria del Consejo Directivo Escolar del Centro Escolar "Juan Pablo Duarte" importó una lista de estudiantes de otro sistema donde los nombres quedaron todos en MAYÚSCULAS (ej. "ERICKA MICHELLE MIRANDA"). El sistema del MINED requiere formato de título: "Ana Patricia Fuentes".`,
+tbl:{cols:["A","B"],rows:[["1","Nombre en sistema","Nombre MINED"],["2","ERICKA MICHELLE MIRANDA","?"],["3","MATÍAS GUDIEL VÁSQUEZ","?"],["4","JENIFER ALEJANDRA GALDAMEZ","?"]]},
+q:`¿Qué función convierte "ERICKA MICHELLE MIRANDA" en "Ericka Michelle Miranda" automáticamente?`,
 opts:[
   "=MINUSC(A2)",
   "=MAYUSC(A2)",
