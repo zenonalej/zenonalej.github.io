@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="es">
 <head>
 <meta charset="UTF-8">
@@ -427,7 +428,7 @@ const QUESTIONS = [
 
 {id:"M01", title:"Interfaz de Excel", dif:"Fácil", topic:"Básico",
 exref: null,
-scenario:`La directora del Centro Escolar "España" de San Salvador te pide que entrenes al nuevo secretario en el uso de Excel. Antes de empezar, le muestras las partes de la pantalla y le explicas para qué sirve cada una.`,
+scenario:`La directora del Centro Escolar "Fray Patricio Ruiz" de Sonsonate te pide que entrenes al nuevo secretario en el uso de Excel. Antes de empezar, le muestras las partes de la pantalla y le explicas para qué sirve cada una.`,
 q:`¿Cuál de las siguientes opciones describe correctamente el <strong>Cuadro de Nombres</strong> en Excel?`,
 opts:[
   "El espacio donde se escribe y edita la fórmula o contenido de la celda activa",
@@ -439,7 +440,7 @@ upload_task:`Abre Excel y señala con una flecha o forma el Cuadro de Nombres en
 
 {id:"M02", title:"Navegación con teclado", dif:"Fácil", topic:"Básico",
 exref: null,
-scenario:`La secretaria del Instituto Nacional de Cuscatlán lleva una planilla de 400 estudiantes. Sin usar el ratón, necesita ir directamente a la celda D1 para escribir el encabezado "Promedio".`,
+scenario:`La secretaria del Instituto Nacional de Sonzacate lleva una planilla de 400 estudiantes. Sin usar el ratón, necesita ir directamente a la celda D1 para escribir el encabezado "Promedio".`,
 q:`¿Cuál es la forma más rápida de ir directamente a una celda específica (como D1) sin usar el ratón?`,
 opts:[
   "Presionar las teclas de flecha hasta llegar a D1",
@@ -451,7 +452,7 @@ upload_task:`En Excel, navega a la celda D100 usando el Cuadro de Nombres. Luego
 
 {id:"M03", title:"Primera fórmula — suma simple", dif:"Fácil", topic:"Básico",
 exref: null,
-scenario:`El docente de matemáticas del INFRAMEN registra las horas de clase presencial (18 hrs) en la celda A2 y las horas en línea (12 hrs) en B2. Necesita calcular el total de horas en C2 para el informe al MINED.`,
+scenario:`El docente de matemáticas del Instituto Nacional de Armenia registra las horas de clase presencial (18 hrs) en la celda A2 y las horas en línea (12 hrs) en B2. Necesita calcular el total de horas en C2 para el informe al MINED.`,
 tbl:{cols:["A","B","C"],rows:[["2","18","12","?"]]},
 q:`¿Cuál es la fórmula correcta para calcular el total de horas en C2?`,
 opts:[
@@ -464,7 +465,7 @@ upload_task:`En Excel escribe los valores de la tabla, aplica la fórmula corres
 
 {id:"M04", title:"Función SUMA con rango", dif:"Fácil", topic:"Básico",
 exref: null,
-scenario:`La coordinadora académica del Complejo Educativo "Dr. Darío González" necesita sumar las notas de las 5 unidades de un estudiante para calcular su nota anual. Las notas están en las celdas B2:B6.`,
+scenario:`La coordinadora académica del Complejo Educativo "Dr. Mario Calvo Marroquín" necesita sumar las notas de las 5 unidades de un estudiante para calcular su nota anual. Las notas están en las celdas B2:B6.`,
 tbl:{cols:["A","B"],rows:[["1","Unidad","Nota"],["2","1","72"],["3","2","68"],["4","3","85"],["5","4","90"],["6","5","78"],["7","TOTAL","?"]]},
 q:`¿Qué fórmula en B7 suma correctamente todas las notas del año?`,
 opts:[
@@ -477,7 +478,7 @@ upload_task:`Crea la tabla de notas en Excel. Calcula el total en B7 con la func
 
 {id:"M05", title:"Función PROMEDIO", dif:"Fácil", topic:"Básico",
 exref: null,
-scenario:`El docente de Estudios Sociales del Instituto Técnico Industrial necesita calcular el promedio de las 5 unidades para determinar si el estudiante aprueba el año lectivo (nota mínima: 70). Las notas del estudiante están en B2:B6.`,
+scenario:`El docente de Estudios Sociales del Instituto Nacional de San Julián necesita calcular el promedio de las 5 unidades para determinar si el estudiante aprueba el año lectivo (nota mínima: 70). Las notas del estudiante están en B2:B6.`,
 tbl:{cols:["A","B"],rows:[["1","Unidad","Nota"],["2","1","72"],["3","2","68"],["4","3","85"],["5","4","90"],["6","5","78"],["7","Promedio","?"]]},
 q:`¿Qué función de Excel calcula el promedio de las 5 notas?`,
 opts:[
@@ -490,7 +491,7 @@ upload_task:`Usando la tabla de notas, calcula el promedio en una celda aparte. 
 
 {id:"M06", title:"MAX y MIN", dif:"Fácil", topic:"Básico",
 exref: null,
-scenario:`La subdirectora del Centro Escolar "Cantón El Sitio" del departamento de La Paz revisa las notas finales de 30 estudiantes de tercer ciclo (rango B2:B31). Necesita identificar la nota más alta y la más baja para el informe trimestral de la zona educativa.`,
+scenario:`La subdirectora del Centro Escolar "Colonia El Progreso" de Salcoatitán revisa las notas finales de 30 estudiantes de tercer ciclo (rango B2:B31). Necesita identificar la nota más alta y la más baja para el informe trimestral de la zona educativa.`,
 q:`¿Qué par de funciones devuelve la nota más alta y la nota más baja de un rango?`,
 opts:[
   "=MAYOR(B2:B31) y =MENOR(B2:B31)",
@@ -502,7 +503,7 @@ upload_task:`Crea una lista de al menos 10 notas en Excel. Calcula el valor máx
 
 {id:"M07", title:"Formato de celdas — Número", dif:"Fácil", topic:"Básico",
 exref: null,
-scenario:`El tesorero de la directiva de padres de familia del Colegio Guadalupano introduce los montos de cuotas de los alumnos en una hoja de Excel, pero los números aparecen como 1500 sin decimales ni formato. El presidente de la directiva pide que se muestren como $1,500.00.`,
+scenario:`El tesorero de la directiva de padres de familia del Colegio Salarrué introduce los montos de cuotas de los alumnos en una hoja de Excel, pero los números aparecen como 1500 sin decimales ni formato. El presidente de la directiva pide que se muestren como $1,500.00.`,
 q:`Al aplicar formato <strong>Moneda</strong> a una celda con valor 1500, ¿qué ocurre con el valor real almacenado en la celda?`,
 opts:[
   "El valor cambia de 1500 a 1500.00 internamente",
@@ -514,7 +515,7 @@ upload_task:`Escribe el número 1500 en una celda y aplica un formato de moneda.
 
 {id:"M08", title:"Referencias absolutas con $", dif:"Media", topic:"Básico",
 exref: null,
-scenario:`La docente de Matemáticas del Instituto Nacional "Walter Thilo Deininger" en Cojutepeque calcula el impuesto de renta (6%) sobre los salarios de 10 empleados del centro educativo. El porcentaje está en la celda B1 y los salarios en A3:A12. Al arrastrar la fórmula, el porcentaje debe quedar fijo.`,
+scenario:`La docente de Matemáticas del Centro Escolar Colonia Alvarado en Acajutla calcula el impuesto de renta (6%) sobre los salarios de 10 empleados del centro educativo. El porcentaje está en la celda B1 y los salarios en A3:A12. Al arrastrar la fórmula, el porcentaje debe quedar fijo.`,
 tbl:{cols:["A","B"],rows:[["1","Porcentaje ISR","6%"],["2","Salario","ISR"],["3","$850","?"],["4","$1,200","?"],["5","$650","?"]]},
 q:`¿Qué fórmula en B3, al arrastrarla hasta B12, calcula correctamente el ISR para cada salario?`,
 opts:[
@@ -527,7 +528,7 @@ upload_task:`Crea la tabla con el porcentaje y los tres salarios. Escribe en B3 
 
 {id:"M09", title:"Función SI — aprobado/reprobado", dif:"Media", topic:"Básico",
 exref: null,
-scenario:`La docente de Ciencias Naturales del Centro Escolar "Tomás Medina" en Sonsonate necesita automatizar la columna "Estado" de su registro de notas. Según el Reglamento de Evaluación del MINED, los estudiantes aprueban con nota mínima de 60 sobre 100.`,
+scenario:`La docente de Ciencias Naturales del Centro Escolar de la Colonia Sensunapán en Sonsonate necesita automatizar la columna "Estado" de su registro de notas. Según el Reglamento de Evaluación del MINED, los estudiantes aprueban con nota mínima de 60 sobre 100.`,
 tbl:{cols:["A","B","C"],rows:[["1","Código","Nota","Estado"],["2","2024-001","85","?"],["3","2024-002","55","?"],["4","2024-003","60","?"]]},
 q:`¿Qué fórmula en C2, copiada hacia abajo, clasifica correctamente a cada estudiante según la norma del MINED?`,
 opts:[
@@ -540,7 +541,7 @@ upload_task:`Crea la tabla con los tres estudiantes y sus notas. Escribe en C2 l
 
 {id:"M10", title:"CONTAR.SI en nómina docente", dif:"Media", topic:"Básico",
 exref: null,
-scenario:`El director del Instituto Nacional Ricaurte de La Unión tiene la nómina de 40 docentes con su especialidad en la columna A. El Ministerio de Educación solicita saber cuántos docentes son de la especialidad "Matemáticas" para la planificación del año lectivo 2025.`,
+scenario:`El director del Instituto Nacional de Izalco tiene la nómina de 40 docentes con su especialidad en la columna A. El Ministerio de Educación solicita saber cuántos docentes son de la especialidad "Matemáticas" para la planificación del año lectivo 2025.`,
 tbl:{cols:["A","B"],rows:[["1","Especialidad","Grado"],["2","Matemáticas","9°"],["3","Lenguaje","7°"],["4","Matemáticas","8°"],["5","Ciencias","9°"],["6","Matemáticas","7°"]]},
 q:`¿Qué fórmula cuenta cuántos docentes tienen la especialidad "Matemáticas" en el rango A2:A6?`,
 opts:[
@@ -553,7 +554,7 @@ upload_task:`Crea la tabla de docentes con sus especialidades. En una celda apar
 
 {id:"M11", title:"SUMAR.SI — fondos por fuente", dif:"Media", topic:"Básico",
 exref: null,
-scenario:`La directora del CECE "Nueva Esperanza" en Chalatenango administra el presupuesto escolar. Los fondos provienen de diferentes fuentes: MINED, Municipalidad y Padres de Familia. Necesita saber el total de fondos aportados únicamente por el MINED durante el año.`,
+scenario:`La directora del Complejo Educativo El Sauce en Sonzacate administra el presupuesto escolar. Los fondos provienen de diferentes fuentes: MINED, Municipalidad y Padres de Familia. Necesita saber el total de fondos aportados únicamente por el MINED durante el año.`,
 tbl:{cols:["A","B"],rows:[["1","Fuente","Monto"],["2","MINED","$3,500"],["3","Municipalidad","$1,200"],["4","MINED","$2,800"],["5","Padres","$800"],["6","MINED","$4,100"]]},
 q:`¿Qué fórmula calcula el total de fondos recibidos del MINED?`,
 opts:[
@@ -566,7 +567,7 @@ upload_task:`Crea la tabla de fondos por fuente. Usa la función condicional ade
 
 {id:"M12", title:"Formato Porcentaje", dif:"Fácil", topic:"Básico",
 exref: null,
-scenario:`El docente de Educación Física del Complejo Educativo "Hacienda Los Planes" en Chalchuapa registra la asistencia: de 35 estudiantes, asistieron 28 esta semana. Calcula el porcentaje como 28/35 = 0.8 en Excel. Necesita que se muestre como 80%.`,
+scenario:`El docente de Educación Física del Complejo Educativo "Thomas Jefferson" en Sonsonate registra la asistencia: de 35 estudiantes, asistieron 28 esta semana. Calcula el porcentaje como 28/35 = 0.8 en Excel. Necesita que se muestre como 80%.`,
 q:`Tienes el valor 0.8 en una celda. Al aplicarle formato <strong>Porcentaje</strong> en Excel, ¿qué verás en pantalla?`,
 opts:[
   "0.8%",
@@ -578,7 +579,7 @@ upload_task:`Escribe la división de asistentes entre total en una celda y aplic
 
 {id:"M13", title:"Función SI anidado — tres categorías", dif:"Media", topic:"Básico",
 exref: null,
-scenario:`El docente de Orientación del Instituto Nacional "General Francisco Menéndez" (INFRAMEN) de Santa Ana clasifica a los estudiantes según su promedio: de 90-100 → "Excelente", de 70-89 → "Satisfactorio", menos de 70 → "En riesgo". Una sola función SI no alcanza para tres categorías.`,
+scenario:`El docente de Orientación del Centro Escolar "Alberto Guerra Trigueros" de Armenia clasifica a los estudiantes según su promedio: de 90-100 → "Excelente", de 70-89 → "Satisfactorio", menos de 70 → "En riesgo". Una sola función SI no alcanza para tres categorías.`,
 tbl:{cols:["A","B"],rows:[["1","Promedio","Categoría"],["2","94","?"],["3","75","?"],["4","58","?"]]},
 q:`¿Qué fórmula con SI anidado clasifica correctamente en las tres categorías?`,
 opts:[
@@ -591,19 +592,19 @@ upload_task:`Crea la tabla con los tres promedios. Escribe en B2 la función SI 
 
 {id:"M14", title:"Filtros automáticos", dif:"Fácil", topic:"Básico",
 exref: null,
-scenario:`La secretaria del Ministerio de Educación zona Oriente tiene una base de 800 centros escolares de la región. Necesita ver únicamente los centros del departamento de Morazán para preparar el informe de supervisión, sin eliminar los demás registros.`,
-q:`Al aplicar un filtro en Excel para mostrar solo los centros de Morazán, ¿qué sucede con los registros de los otros departamentos?`,
+scenario:`La secretaria del Ministerio de Educación tiene una base de 800 centros escolares de la región. Necesita ver únicamente los centros del departamento de Morazán para preparar el informe de supervisión, sin eliminar los demás registros.`,
+q:`Al aplicar un filtro en Excel para mostrar solo los centros de Sonsonate, ¿qué sucede con los registros de los otros departamentos?`,
 opts:[
   "Se eliminan permanentemente de la hoja",
   "Se mueven automáticamente a otra hoja",
   "Se ocultan temporalmente; al quitar el filtro vuelven todos",
   "Excel guarda una copia en un archivo diferente"
 ], cor:2,
-upload_task:`Crea una tabla de 10 centros escolares con columna Departamento (mezcla San Salvador, Morazán, La Libertad). Aplica filtro para mostrar solo Morazán. Toma captura con el filtro activo y los números de fila en azul.`},
+upload_task:`Crea una tabla de 10 centros escolares con columna Departamento (mezcla San Salvador, Sonsonate, La Libertad). Aplica filtro para mostrar solo Morazán. Toma captura con el filtro activo y los números de fila en azul.`},
 
 {id:"M15", title:"Funciones de texto — NOMPROPIO", dif:"Media", topic:"Básico",
 exref: null,
-scenario:`La secretaria del Consejo Directivo Escolar del CECE "1° de enero" en San Miguel importó una lista de estudiantes de otro sistema donde los nombres quedaron todos en MAYÚSCULAS (ej. "ANA PATRICIA FUENTES"). El sistema del MINED requiere formato de título: "Ana Patricia Fuentes".`,
+scenario:`La secretaria del Consejo Directivo Escolar del Centro Escolar "Juan Pablo Duarte" importó una lista de estudiantes de otro sistema donde los nombres quedaron todos en MAYÚSCULAS (ej. "ANA PATRICIA FUENTES"). El sistema del MINED requiere formato de título: "Ana Patricia Fuentes".`,
 tbl:{cols:["A","B"],rows:[["1","Nombre en sistema","Nombre MINED"],["2","ANA PATRICIA FUENTES","?"],["3","CARLOS ENRIQUE RIVAS","?"],["4","ROSA MARINA CASTRO","?"]]},
 q:`¿Qué función convierte "ANA PATRICIA FUENTES" en "Ana Patricia Fuentes" automáticamente?`,
 opts:[
@@ -616,7 +617,7 @@ upload_task:`Crea la tabla con los nombres en mayúsculas. Aplica la función de
 
 {id:"M16", title:"Fechas — calcular antigüedad", dif:"Media", topic:"Básico",
 exref: null,
-scenario:`El Director Departamental de Educación de Usulután necesita calcular los años de servicio de los docentes para el informe de escalafón magisterial. Las fechas de ingreso al sistema están en la columna A y la función HOY() da la fecha actual.`,
+scenario:`El Director Departamental de Educación de Sonsonate necesita calcular los años de servicio de los docentes para el informe de escalafón magisterial. Las fechas de ingreso al sistema están en la columna A y la función HOY() da la fecha actual.`,
 tbl:{cols:["A","B"],rows:[["1","Fecha ingreso","Años de servicio"],["2","15/03/2000","?"],["3","01/09/2010","?"],["4","10/01/2018","?"]]},
 q:`¿Qué fórmula aproxima los años de servicio de un docente con fecha de ingreso en A2?`,
 opts:[
@@ -629,7 +630,7 @@ upload_task:`Crea la tabla con las fechas de ingreso. Calcula en B2:B4 los años
 
 {id:"M17", title:"Gráfico de barras — comparar secciones", dif:"Fácil", topic:"Básico",
 exref: null,
-scenario:`El subdirector del Instituto Nacional "Capitán General Gerardo Barrios" de San Miguel quiere presentar a la Junta Directiva el promedio de notas de las seis secciones de bachillerato: A=78, B=82, C=71, D=88, E=75, F=80. Necesita un gráfico que permita comparar visualmente todas las secciones.`,
+scenario:`El subdirector del Complejo Educativo "Dolores de Brito" de Sonsonate quiere presentar a la Junta Directiva el promedio de notas de las seis secciones de bachillerato: A=78, B=82, C=71, D=88, E=75, F=80. Necesita un gráfico que permita comparar visualmente todas las secciones.`,
 q:`¿Qué tipo de gráfico es MÁS APROPIADO para comparar el promedio de varias secciones entre sí?`,
 opts:[
   "Gráfico circular (pastel) — para ver la proporción de cada sección respecto al total",
@@ -665,7 +666,7 @@ upload_task:`Abre Ejercicio 1.xls, hoja Herencias. Aplica la función condiciona
 
 {id:"M20", title:"CONTARA y datos no vacíos", dif:"Fácil", topic:"Básico",
 exref: null,
-scenario:`La maestra de Parvularia del Centro Escolar "José Martí" en Soyapango tiene una lista de asistencia de 30 párvulos. Algunos días hay celdas vacías porque el niño no asistió. Necesita saber cuántos niños asistieron en total esta semana (celdas con cualquier contenido, no las vacías).`,
+scenario:`La maestra de Parvularia del Centro Escolar "República de Haití" en Sonsonate tiene una lista de asistencia de 30 párvulos. Algunos días hay celdas vacías porque el niño no asistió. Necesita saber cuántos niños asistieron en total esta semana (celdas con cualquier contenido, no las vacías).`,
 tbl:{cols:["A","B"],rows:[["1","Nombre","Asistencia lunes"],["2","Ana García","✓"],["3","Luis Pérez",""],["4","María Ramos","✓"],["5","José Flores","✓"],["6","Carmen Torres",""]]}  ,
 q:`¿Qué función cuenta las celdas que tienen CUALQUIER contenido (no vacías) en un rango?`,
 opts:[
@@ -686,7 +687,6 @@ let answers = {};   // {idx: {value, correct, uploaded}}
 let uploads = {};   // {idx: filename}
 let currentQ = 0;
 const TOTAL = QUESTIONS.length; // 20
-let shuffledQuestions = []; // orden aleatorio por sesión
 
 // ══════════════════════════════════════════════════════
 // GOOGLE OAUTH2 — Real login via Google Identity Services
@@ -769,8 +769,6 @@ function launch(){
     av.outerHTML=`<div class="hdr-av" id="hdr-av">${ini}</div>`;
   }
   document.getElementById("hdr-name").textContent=user.name.split(" ")[0];
-  // Mezclar preguntas en cada sesión
-  shuffledQuestions = [...QUESTIONS].sort(() => Math.random() - 0.5);
   buildMap();
   buildCards();
   goTo(0);
@@ -781,14 +779,14 @@ function launch(){
 // ══════════════════════════════════════════════════════
 function buildMap(){
   const m=document.getElementById("qmap");m.innerHTML="";
-  shuffledQuestions.forEach((_,i)=>{
+  QUESTIONS.forEach((_,i)=>{
     const d=document.createElement("div");
     d.className="qd";d.textContent=i+1;d.id="qd-"+i;
     d.onclick=()=>goTo(i);m.appendChild(d);
   });
 }
 function syncMap(){
-  shuffledQuestions.forEach((_,i)=>{
+  QUESTIONS.forEach((_,i)=>{
     const d=document.getElementById("qd-"+i);
     d.className="qd"+(i===currentQ?" current":answers[i]?" done":"");
   });
@@ -799,7 +797,7 @@ function syncMap(){
 // ══════════════════════════════════════════════════════
 function buildCards(){
   const c=document.getElementById("qcont");c.innerHTML="";
-  shuffledQuestions.forEach((q,i)=>c.appendChild(makeCard(q,i)));
+  QUESTIONS.forEach((q,i)=>c.appendChild(makeCard(q,i)));
 }
 
 function makeCard(q,i){
@@ -913,7 +911,7 @@ function syncProgress(){
 // ══════════════════════════════════════════════════════
 function pick(qi,oi){
   if(answers[qi])return;
-  const q=shuffledQuestions[qi];
+  const q=QUESTIONS[qi];
   const correct=(oi===q.cor);
   answers[qi]={value:oi,correct,uploaded:!!uploads[qi]};
 
@@ -956,42 +954,25 @@ const EMAILJS_SERVICE  = "service_ah191vr";
 const EMAILJS_TEMPLATE = "template_xyj00pt";
 const EMAILJS_KEY      = "OSuqv26wpPl2xG8X4";
 
-// Init after DOM + SDK ready
-function initEmailJS(){
-  if(typeof emailjs !== "undefined"){
-    emailjs.init({ publicKey: EMAILJS_KEY });
-    console.log("[EmailJS] Inicializado correctamente");
-  } else {
-    console.warn("[EmailJS] SDK no disponible aún, reintentando...");
-    setTimeout(initEmailJS, 500);
-  }
-}
-document.addEventListener("DOMContentLoaded", initEmailJS);
+(function(){
+  if(typeof emailjs !== "undefined") emailjs.init({publicKey: EMAILJS_KEY});
+})();
 
 function sendStudentEmail(data){
-  if(typeof emailjs === "undefined"){
-    console.warn("[EmailJS] SDK no cargado, omitiendo envío de correo.");
-    return;
-  }
+  if(typeof emailjs === "undefined") return;
   const detail = data.detail.map((d,i)=>
     `${i+1}. ${d.title}: ${d.answered ? "Respondida" : "Sin responder"} | Evidencia: ${d.uploaded ? "Sí" : "No"}`
   ).join("\n");
 
-  const params = {
-    to_name:   data.student.name,
-    to_email:  data.student.email,
-    version:   data.version,
-    timestamp: new Date().toLocaleString("es-SV"),
-    answered:  data.answered + " de " + data.total,
-    uploads:   (data.uploads_submitted || 0) + " de " + data.total,
-    detail:    detail
-  };
-
-  console.log("[EmailJS] Enviando correo a:", data.student.email, params);
-
-  emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, params)
-    .then(() => console.log("[EmailJS] Correo enviado exitosamente"))
-    .catch(err => console.error("[EmailJS] Error al enviar:", err));
+  emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+    to_name:    data.student.name,
+    to_email:   data.student.email,
+    version:    data.version,
+    timestamp:  new Date().toLocaleString("es-SV"),
+    answered:   data.answered + " de " + data.total,
+    uploads:    data.uploads_submitted + " de " + data.total,
+    detail:     detail
+  }).catch(()=>{}); // silencioso si falla
 }
 
 const SHEETS_URL = "https://script.google.com/macros/s/AKfycbwxX1gspnt7g2rWHuFP7Mkh5ToHa4l8XH62JaUIHmn_zE6ca5VI3OoyT_ETsJSbEsE/exec";
@@ -1014,7 +995,7 @@ function submitExam(){
     answered:         answered,
     internal_score:   correct,
     uploads_submitted: Object.keys(uploads).length,
-    detail: shuffledQuestions.map((q, i) => ({
+    detail: QUESTIONS.map((q, i) => ({
       id:       q.id,
       title:    q.title,
       answered: !!answers[i],
