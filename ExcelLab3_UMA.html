@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Examen de Excel — Universidad Modular Abierta</title>
+<title>Laboratorio 3 — Universidad Modular Abierta</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -360,7 +360,7 @@ table.data-tbl{border-collapse:collapse;font-size:.82rem;}
         <div class="sub">Lic. Zenón Alejandro López Olmedo MDU</div>
       </div>
     </div>
-    <div class="login-title">Examen de Excel</div>
+    <div class="login-title">Laboratorio 3</div>
     <div class="login-subtitle">Nivel Básico Superior · 20 preguntas<br>Inicia sesión con tu cuenta Google para continuar.</div>
 
     <!-- Real Google Sign-In button -->
@@ -399,7 +399,7 @@ table.data-tbl{border-collapse:collapse;font-size:.82rem;}
     <div class="h-badge">U</div>
     <div class="h-inst">
       <div class="uni">Universidad Modular Abierta</div>
-      <div class="app">Examen de Excel — Básico Superior</div>
+      <div class="app">Laboratorio 3 — Básico Superior</div>
     </div>
     <div class="h-right">
       <div class="h-progress">
@@ -418,8 +418,8 @@ table.data-tbl{border-collapse:collapse;font-size:.82rem;}
 <!-- ─── INTRO BANNER ─── -->
 <div class="intro-banner" id="intro-banner" style="display:none;">
   <div class="intro-inner">
-    <div class="intro-tag">📊 Examen Oficial</div>
-    <div class="intro-title">Excel: Nivel Básico Superior</div>
+    <div class="intro-tag">📊 Ciclo 01-2026</div>
+    <div class="intro-title">Laboratorio 3</div>
     <div class="intro-desc">Responde 20 preguntas aplicadas. Cada una incluye un caso práctico que deberás resolver en Excel y subir evidencia. Lee cada escenario con cuidado antes de responder.</div>
     <div class="intro-pills">
       <div class="pill">📋 20 Preguntas</div>
@@ -487,7 +487,7 @@ scenario:`Eres el tesorero de una cooperativa. Tienes los aportes mensuales de 6
 tbl:{cols:["A"],rows:[["2","$200"],["3","$350"],["4","$150"],["5","$400"],["6","$250"],["7","$300"],["8","=TOTAL"]]},
 q:`¿Qué fórmula en A8 suma correctamente todos los aportes?`,
 type:"mcq",opts:["=SUMA(A2,A7)","=SUMA(A2:A7)","=A2+A3+A4+A5+A6+A7 (también válida pero menos eficiente)","Tanto =SUMA(A2:A7) como A2+A3+A4+A5+A6+A7 son correctas"],cor:3,
-upload_task:`Crea la tabla en Excel y usa =SUMA(A2:A7) en A8. Toma captura mostrando los valores y el resultado 1650 en A8.`,
+upload_task:`Crea la tabla en Excel y usa la función correcta en A8. Toma captura mostrando los valores y el resultado de A8.`,
 hint:"El rango A2:A7 incluye todas las celdas desde A2 hasta A7, igual a sumarlas individualmente pero más eficiente."},
 
 {id:"B05",title:"Función PROMEDIO",topic:"Básico",dif:"Fácil",
@@ -495,14 +495,14 @@ scenario:`Eres docente universitario. Tienes las notas de un estudiante en 4 mat
 tbl:{cols:["A","B"],rows:[["2","Matemáticas","7.5"],["3","Comunicación","8.0"],["4","Economía","6.5"],["5","Historia","9.0"]]},
 q:`¿Qué función de Excel calcula el promedio del rango B2:B5?`,
 type:"mcq",opts:["=MEDIA(B2:B5)","=AVG(B2:B5)","=PROMEDIO(B2:B5)","=SUMA(B2:B5)/4 (válida pero no es la función PROMEDIO)"],cor:2,
-upload_task:`Crea esta tabla en Excel. Calcula el promedio en B6 con =PROMEDIO(B2:B5). Toma captura. ¿El estudiante mantiene la beca?`,
+upload_task:`Crea esta tabla en Excel. Calcula el promedio en B6. Toma captura. ¿El estudiante mantiene la beca?`,
 hint:"En Excel en español la función se llama PROMEDIO. MEDIA y AVG no existen en esta versión."},
 
 {id:"B06",title:"Formato de celdas",topic:"Básico",dif:"Fácil",
 scenario:`Trabajas en el área de ventas de una empresa importadora. Tu hoja de ventas muestra números como 15000.5 pero tu gerente pide que se vean como $15,000.50 con símbolo de dólar y separador de miles.`,
 q:`Al aplicar formato "Moneda" a una celda con valor 15000.5, ¿cuál es el efecto sobre el valor real almacenado?`,
 type:"mcq",opts:["El valor cambia a 15000.50 (con decimales)","El valor cambia a $15,000.50 internamente","El valor real no cambia; solo cambia la forma en que se muestra","Excel redondea el número a $15,001"],cor:2,
-upload_task:`En Excel escribe 15000.5 en una celda. Aplica formato Moneda (Ctrl+Shift+$). Toma captura mostrando cómo se ve y verifica en la barra de fórmulas que el valor real sigue siendo 15000.5.`,
+upload_task:`En Excel escribe 15000.5 en una celda. Aplica formato Moneda. Toma captura mostrando cómo se ve y verifica en la barra de fórmulas el valor real.`,
 hint:"El formato cambia CÓMO SE VE el número, pero el valor almacenado siempre permanece igual."},
 
 {id:"B07",title:"Referencias absolutas",topic:"Básico",dif:"Media",
@@ -534,7 +534,7 @@ scenario:`Trabajas en el departamento de RRHH. Tienes las fechas de nacimiento d
 tbl:{cols:["A","B"],rows:[["1","Fecha nacimiento","Año"],["2","15/03/1990","?"],["3","22/07/1985","?"],["4","08/11/2000","?"]]},
 q:`¿Qué función extrae el año de una fecha almacenada en A2?`,
 type:"mcq",opts:["=FECHA(A2)","=AÑO(A2)","=HOY()-A2","=MES(A2)"],cor:1,
-upload_task:`Crea la tabla con las fechas. Usa =AÑO(A2) en B2 y cópiala hasta B4. Toma captura mostrando que extrae correctamente 1990, 1985 y 2000.`,
+upload_task:`Crea la tabla con las fechas. Usa la función correcta en B2 y cópiala hasta B4. Toma captura mostrando que extrae correctamente 1990, 1985 y 2000.`,
 hint:"AÑO() extrae el componente año de una fecha. MES() extrae el mes, DIA() extrae el día."},
 
 {id:"B11",title:"CONTAR.SI básico",topic:"Básico",dif:"Media",
@@ -542,7 +542,7 @@ scenario:`Eres jefe de ventas de una tienda. Tienes un registro de 20 ventas con
 tbl:{cols:["A","B"],rows:[["1","Vendedor","Monto"],["2","María","$500"],["3","Pedro","$300"],["4","María","$700"],["5","Juan","$400"],["6","María","$600"]]},
 q:`¿Qué fórmula cuenta cuántas veces aparece "María" en el rango A2:A6?`,
 type:"mcq",opts:["=CONTAR(A2:A6;\"María\")","=SUMA.SI(A2:A6;\"María\")","=CONTAR.SI(A2:A6;\"María\")","=CONTARA(A2:A6)"],cor:2,
-upload_task:`Crea la tabla. En una celda aparte, usa =CONTAR.SI(A2:A6;"María") para contar las ventas de María. Toma captura mostrando el resultado (debe ser 3).`,
+upload_task:`Crea la tabla. En una celda aparte, usa la función correcta para contar las ventas de María. Toma captura mostrando el resultado.`,
 hint:"CONTAR.SI necesita dos argumentos: el rango donde buscar y el criterio (texto entre comillas)."},
 
 {id:"B12",title:"SUMAR.SI básico",topic:"Básico",dif:"Media",
@@ -550,7 +550,7 @@ scenario:`Continuando con la tabla de ventas del ejercicio anterior. Ahora tu ge
 tbl:{cols:["A","B"],rows:[["1","Vendedor","Monto"],["2","María","500"],["3","Pedro","300"],["4","María","700"],["5","Juan","400"],["6","María","600"]]},
 q:`¿Qué fórmula suma solo los montos de ventas donde el vendedor es "María"?`,
 type:"mcq",opts:["=SUMAR.SI(A2:A6;\"María\")","=SUMAR.SI(A2:A6;\"María\";B2:B6)","=SUMA(A2:A6;\"María\";B2:B6)","=SUMAR(B2:B6;A2:A6;\"María\")"],cor:1,
-upload_task:`Usa la misma tabla. En otra celda calcula el total de ventas de María con SUMAR.SI. Toma captura mostrando el resultado correcto ($1,800: 500+700+600).`,
+upload_task:`Usa la misma tabla. En otra celda calcula el total de ventas de María con SUMAR.SI. Toma captura mostrando el resultado correcto.`,
 hint:"SUMAR.SI tiene 3 argumentos: rango donde buscar, criterio, y rango de valores a sumar."},
 
 {id:"B13",title:"Gráficos básicos",topic:"Básico",dif:"Fácil",
