@@ -495,7 +495,8 @@ function renderCharts(){
         color:'#2d3748'
       }},
       scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%',font:{family:'Montserrat',size:10}},grid:{color:'#f0f0f0'}},
-              x:{ticks:{font:{family:'Montserrat',size:11,weight:'600'}},grid:{display:false}}}}
+              x:{ticks:{font:{family:'Montserrat',size:11,weight:'600'}},grid:{display:false}}}},
+      plugins:[ChartDataLabels]
   });
   if(chartDist)chartDist.destroy();
   chartDist=new Chart(document.getElementById('chartDist').getContext('2d'),{
