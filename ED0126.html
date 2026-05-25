@@ -848,6 +848,15 @@ async function exportPDF(idx){
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal(null);});
 [0,1,2].forEach(loadSheet);
+
+setInterval(()=>{
+  allData.fill(null);
+  loaded.fill(false);
+  const activeIdx=[...document.querySelectorAll('.tab-btn')].findIndex(b=>b.classList.contains('active'));
+  if(activeIdx===0)[0,1,2].forEach(loadSheet);
+  else loadSheet(activeIdx-1);
+},180000);
+  
 </script>
 
 <script>
