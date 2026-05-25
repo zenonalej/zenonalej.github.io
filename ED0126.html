@@ -6,7 +6,6 @@
 <title>Dashboard Evaluación del Desempeño Docente Ciclo 01-2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -162,15 +161,6 @@ tbody td{padding:10px 16px;color:#4a5568}
         Descargar Reporte General
       </button>
     </div>
-
-    <div style="background:#1a56db;color:#fff;border-radius:12px;padding:16px 24px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
-  <div>
-    <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;opacity:.8">Avance General — Todas las Facultades</div>
-    <div style="font-size:2rem;font-weight:700;margin-top:4px" id="pct-general">—</div>
-  </div>
-  <div style="font-size:.8rem;opacity:.75">Promedio ponderado de las 3 facultades</div>
-</div>
-    
     <div class="kpi-grid">
       <div class="kpi-card orange"><div class="kpi-label">Total Materias</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub">todas las facultades</div></div>
       <div class="kpi-card" style="cursor:pointer" onclick="switchTab(1)"><div class="kpi-label">Jurídicas</div><div class="kpi-value" id="kpi-j">—</div><div class="kpi-sub">materias →</div></div>
@@ -178,9 +168,9 @@ tbody td{padding:10px 16px;color:#4a5568}
       <div class="kpi-card purple" style="cursor:pointer" onclick="switchTab(3)"><div class="kpi-label">Humanidades</div><div class="kpi-value" id="kpi-h">—</div><div class="kpi-sub">materias →</div></div>
     </div>
     <div class="b2-grid">
-      <div class="b2-card" style="background:#1a56db;cursor:pointer" onclick="switchTab(1)"><div class="b2-faculty">⚖️ Jurídicas</div><div class="b2-name" id="b2-0">Cargando...</div><div class="b2-role">Dato actualizado cada 15 minutos</div></div>
-      <div class="b2-card" style="background:#2f855a;cursor:pointer" onclick="switchTab(2)"><div class="b2-faculty">📊 Económicas</div><div class="b2-name" id="b2-1">Cargando...</div><div class="b2-role">Dato actualizado cada 15 minutos</div></div>
-      <div class="b2-card" style="background:#6b46c1;cursor:pointer" onclick="switchTab(3)"><div class="b2-faculty">🎓 Humanidades</div><div class="b2-name" id="b2-2">Cargando...</div><div class="b2-role">Dato actualizado cada 15 minutos</div></div>
+      <div class="b2-card" style="background:#1a56db;cursor:pointer" onclick="switchTab(1)"><div class="b2-faculty">⚖️ Jurídicas</div><div class="b2-name" id="b2-0">Cargando...</div><div class="b2-role">Dato actualizado cada hora</div></div>
+      <div class="b2-card" style="background:#2f855a;cursor:pointer" onclick="switchTab(2)"><div class="b2-faculty">📊 Económicas</div><div class="b2-name" id="b2-1">Cargando...</div><div class="b2-role">Dato actualizado cada hora</div></div>
+      <div class="b2-card" style="background:#6b46c1;cursor:pointer" onclick="switchTab(3)"><div class="b2-faculty">🎓 Humanidades</div><div class="b2-name" id="b2-2">Cargando...</div><div class="b2-role">Dato actualizado cada hora</div></div>
     </div>
     <div class="charts-row">
       <div class="card">
@@ -283,7 +273,7 @@ tbody td{padding:10px 16px;color:#4a5568}
       <div class="modal-stats">
         <div class="mstat"><div class="mstat-label">Total Alumnos</div><div class="mstat-val" id="m-alumnos">—</div></div>
         <div class="mstat"><div class="mstat-label">Total Hechos</div><div class="mstat-val" id="m-hechos">—</div></div>
-        <div class="mstat"><div class="mstat-label">¿Hizo AutoEv?</div><div class="mstat-val" id="m-autoev">—</div></div>
+        <div class="mstat"><div class="mstat-label">¿Falta AutoEv?</div><div class="mstat-val" id="m-autoev">—</div></div>
         <div class="mstat"><div class="mstat-label">Estado</div><div class="mstat-val" id="m-estado" style="font-size:.85rem">—</div></div>
       </div>
     </div>
@@ -350,55 +340,16 @@ function pctColor(p){
   return'#e53e3e';
 }
 
-function buildTable(headers, rows, idx) {
-  const fallback = ['Materia','Docente','Alumnos','Hechos','%','AutoEv.'];
-  const heads = headers.map((h,i) => h && h !== '—' ? h : fallback[i] || '—');
-  const sortable = [2,3,4]; // índices de Alumnos, Hechos, %
-  const center = [2,3,4,5]; // índices centrados
-
-  // Estado de ordenamiento por tabla
-  if(!window._sortState) window._sortState = {};
-  if(!window._sortState[idx]) window._sortState[idx] = {col:null, asc:true};
-
-  const col = window._sortState[idx].col;
-  const asc = window._sortState[idx].asc;
-  const sorted = col !== null ? [...rows].sort((a,b) => {
-    const va = parseFloat((a[col]||'').toString().replace('%','').replace(',','.')) || 0;
-    const vb = parseFloat((b[col]||'').toString().replace('%','').replace(',','.')) || 0;
-    return asc ? va - vb : vb - va;
-  }) : rows;
-
-  let h = '<table><thead><tr>';
-  heads.forEach((x,i) => {
-    const centro = center.includes(i) ? 'text-align:center;' : '';
-    if(sortable.includes(i)){
-      const arrow = col===i ? (asc ? ' ▲' : ' ▼') : ' ⇅';
-      h += `<th style="${centro}cursor:pointer;user-select:none" onclick="sortTable(${idx},${i})">${x}${arrow}</th>`;
-    } else {
-      h += `<th style="${centro}">${x}</th>`;
-    }
+function buildTable(headers,rows,idx){
+  let h='<table><thead><tr>';
+  headers.forEach(x=>{h+=`<th>${x||'—'}</th>`});
+  h+='</tr></thead><tbody>';
+  rows.forEach((r,ri)=>{
+    h+=`<tr onclick="openModal(${idx},${ri})">`;
+    headers.forEach((_,i)=>{h+=`<td>${r[i]??''}</td>`});
+    h+='</tr>';
   });
-  h += '</tr></thead><tbody>';
-  sorted.forEach((r, ri) => {
-    const origIdx = rows.indexOf(r);
-    h += `<tr onclick="openModal(${idx},${origIdx})">`;
-    heads.forEach((_,i) => {
-      const centro = center.includes(i) ? 'text-align:center;' : '';
-      h += `<td style="${centro}">${r[i] ?? ''}</td>`;
-    });
-    h += '</tr>';
-  });
-  return h + '</tbody></table>';
-}
-
-function sortTable(idx, col) {
-  if(!window._sortState) window._sortState = {};
-  if(!window._sortState[idx]) window._sortState[idx] = {col:null, asc:true};
-  const st = window._sortState[idx];
-  if(st.col === col) st.asc = !st.asc;
-  else { st.col = col; st.asc = false; }
-  const d = allData[idx]; if(!d) return;
-  document.getElementById(`table-${idx}`).innerHTML = buildTable(d.headers, d.body, idx);
+  return h+'</tbody></table>';
 }
 
 function onSearch(idx,q){
@@ -447,10 +398,7 @@ function clearSearch(idx){
   if(sr){sr.classList.remove('open');sr.innerHTML='';}
 }
 
-  let _activeTabBeforeModal = 0;
-  
 function openModal(idx,rowIdx){
-    _activeTabBeforeModal = [...document.querySelectorAll('.tab-btn')].findIndex(b => b.classList.contains('active'));
   const d=allData[idx];if(!d)return;
   const r=d.body[rowIdx];if(!r)return;
   const pct=parsePct(r[4]);
@@ -498,12 +446,12 @@ function renderRankings(){
     if(!d)return;
     const withPct=d.body.map((r,i)=>({name:r[0]||'—',doc:r[1]||'—',pct:parsePct(r[4]),idx:i})).filter(x=>x.pct!==null);
     const sorted=[...withPct].sort((a,b)=>b.pct-a.pct);
-    const top5=sorted.slice(0,10);
-    const bot5=[...sorted].reverse().slice(0,10);
+    const top5=sorted.slice(0,5);
+    const bot5=[...sorted].reverse().slice(0,5);
     const col=COLORS[idx];
     const renderList=(items,type)=>items.map((it,i)=>{
       const bc=type==='top'?'#38a169':'#e53e3e';
-        return`<div class="rank-item" onclick="openModal(${idx},${it.idx})">
+      return`<div class="rank-item" onclick="switchTab(${idx+1});setTimeout(()=>openModal(${idx},${it.idx}),300)">
         <div class="rank-num ${type}">${i+1}</div>
         <div class="rank-info">
           <div class="rank-name">${it.name}</div>
@@ -516,8 +464,8 @@ function renderRankings(){
     html+=`<div style="margin-bottom:22px">
       <div class="rank-section-title" style="color:${col};margin-bottom:10px">${['⚖️','📊','🎓'][idx]} ${NAMES[idx]}</div>
       <div class="rank-grid">
-        <div class="card"><div class="card-header"><h2>🏆 Top 10 más avanzados</h2></div><div class="rank-list">${renderList(top5,'top')}</div></div>
-        <div class="card"><div class="card-header"><h2>⚠️ Top 10 más demorados</h2></div><div class="rank-list">${renderList(bot5,'bot')}</div></div>
+        <div class="card"><div class="card-header"><h2>🏆 Top 5 más avanzados</h2></div><div class="rank-list">${renderList(top5,'top')}</div></div>
+        <div class="card"><div class="card-header"><h2>⚠️ Top 5 más demorados</h2></div><div class="rank-list">${renderList(bot5,'bot')}</div></div>
       </div>
     </div>`;
   });
@@ -535,16 +483,9 @@ function renderCharts(){
   chartAvance=new Chart(document.getElementById('chartAvance').getContext('2d'),{
     type:'bar',
     data:{labels:NAMES,datasets:[{label:'% Promedio',data:avgs,backgroundColor:COLORS.map(c=>c+'cc'),borderColor:COLORS,borderWidth:2,borderRadius:8}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y.toFixed(1)}%`}},
-      datalabels:{
-        anchor:'end',align:'end',
-        formatter:v=>v>0?`${v.toFixed(1)}%`:'',
-        font:{family:'Montserrat',size:11,weight:'600'},
-        color:'#2d3748'
-      }},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y.toFixed(1)}%`}}},
       scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%',font:{family:'Montserrat',size:10}},grid:{color:'#f0f0f0'}},
-              x:{ticks:{font:{family:'Montserrat',size:11,weight:'600'}},grid:{display:false}}}},
-      plugins:[ChartDataLabels]
+              x:{ticks:{font:{family:'Montserrat',size:11,weight:'600'}},grid:{display:false}}}}
   });
   if(chartDist)chartDist.destroy();
   chartDist=new Chart(document.getElementById('chartDist').getContext('2d'),{
@@ -553,9 +494,6 @@ function renderCharts(){
     options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
       plugins:{legend:{position:'bottom',labels:{font:{family:'Montserrat',size:11},padding:12}},
                tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} materias`}}}}
-    const totalVals = allData.flatMap(d => d ? d.body.map(r => parsePct(r[4])).filter(v => v !== null) : []);
-const globalAvg = totalVals.length ? (totalVals.reduce((a,b) => a+b, 0) / totalVals.length) : 0;
-document.getElementById('pct-general').textContent = `${globalAvg.toFixed(1)}%`;
   });
 }
 
@@ -708,8 +646,8 @@ async function exportPDF(idx){
       y+=10;
       const withPct=d.body.map(r=>({name:r[0]||'—',doc:r[1]||'—',pct:parsePct(r[4])})).filter(x=>x.pct!==null);
       const sorted=[...withPct].sort((a,b)=>b.pct-a.pct);
-      const top5=sorted.slice(0,10);
-      const bot5=[...sorted].reverse().slice(0,10);
+      const top5=sorted.slice(0,5);
+      const bot5=[...sorted].reverse().slice(0,5);
       const half=(usable/2)-3;
       doc.setFillColor(209,250,229);doc.roundedRect(margin,y,half,6,1,1,'F');
       doc.setTextColor(6,95,70);doc.setFontSize(8);doc.setFont('helvetica','bold');
@@ -718,7 +656,7 @@ async function exportPDF(idx){
       doc.setTextColor(127,29,29);
       doc.text('Top 5 mas demorados',margin+half+8,y+4);
       y+=8;
-      for(let i=0;i<10;i++){
+      for(let i=0;i<5;i++){
         const t=top5[i],b=bot5[i];
         if(t){
           doc.setTextColor(26,32,44);doc.setFontSize(7.5);doc.setFont('helvetica','bold');
