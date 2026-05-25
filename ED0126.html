@@ -342,19 +342,54 @@ function pctColor(p){
 }
 
 function buildTable(headers, rows, idx) {
-  // Nombres de respaldo si los encabezados vienen vacíos
   const fallback = ['Materia','Docente','Alumnos','Hechos','%','AutoEv.'];
   const heads = headers.map((h,i) => h && h !== '—' ? h : fallback[i] || '—');
-  
+  const sortable = [2,3,4]; // índices de Alumnos, Hechos, %
+  const center = [2,3,4,5]; // índices centrados
+
+  // Estado de ordenamiento por tabla
+  if(!window._sortState) window._sortState = {};
+  if(!window._sortState[idx]) window._sortState[idx] = {col:null, asc:true};
+
+  const col = window._sortState[idx].col;
+  const asc = window._sortState[idx].asc;
+  const sorted = col !== null ? [...rows].sort((a,b) => {
+    const va = parseFloat((a[col]||'').toString().replace('%','').replace(',','.')) || 0;
+    const vb = parseFloat((b[col]||'').toString().replace('%','').replace(',','.')) || 0;
+    return asc ? va - vb : vb - va;
+  }) : rows;
+
   let h = '<table><thead><tr>';
-  heads.forEach(x => { h += `<th>${x}</th>`; });
+  heads.forEach((x,i) => {
+    const centro = center.includes(i) ? 'text-align:center;' : '';
+    if(sortable.includes(i)){
+      const arrow = col===i ? (asc ? ' ▲' : ' ▼') : ' ⇅';
+      h += `<th style="${centro}cursor:pointer;user-select:none" onclick="sortTable(${idx},${i})">${x}${arrow}</th>`;
+    } else {
+      h += `<th style="${centro}">${x}</th>`;
+    }
+  });
   h += '</tr></thead><tbody>';
-  rows.forEach((r, ri) => {
-    h += `<tr onclick="openModal(${idx},${ri})">`;
-    heads.forEach((_, i) => { h += `<td>${r[i] ?? ''}</td>`; });
+  sorted.forEach((r, ri) => {
+    const origIdx = rows.indexOf(r);
+    h += `<tr onclick="openModal(${idx},${origIdx})">`;
+    heads.forEach((_,i) => {
+      const centro = center.includes(i) ? 'text-align:center;' : '';
+      h += `<td style="${centro}">${r[i] ?? ''}</td>`;
+    });
     h += '</tr>';
   });
   return h + '</tbody></table>';
+}
+
+function sortTable(idx, col) {
+  if(!window._sortState) window._sortState = {};
+  if(!window._sortState[idx]) window._sortState[idx] = {col:null, asc:true};
+  const st = window._sortState[idx];
+  if(st.col === col) st.asc = !st.asc;
+  else { st.col = col; st.asc = false; }
+  const d = allData[idx]; if(!d) return;
+  document.getElementById(`table-${idx}`).innerHTML = buildTable(d.headers, d.body, idx);
 }
 
 function onSearch(idx,q){
