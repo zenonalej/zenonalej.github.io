@@ -6,6 +6,7 @@
 <title>Dashboard Evaluación del Desempeño Docente Ciclo 01-2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -486,7 +487,13 @@ function renderCharts(){
   chartAvance=new Chart(document.getElementById('chartAvance').getContext('2d'),{
     type:'bar',
     data:{labels:NAMES,datasets:[{label:'% Promedio',data:avgs,backgroundColor:COLORS.map(c=>c+'cc'),borderColor:COLORS,borderWidth:2,borderRadius:8}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y.toFixed(1)}%`}}},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y.toFixed(1)}%`}},
+      datalabels:{
+        anchor:'end',align:'end',
+        formatter:v=>v>0?`${v.toFixed(1)}%`:'',
+        font:{family:'Montserrat',size:11,weight:'600'},
+        color:'#2d3748'
+      }},
       scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%',font:{family:'Montserrat',size:10}},grid:{color:'#f0f0f0'}},
               x:{ticks:{font:{family:'Montserrat',size:11,weight:'600'}},grid:{display:false}}}}
   });
