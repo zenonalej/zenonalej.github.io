@@ -162,6 +162,15 @@ tbody td{padding:10px 16px;color:#4a5568}
         Descargar Reporte General
       </button>
     </div>
+
+    <div style="background:#1a56db;color:#fff;border-radius:12px;padding:16px 24px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+  <div>
+    <div style="font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;opacity:.8">Avance General — Todas las Facultades</div>
+    <div style="font-size:2rem;font-weight:700;margin-top:4px" id="pct-general">—</div>
+  </div>
+  <div style="font-size:.8rem;opacity:.75">Promedio ponderado de las 3 facultades</div>
+</div>
+    
     <div class="kpi-grid">
       <div class="kpi-card orange"><div class="kpi-label">Total Materias</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub">todas las facultades</div></div>
       <div class="kpi-card" style="cursor:pointer" onclick="switchTab(1)"><div class="kpi-label">Jurídicas</div><div class="kpi-value" id="kpi-j">—</div><div class="kpi-sub">materias →</div></div>
@@ -489,8 +498,8 @@ function renderRankings(){
     if(!d)return;
     const withPct=d.body.map((r,i)=>({name:r[0]||'—',doc:r[1]||'—',pct:parsePct(r[4]),idx:i})).filter(x=>x.pct!==null);
     const sorted=[...withPct].sort((a,b)=>b.pct-a.pct);
-    const top5=sorted.slice(0,5);
-    const bot5=[...sorted].reverse().slice(0,5);
+    const top5=sorted.slice(0,10);
+    const bot5=[...sorted].reverse().slice(0,10);
     const col=COLORS[idx];
     const renderList=(items,type)=>items.map((it,i)=>{
       const bc=type==='top'?'#38a169':'#e53e3e';
@@ -507,8 +516,8 @@ function renderRankings(){
     html+=`<div style="margin-bottom:22px">
       <div class="rank-section-title" style="color:${col};margin-bottom:10px">${['⚖️','📊','🎓'][idx]} ${NAMES[idx]}</div>
       <div class="rank-grid">
-        <div class="card"><div class="card-header"><h2>🏆 Top 5 más avanzados</h2></div><div class="rank-list">${renderList(top5,'top')}</div></div>
-        <div class="card"><div class="card-header"><h2>⚠️ Top 5 más demorados</h2></div><div class="rank-list">${renderList(bot5,'bot')}</div></div>
+        <div class="card"><div class="card-header"><h2>🏆 Top 10 más avanzados</h2></div><div class="rank-list">${renderList(top5,'top')}</div></div>
+        <div class="card"><div class="card-header"><h2>⚠️ Top 10 más demorados</h2></div><div class="rank-list">${renderList(bot5,'bot')}</div></div>
       </div>
     </div>`;
   });
@@ -544,6 +553,9 @@ function renderCharts(){
     options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
       plugins:{legend:{position:'bottom',labels:{font:{family:'Montserrat',size:11},padding:12}},
                tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} materias`}}}}
+    const totalVals = allData.flatMap(d => d ? d.body.map(r => parsePct(r[4])).filter(v => v !== null) : []);
+const globalAvg = totalVals.length ? (totalVals.reduce((a,b) => a+b, 0) / totalVals.length) : 0;
+document.getElementById('pct-general').textContent = `${globalAvg.toFixed(1)}%`;
   });
 }
 
