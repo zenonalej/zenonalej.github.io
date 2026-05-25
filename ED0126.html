@@ -555,9 +555,42 @@ function renderCharts(){
                tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} materias`}}}}
       });
   // % avance general
+  // % avance general con color degradado
   const totalVals=allData.flatMap(d=>d?d.body.map(r=>parsePct(r[4])).filter(v=>v!==null):[]);
   const globalAvg=totalVals.length?(totalVals.reduce((a,b)=>a+b,0)/totalVals.length):0;
-  document.getElementById('pct-general').textContent=`${globalAvg.toFixed(1)}%`;
+  const el=document.getElementById('pct-general');
+  el.textContent=`${globalAvg.toFixed(1)}%`;
+
+  // Degradado rojo → amarillo → verde según valor
+  let bg,txt;
+  if(globalAvg<=33.33){
+    // Rojo puro → rojo-amarillo (0% a 33.33%)
+    const t=globalAvg/33.33;
+    const r=220;
+    const g=Math.round(t*180);
+    bg=`rgb(${r},${g},0)`;
+    txt='#fff';
+  }else if(globalAvg<=66.66){
+    // Amarillo → amarillo-verde (33.33% a 66.66%)
+    const t=(globalAvg-33.33)/33.33;
+    const r=Math.round(220*(1-t*0.5));
+    const g=Math.round(180+t*55);
+    bg=`rgb(${r},${g},0)`;
+    txt='#1a202c';
+  }else{
+    // Verde claro → verde fuerte (66.66% a 100%)
+    const t=(globalAvg-66.66)/33.34;
+    const r=Math.round(110*(1-t));
+    const g=Math.round(160+t*50);
+    bg=`rgb(${r},${g},${Math.round(50*(1-t))})`;
+    txt='#fff';
+  }
+  el.style.background=bg;
+  el.style.color=txt;
+  el.style.padding='6px 18px';
+  el.style.borderRadius='8px';
+  el.style.display='inline-block';
+  el.style.transition='background .6s ease, color .3s ease';
 }
 
 function updateKPIs(){
