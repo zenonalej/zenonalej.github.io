@@ -554,9 +554,10 @@ function renderCharts(){
       plugins:{legend:{position:'bottom',labels:{font:{family:'Montserrat',size:11},padding:12}},
                tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} materias`}}}}
       });
-  const totalVals = allData.flatMap(d => d ? d.body.map(r => parsePct(r[4])).filter(v => v !== null) : []);
-const globalAvg = totalVals.length ? (totalVals.reduce((a,b) => a+b, 0) / totalVals.length) : 0;
-document.getElementById('pct-general').textContent = `${globalAvg.toFixed(1)}%`;
+  // % avance general
+  const totalVals=allData.flatMap(d=>d?d.body.map(r=>parsePct(r[4])).filter(v=>v!==null):[]);
+  const globalAvg=totalVals.length?(totalVals.reduce((a,b)=>a+b,0)/totalVals.length):0;
+  document.getElementById('pct-general').textContent=`${globalAvg.toFixed(1)}%`;
 }
 
 function updateKPIs(){
