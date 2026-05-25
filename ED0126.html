@@ -341,16 +341,20 @@ function pctColor(p){
   return'#e53e3e';
 }
 
-function buildTable(headers,rows,idx){
-  let h='<table><thead><tr>';
-  headers.forEach(x=>{h+=`<th>${x||'—'}</th>`});
-  h+='</tr></thead><tbody>';
-  rows.forEach((r,ri)=>{
-    h+=`<tr onclick="openModal(${idx},${ri})">`;
-    headers.forEach((_,i)=>{h+=`<td>${r[i]??''}</td>`});
-    h+='</tr>';
+function buildTable(headers, rows, idx) {
+  // Nombres de respaldo si los encabezados vienen vacíos
+  const fallback = ['Materia','Docente','Alumnos','Hechos','%','AutoEv.'];
+  const heads = headers.map((h,i) => h && h !== '—' ? h : fallback[i] || '—');
+  
+  let h = '<table><thead><tr>';
+  heads.forEach(x => { h += `<th>${x}</th>`; });
+  h += '</tr></thead><tbody>';
+  rows.forEach((r, ri) => {
+    h += `<tr onclick="openModal(${idx},${ri})">`;
+    heads.forEach((_, i) => { h += `<td>${r[i] ?? ''}</td>`; });
+    h += '</tr>';
   });
-  return h+'</tbody></table>';
+  return h + '</tbody></table>';
 }
 
 function onSearch(idx,q){
