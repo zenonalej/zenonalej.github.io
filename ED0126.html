@@ -696,8 +696,8 @@ async function exportPDF(idx){
       y+=10;
       const withPct=d.body.map(r=>({name:r[0]||'—',doc:r[1]||'—',pct:parsePct(r[4])})).filter(x=>x.pct!==null);
       const sorted=[...withPct].sort((a,b)=>b.pct-a.pct);
-      const top5=sorted.slice(0,5);
-      const bot5=[...sorted].reverse().slice(0,5);
+      const top5=sorted.slice(0,10);
+      const bot5=[...sorted].reverse().slice(0,10);
       const half=(usable/2)-3;
       doc.setFillColor(209,250,229);doc.roundedRect(margin,y,half,6,1,1,'F');
       doc.setTextColor(6,95,70);doc.setFontSize(8);doc.setFont('helvetica','bold');
@@ -706,7 +706,7 @@ async function exportPDF(idx){
       doc.setTextColor(127,29,29);
       doc.text('Top 5 mas demorados',margin+half+8,y+4);
       y+=8;
-      for(let i=0;i<5;i++){
+      for(let i=0;i<10;i++){
         const t=top5[i],b=bot5[i];
         if(t){
           doc.setTextColor(26,32,44);doc.setFontSize(7.5);doc.setFont('helvetica','bold');
