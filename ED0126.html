@@ -757,10 +757,10 @@ async function exportPDF(idx){
       const half=(usable/2)-3;
       doc.setFillColor(209,250,229);doc.roundedRect(margin,y,half,6,1,1,'F');
       doc.setTextColor(6,95,70);doc.setFontSize(8);doc.setFont('helvetica','bold');
-      doc.text('Top 5 mas avanzados',margin+2,y+4);
+      doc.text('Top 10 mas avanzados',margin+2,y+4);
       doc.setFillColor(254,226,226);doc.roundedRect(margin+half+6,y,half,6,1,1,'F');
       doc.setTextColor(127,29,29);
-      doc.text('Top 5 mas demorados',margin+half+8,y+4);
+      doc.text('Top 10 mas demorados',margin+half+8,y+4);
       y+=8;
       for(let i=0;i<10;i++){
         const t=top5[i],b=bot5[i];
