@@ -697,6 +697,8 @@ async function exportPDF(idx){
     // KPIs generales
     doc.setTextColor(26,86,219);doc.setFontSize(10);doc.setFont('helvetica','bold');
     doc.text('RESUMEN GENERAL',margin,y);y+=6;
+    const totalValsP=allData.flatMap(d=>d?d.body.map(r=>parsePct(r[4])).filter(v=>v!==null):[]);
+    const globalAvgP=totalValsP.length?(totalValsP.reduce((a,b)=>a+b,0)/totalValsP.length):0;
     const kpis=[
       ['Total Materias',allData.map(d=>d?d.body.length:0).reduce((a,b)=>a+b,0)],
       ['Jurídicas',allData[0]?allData[0].body.length:'—'],
@@ -714,6 +716,14 @@ async function exportPDF(idx){
     });
     y+=22;
 
+    // AVANCE GENERAL destacado
+    doc.setFillColor(26,86,219);
+    doc.roundedRect(margin,y,usable,18,3,3,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont('helvetica','normal');
+    doc.text('AVANCE GENERAL — TODAS LAS FACULTADES',pw/2,y+6,{align:'center'});
+    doc.setFontSize(16);doc.setFont('helvetica','bold');
+    doc.text(`${globalAvgP.toFixed(1)}%`,pw/2,y+14,{align:'center'});
+    y+=24;
     // Barras promedio
     doc.setTextColor(26,86,219);doc.setFontSize(10);doc.setFont('helvetica','bold');
     doc.text('PROMEDIO DE AVANCE POR FACULTAD',margin,y);y+=6;
