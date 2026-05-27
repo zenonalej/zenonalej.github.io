@@ -469,7 +469,8 @@ function openModal(idx,rowIdx){
   else if(pct>=75){estado='🔋 Casi completo';estadoColor='#2f855a';}
   else if(pct>=60){estado='🌓 Al día';estadoColor='#dd6b20';}
   else if(pct>=40){estado='⚠️ En progreso';estadoColor='#dd6b20';}
-  else{estado='🔴 Demorado';estadoColor='#e53e3e';}
+  else if(pct >= 1){estado='🔴 Demorado';estadoColor='#e55353';}
+  else{estado='❌ No iniciado';estadoColor='#e53e3e';}
   const el=document.getElementById('m-estado');
   el.textContent=estado;el.style.color=estadoColor;
   setTimeout(()=>{
