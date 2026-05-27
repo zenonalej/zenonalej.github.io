@@ -465,7 +465,7 @@ function openModal(idx,rowIdx){
   document.getElementById('m-autoev').textContent=r[5]||'—';
   let estado='',estadoColor='';
   if(pct===null){estado='Sin dato';estadoColor='#a0aec0';}
-  else if(pct=100){estado='✅ Completado';estadoColor='#38a169';}
+  else if(pct===100){estado='✅ Completado';estadoColor='#38a169';}
   else if(pct>=75){estado='🔋 Casi completo';estadoColor='#2f855a';}
   else if(pct>=60){estado='🌓 Al día';estadoColor='#dd6b20';}
   else if(pct>=40){estado='⚠️ En progreso';estadoColor='#dd6b20';}
