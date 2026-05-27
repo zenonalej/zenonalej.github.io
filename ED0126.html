@@ -453,19 +453,14 @@ function clearSearch(idx){
   let _activeTabBeforeModal = 0;
   
 function openModal(idx,rowIdx){
-    _activeTabBeforeModal = [...document.querySelectorAll('.tab-btn')].findIndex(b => b.classList.contains('active'));
+  _activeTabBeforeModal=[...document.querySelectorAll('.tab-btn')].findIndex(b=>b.classList.contains('active'));
   const d=allData[idx];if(!d)return;
   const r=d.body[rowIdx];if(!r)return;
   const pct=parsePct(r[4]);
   const pctVal=pct!==null?pct:0;
   const col=pctColor(pct);
-  document.getElementById('m-title').textContent=r[0]||'—';
-  document.getElementById('m-sub').textContent=`Docente: ${r[1]||'—'} · ${NAMES[idx]}`;
-  document.getElementById('m-pct').textContent=pct!==null?`${pctVal.toFixed(1)}%`:'Sin dato';
-  document.getElementById('m-pct').style.color=estadoColor;
-  document.getElementById('m-alumnos').textContent=r[2]||'—';
-  document.getElementById('m-hechos').textContent=r[3]||'—';
-  document.getElementById('m-autoev').textContent=r[5]||'—';
+
+  // Estado PRIMERO para que estadoColor esté disponible
   let estado='',estadoColor='';
   if(pct===null)     {estado='Sin dato';        estadoColor='#a0aec0';}
   else if(pct===100) {estado='✅ Completado';    estadoColor='#38a169';}
@@ -474,20 +469,28 @@ function openModal(idx,rowIdx){
   else if(pct>=40)   {estado='⚠️ En progreso';   estadoColor='#dd6b20';}
   else if(pct>=1)    {estado='🔴 Demorado';      estadoColor='#e55353';}
   else               {estado='❌ No iniciado';   estadoColor='#c53030';}
+
+  document.getElementById('m-title').textContent=r[0]||'—';
+  document.getElementById('m-sub').textContent=`Docente: ${r[1]||'—'} · ${NAMES[idx]}`;
+  document.getElementById('m-pct').textContent=pct!==null?`${pctVal.toFixed(1)}%`:'Sin dato';
+  document.getElementById('m-pct').style.color=estadoColor;
+  document.getElementById('m-alumnos').textContent=r[2]||'—';
+  document.getElementById('m-hechos').textContent=r[3]||'—';
+  document.getElementById('m-autoev').textContent=r[5]||'—';
   const el=document.getElementById('m-estado');
-  el.textContent=estado;
-  el.style.color=estadoColor;
-  el.style.fontWeight='700';
+  el.textContent=estado;el.style.color=estadoColor;el.style.fontWeight='700';
+
   setTimeout(()=>{
     const bar=document.getElementById('m-bar');
     bar.style.width=`${Math.min(pctVal,100)}%`;
-    bar.style.background=col;
+    bar.style.background=estadoColor;
   },50);
+
   if(gaugeChartInst){gaugeChartInst.destroy();gaugeChartInst=null;}
   const ctx=document.getElementById('gaugeChart').getContext('2d');
   gaugeChartInst=new Chart(ctx,{
     type:'doughnut',
-    data:{datasets:[{data:[Math.min(pctVal,100),100-Math.min(pctVal,100)],backgroundColor:[col,'#e2e8f0'],borderWidth:0,circumference:180,rotation:270}]},
+    data:{datasets:[{data:[Math.min(pctVal,100),100-Math.min(pctVal,100)],backgroundColor:[estadoColor,'#e2e8f0'],borderWidth:0,circumference:180,rotation:270}]},
     options:{responsive:false,cutout:'72%',plugins:{legend:{display:false},tooltip:{enabled:false}},animation:{duration:700}}
   });
   document.getElementById('modal').classList.add('open');
