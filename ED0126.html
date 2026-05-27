@@ -347,10 +347,10 @@ function pctColor(p){
   if(p===null)return'#a0aec0';
   if(p===100)return'#38a169';
   if(p>=75)return'#2f855a';
-  if(p>=60)return'#dd6b20';
+  if(p>=60)return'#e8a020';
   if(p>=40)return'#dd6b20';
   if(p>=1)return'#e55353';
-  return'#e53e3e';
+  return'#c53030';
 }
 
 function buildTable(headers, rows, idx) {
@@ -467,13 +467,13 @@ function openModal(idx,rowIdx){
   document.getElementById('m-hechos').textContent=r[3]||'—';
   document.getElementById('m-autoev').textContent=r[5]||'—';
   let estado='',estadoColor='';
-  if(pct===null){estado='Sin dato';estadoColor='#a0aec0';}
-  else if(pct===100){estado='✅ Completado';estadoColor='#38a169';}
-  else if(pct>=75){estado='🔋 Casi completo';estadoColor='#2f855a';}
-  else if(pct>=60){estado='☀️ Al día';estadoColor='#dd6b20';}
-  else if(pct>=40){estado='⚠️ En progreso';estadoColor='#dd6b20';}
-  else if(pct >= 1){estado='🔴 Demorado';estadoColor='#e55353';}
-  else{estado='❌ No iniciado';estadoColor='#e53e3e';}
+  if(pct===null)     {estado='Sin dato';        estadoColor='#a0aec0';}
+  else if(pct===100) {estado='✅ Completado';    estadoColor='#38a169';}
+  else if(pct>=75)   {estado='🔋 Casi completo'; estadoColor='#2f855a';}
+  else if(pct>=60)   {estado='☀️ Al día';        estadoColor='#e8a020';}
+  else if(pct>=40)   {estado='⚠️ En progreso';   estadoColor='#dd6b20';}
+  else if(pct>=1)    {estado='🔴 Demorado';      estadoColor='#e55353';}
+  else               {estado='❌ No iniciado';   estadoColor='#c53030';}
   const el=document.getElementById('m-estado');
   el.textContent=estado;el.style.color=estadoColor;
   setTimeout(()=>{
