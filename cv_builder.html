@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Constructor CV ATS</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:var(--font-sans,system-ui);background:var(--color-background-tertiary,#f5f5f3);color:var(--color-text-primary,#1a1a1a);font-size:15px}
+  h2{font-size:18px;font-weight:500;margin-bottom:1rem;color:var(--color-text-primary)}
+  h3{font-size:15px;font-weight:500;margin-bottom:.5rem}
+  label{font-size:13px;color:var(--color-text-secondary,#666);display:block;margin-bottom:4px}
+  input,textarea,select{width:100%;padding:8px 10px;border:0.5px solid var(--color-border-secondary,#ccc);border-radius:8px;font-size:14px;background:var(--color-background-primary,#fff);color:var(--color-text-primary);font-family:inherit;resize:vertical}
+  input:focus,textarea:focus{outline:none;border-color:#7F77DD;box-shadow:0 0 0 2px rgba(127,119,221,.2)}
+  button{padding:8px 16px;border:0.5px solid var(--color-border-secondary,#ccc);border-radius:8px;background:var(--color-background-primary,#fff);color:var(--color-text-primary);font-size:14px;cursor:pointer;font-family:inherit;transition:background .15s}
+  button:hover{background:var(--color-background-secondary,#f0f0ee)}
+  button.primary{background:#534AB7;color:#fff;border-color:#534AB7}
+  button.primary:hover{background:#3C3489}
+  button.success{background:#1D9E75;color:#fff;border-color:#1D9E75}
+  button.success:hover{background:#0F6E56}
+  button.danger{background:#D85A30;color:#fff;border-color:#D85A30}
+  button.danger:hover{background:#993C1D}
+  .tab-bar{display:flex;gap:4px;border-bottom:1px solid var(--color-border-tertiary,#e0e0e0);margin-bottom:1.5rem;flex-wrap:wrap}
+  .tab{padding:8px 14px;cursor:pointer;border-radius:8px 8px 0 0;font-size:13px;border:none;background:transparent;color:var(--color-text-secondary);transition:all .15s}
+  .tab.active{background:var(--color-background-primary,#fff);color:#534AB7;font-weight:500;border-bottom:2px solid #534AB7}
+  .tab:hover:not(.active){background:var(--color-background-secondary)}
+  .panel{display:none}.panel.active{display:block}
+  .card{background:var(--color-background-primary,#fff);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:1.25rem;margin-bottom:1rem}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .row.three{grid-template-columns:1fr 1fr 1fr}
+  .field{margin-bottom:12px}
+  .entry{background:var(--color-background-secondary,#f8f8f6);border:0.5px solid var(--color-border-tertiary);border-radius:8px;padding:1rem;margin-bottom:.75rem;position:relative}
+  .entry-title{font-weight:500;font-size:14px;margin-bottom:.5rem}
+  .remove-btn{position:absolute;top:.75rem;right:.75rem;padding:2px 8px;font-size:12px}
+  .photo-area{display:flex;align-items:center;gap:1rem;padding:1rem;background:var(--color-background-secondary);border-radius:8px;border:0.5px dashed var(--color-border-secondary);cursor:pointer;transition:border-color .15s}
+  .photo-area:hover{border-color:#534AB7}
+  .photo-preview{width:80px;height:80px;border-radius:8px;object-fit:cover;border:0.5px solid var(--color-border-secondary)}
+  .photo-placeholder{width:80px;height:80px;border-radius:8px;background:var(--color-background-tertiary);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;color:var(--color-text-tertiary);font-size:11px}
+  .photo-placeholder i{font-size:28px}
+  .photo-note{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+  .export-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:1rem}
+  #preview-content{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:2rem;font-family:'Courier New',monospace;font-size:13px;white-space:pre-wrap;line-height:1.7;max-height:500px;overflow-y:auto}
+  .import-area{border:0.5px dashed var(--color-border-secondary);border-radius:8px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .15s;margin-bottom:1rem}
+  .import-area:hover{border-color:#534AB7;background:var(--color-background-secondary)}
+  .chip{display:inline-block;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:20px;padding:3px 10px;font-size:12px;margin:2px;cursor:pointer}
+  .chip:hover{border-color:#D85A30;color:#D85A30}
+  .skills-input-row{display:flex;gap:8px}
+  .skills-input-row input{flex:1}
+  .tips{background:#EEEDFE;border-left:3px solid #534AB7;border-radius:0 8px 8px 0;padding:.75rem 1rem;font-size:13px;color:#3C3489;margin-bottom:1rem;line-height:1.6}
+  @media(max-width:560px){.row,.row.three{grid-template-columns:1fr}}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+</head>
+<body>
+<div style="max-width:760px;margin:0 auto;padding:1.5rem 1rem 3rem">
+  <h2 style="margin-bottom:.25rem"><i class="ti ti-file-text" aria-hidden="true"></i> Constructor de CV – ATS Optimizado</h2>
+  <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:1.5rem">Completa cada sección, genera tu CV en Markdown o PDF, o importa uno existente.</p>
+
+  <div class="tab-bar">
+    <button class="tab active" onclick="showTab('personal')"><i class="ti ti-user" aria-hidden="true"></i> Personal</button>
+    <button class="tab" onclick="showTab('experiencia')"><i class="ti ti-briefcase" aria-hidden="true"></i> Experiencia</button>
+    <button class="tab" onclick="showTab('educacion')"><i class="ti ti-school" aria-hidden="true"></i> Educación</button>
+    <button class="tab" onclick="showTab('habilidades')"><i class="ti ti-tools" aria-hidden="true"></i> Habilidades</button>
+    <button class="tab" onclick="showTab('extras')"><i class="ti ti-star" aria-hidden="true"></i> Extras</button>
+    <button class="tab" onclick="showTab('exportar')"><i class="ti ti-download" aria-hidden="true"></i> Exportar / Importar</button>
+  </div>
+
+  <!-- PERSONAL -->
+  <div id="tab-personal" class="panel active">
+    <div class="card">
+      <h3>Foto de perfil <span style="font-size:11px;color:#1D9E75;font-weight:400">(Recomendada en El Salvador)</span></h3>
+      <div class="photo-area" onclick="document.getElementById('photoInput').click()">
+        <div id="photoPlaceholder" class="photo-placeholder">
+          <i class="ti ti-user-circle" aria-hidden="true"></i>
+          <span>Agregar foto</span>
+        </div>
+        <img id="photoPreview" class="photo-preview" style="display:none">
+        <div class="photo-note">
+          <strong style="font-size:13px;display:block;margin-bottom:4px">Foto recomendada para el mercado laboral salvadoreño</strong>
+          Usa una foto profesional, fondo neutro, ropa formal.<br>
+          Formato JPG/PNG, máx. 2MB.<br>
+          <span style="color:var(--color-text-tertiary)">Haz clic para seleccionar</span>
+        </div>
+      </div>
+      <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="loadPhoto(this)">
+    </div>
+    <div class="card">
+      <h3>Datos de contacto</h3>
+      <div class="row">
+        <div class="field"><label>Nombre completo *</label><input id="nombre" placeholder="Ej. Ana María García López"></div>
+        <div class="field"><label>Cargo / Título profesional</label><input id="titulo" placeholder="Ej. Administradora de Empresas"></div>
+      </div>
+      <div class="row three">
+        <div class="field"><label>Teléfono</label><input id="tel" placeholder="+503 7XXX-XXXX"></div>
+        <div class="field"><label>Correo electrónico</label><input id="correo" placeholder="correo@email.com"></div>
+        <div class="field"><label>Ciudad</label><input id="ciudad" placeholder="San Salvador, SV"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>LinkedIn (opcional)</label><input id="linkedin" placeholder="linkedin.com/in/tuperfil"></div>
+        <div class="field"><label>Portafolio / Web (opcional)</label><input id="web" placeholder="misitio.com"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Resumen profesional</h3>
+      <div class="tips">Escribe 2-4 oraciones destacando tu experiencia, especialidades y mayor logro. Incluye palabras clave del puesto al que aplicas.</div>
+      <textarea id="resumen" rows="4" placeholder="Ej. Profesional con 5 años de experiencia en administración financiera. Especializado en análisis de costos, control presupuestario y elaboración de informes para toma de decisiones. Historial comprobado de reducción de costos operativos en 15%."></textarea>
+    </div>
+  </div>
+
+  <!-- EXPERIENCIA -->
+  <div id="tab-experiencia" class="panel">
+    <div class="tips">Usa verbos de acción + tarea + resultado con número. Ej: "Reduje el tiempo de entrega en 30% al implementar nuevo sistema de seguimiento."</div>
+    <div id="exp-list"></div>
+    <button onclick="addExp()"><i class="ti ti-plus" aria-hidden="true"></i> Agregar experiencia</button>
+  </div>
+
+  <!-- EDUCACIÓN -->
+  <div id="tab-educacion" class="panel">
+    <div id="edu-list"></div>
+    <button onclick="addEdu()"><i class="ti ti-plus" aria-hidden="true"></i> Agregar educación / certificación</button>
+  </div>
+
+  <!-- HABILIDADES -->
+  <div id="tab-habilidades" class="panel">
+    <div class="card">
+      <h3>Habilidades técnicas</h3>
+      <div class="skills-input-row" style="margin-bottom:8px">
+        <input id="skill-tecnica" placeholder="Ej. Excel avanzado" onkeydown="if(event.key==='Enter'){addSkill('tecnica')}">
+        <button onclick="addSkill('tecnica')">Agregar</button>
+      </div>
+      <div id="skills-tecnica"></div>
+    </div>
+    <div class="card">
+      <h3>Herramientas / Software</h3>
+      <div class="skills-input-row" style="margin-bottom:8px">
+        <input id="skill-herramienta" placeholder="Ej. SAP, Power BI" onkeydown="if(event.key==='Enter'){addSkill('herramienta')}">
+        <button onclick="addSkill('herramienta')">Agregar</button>
+      </div>
+      <div id="skills-herramienta"></div>
+    </div>
+    <div class="card">
+      <h3>Idiomas</h3>
+      <div id="idiomas-list"></div>
+      <button onclick="addIdioma()"><i class="ti ti-plus" aria-hidden="true"></i> Agregar idioma</button>
+    </div>
+  </div>
+
+  <!-- EXTRAS -->
+  <div id="tab-extras" class="panel">
+    <div class="card">
+      <h3>Logros y reconocimientos</h3>
+      <div id="logros-list"></div>
+      <button onclick="addLogro()"><i class="ti ti-plus" aria-hidden="true"></i> Agregar logro</button>
+    </div>
+    <div class="card">
+      <h3>Datos adicionales</h3>
+      <div class="row">
+        <div class="field"><label>Disponibilidad</label><input id="disponibilidad" placeholder="Inmediata / 1 mes"></div>
+        <div class="field"><label>Modalidad preferida</label>
+          <select id="modalidad"><option value="">Seleccionar…</option><option>Presencial</option><option>Remoto</option><option>Híbrido</option><option>Presencial o Remoto</option></select>
+        </div>
+      </div>
+      <div class="field"><label>DUI / Licencia (opcional, común en SV)</label><input id="dui" placeholder="Ej. DUI 00000000-0 / Licencia liviana"></div>
+      <div class="field"><label>Notas adicionales</label><textarea id="notas" rows="2" placeholder="Ej. Vehículo propio, disponibilidad para viajar…"></textarea></div>
+    </div>
+  </div>
+
+  <!-- EXPORTAR / IMPORTAR -->
+  <div id="tab-exportar" class="panel">
+    <div class="card">
+      <h3><i class="ti ti-file-import" aria-hidden="true"></i> Importar CV en Markdown</h3>
+      <p style="font-size:13px;color:var(--color-text-secondary);margin-bottom:.75rem">Pega el contenido de un CV en formato Markdown para editar sus datos.</p>
+      <textarea id="import-md" rows="6" placeholder="Pega aquí el contenido Markdown de tu CV…"></textarea>
+      <button onclick="importMarkdown()" style="margin-top:.5rem"><i class="ti ti-upload" aria-hidden="true"></i> Cargar y editar</button>
+      <div id="import-msg" style="font-size:13px;margin-top:.5rem"></div>
+    </div>
+    <div class="card">
+      <h3><i class="ti ti-eye" aria-hidden="true"></i> Vista previa del CV</h3>
+      <button onclick="updatePreview()" style="margin-bottom:1rem"><i class="ti ti-refresh" aria-hidden="true"></i> Actualizar vista previa</button>
+      <div id="preview-content">Haz clic en "Actualizar vista previa" para ver tu CV.</div>
+    </div>
+    <div class="export-bar">
+      <button class="primary" onclick="exportMD()"><i class="ti ti-markdown" aria-hidden="true"></i> Descargar Markdown</button>
+      <button class="success" onclick="exportPDF()"><i class="ti ti-file-type-pdf" aria-hidden="true"></i> Descargar PDF</button>
+    </div>
+    <p style="font-size:12px;color:var(--color-text-tertiary);margin-top:.5rem">El PDF está optimizado para ser legible por sistemas ATS. Se genera sin columnas ni tablas.</p>
+  </div>
+</div>
+
+<script>
+let photoData = null;
+const skills = {tecnica:[],herramienta:[]};
+let expCount=0, eduCount=0, idiomaCount=0, logroCount=0;
+
+function showTab(name){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function loadPhoto(input){
+  const f=input.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    photoData=e.target.result;
+    document.getElementById('photoPreview').src=photoData;
+    document.getElementById('photoPreview').style.display='block';
+    document.getElementById('photoPlaceholder').style.display='none';
+  };
+  r.readAsDataURL(f);
+}
+
+function addExp(){
+  const id='exp-'+expCount++;
+  const el=document.createElement('div');
+  el.className='entry card'; el.id=id;
+  el.innerHTML=`<div class="entry-title"><i class="ti ti-briefcase" aria-hidden="true"></i> Experiencia #${expCount}</div>
+    <button class="remove-btn danger" onclick="removeEl('${id}')"><i class="ti ti-x" aria-hidden="true"></i></button>
+    <div class="row"><div class="field"><label>Cargo *</label><input class="e-cargo" placeholder="Coordinador de Operaciones"></div>
+    <div class="field"><label>Empresa *</label><input class="e-empresa" placeholder="Empresa S.A. de C.V."></div></div>
+    <div class="row three"><div class="field"><label>Ciudad</label><input class="e-ciudad" placeholder="San Salvador, SV"></div>
+    <div class="field"><label>Desde</label><input class="e-desde" placeholder="Ene 2021"></div>
+    <div class="field"><label>Hasta</label><input class="e-hasta" placeholder="Presente"></div></div>
+    <div class="field"><label>Logros y responsabilidades (una por línea)</label>
+    <textarea class="e-logros" rows="4" placeholder="Reduje costos operativos 20% al renegociar contratos con proveedores.\nGestioné equipo de 8 personas alcanzando 95% de satisfacción interna.\nImplementé sistema de control de inventario logrando 0 faltantes."></textarea></div>`;
+  document.getElementById('exp-list').appendChild(el);
+}
+
+function addEdu(){
+  const id='edu-'+eduCount++;
+  const el=document.createElement('div');
+  el.className='entry card'; el.id=id;
+  el.innerHTML=`<div class="entry-title"><i class="ti ti-school" aria-hidden="true"></i> Educación #${eduCount}</div>
+    <button class="remove-btn danger" onclick="removeEl('${id}')"><i class="ti ti-x" aria-hidden="true"></i></button>
+    <div class="row"><div class="field"><label>Título / Certificación *</label><input class="e-titulo" placeholder="Licenciatura en Administración de Empresas"></div>
+    <div class="field"><label>Institución *</label><input class="e-inst" placeholder="Universidad de El Salvador"></div></div>
+    <div class="row"><div class="field"><label>Año de graduación</label><input class="e-anio" placeholder="2019"></div>
+    <div class="field"><label>Tipo</label><select class="e-tipo"><option>Grado universitario</option><option>Postgrado / Maestría</option><option>Técnico</option><option>Certificación</option><option>Curso</option></select></div></div>`;
+  document.getElementById('edu-list').appendChild(el);
+}
+
+function addIdioma(){
+  const id='idioma-'+idiomaCount++;
+  const el=document.createElement('div');
+  el.className='entry'; el.id=id;
+  el.innerHTML=`<button class="remove-btn danger" onclick="removeEl('${id}')"><i class="ti ti-x" aria-hidden="true"></i></button>
+    <div class="row"><div class="field"><label>Idioma</label><input class="e-idioma" placeholder="Inglés"></div>
+    <div class="field"><label>Nivel</label><select class="e-nivel"><option>Básico</option><option>Intermedio</option><option>Avanzado</option><option>Nativo / Fluido</option></select></div></div>`;
+  document.getElementById('idiomas-list').appendChild(el);
+}
+
+function addLogro(){
+  const id='logro-'+logroCount++;
+  const el=document.createElement('div');
+  el.className='entry'; el.id=id;
+  el.innerHTML=`<button class="remove-btn danger" onclick="removeEl('${id}')"><i class="ti ti-x" aria-hidden="true"></i></button>
+    <div class="row"><div class="field"><label>Logro / Reconocimiento</label><input class="e-logro" placeholder="Premio al empleado del año"></div>
+    <div class="field"><label>Organización / Año</label><input class="e-org" placeholder="Empresa ABC, 2022"></div></div>`;
+  document.getElementById('logros-list').appendChild(el);
+}
+
+function removeEl(id){document.getElementById(id).remove()}
+
+function addSkill(type){
+  const inp=document.getElementById('skill-'+type);
+  const val=inp.value.trim(); if(!val) return;
+  skills[type].push(val);
+  renderSkills(type);
+  inp.value='';
+}
+
+function renderSkills(type){
+  const container=document.getElementById('skills-'+type);
+  container.innerHTML=skills[type].map((s,i)=>
+    `<span class="chip" onclick="removeSkill('${type}',${i})">${s} <i class="ti ti-x" style="font-size:11px" aria-hidden="true"></i></span>`
+  ).join('');
+}
+
+function removeSkill(type,i){skills[type].splice(i,1);renderSkills(type)}
+
+function g(id){return (document.getElementById(id)||{}).value||''}
+
+function buildMarkdown(){
+  const nombre=g('nombre')||'NOMBRE COMPLETO';
+  const titulo=g('titulo');
+  const tel=g('tel'); const correo=g('correo'); const ciudad=g('ciudad');
+  const linkedin=g('linkedin'); const web=g('web');
+  const resumen=g('resumen');
+
+  let contactLine=[ciudad,tel,correo].filter(Boolean).join(' | ');
+  if(linkedin) contactLine+=` | ${linkedin}`;
+  if(web) contactLine+=` | ${web}`;
+
+  let md=`# ${nombre}\n`;
+  if(titulo) md+=`**${titulo}**\n`;
+  md+=`${contactLine}\n\n---\n\n`;
+
+  if(resumen){md+=`## RESUMEN PROFESIONAL\n${resumen}\n\n---\n\n`}
+
+  const exps=document.querySelectorAll('#exp-list .entry');
+  if(exps.length){
+    md+=`## EXPERIENCIA LABORAL\n\n`;
+    exps.forEach(e=>{
+      const cargo=e.querySelector('.e-cargo').value;
+      const empresa=e.querySelector('.e-empresa').value;
+      const ciudadE=e.querySelector('.e-ciudad').value;
+      const desde=e.querySelector('.e-desde').value;
+      const hasta=e.querySelector('.e-hasta').value;
+      const logros=e.querySelector('.e-logros').value;
+      if(cargo||empresa){
+        md+=`**${cargo||'Cargo'}`;
+        if(empresa) md+=` | ${empresa}`;
+        if(ciudadE) md+=`** — ${ciudadE}\n`;
+        else md+=`**\n`;
+        if(desde||hasta) md+=`*${desde||''}${hasta?` – ${hasta}`:''} *\n`;
+        if(logros){
+          logros.split('\n').filter(l=>l.trim()).forEach(l=>{md+=`- ${l.trim()}\n`});
+        }
+        md+=`\n`;
+      }
+    });
+    md+=`---\n\n`;
+  }
+
+  const edus=document.querySelectorAll('#edu-list .entry');
+  if(edus.length){
+    md+=`## EDUCACIÓN\n\n`;
+    edus.forEach(e=>{
+      const tit=e.querySelector('.e-titulo').value;
+      const inst=e.querySelector('.e-inst').value;
+      const anio=e.querySelector('.e-anio').value;
+      const tipo=e.querySelector('.e-tipo').value;
+      if(tit||inst){
+        md+=`**${tit||'Título'}** — ${inst||'Institución'}`;
+        if(anio) md+=`\n*${anio}*`;
+        if(tipo) md+=` _(${tipo})_`;
+        md+=`\n\n`;
+      }
+    });
+    md+=`---\n\n`;
+  }
+
+  let hasSk=false;
+  if(skills.tecnica.length||skills.herramienta.length||document.querySelectorAll('#idiomas-list .entry').length){
+    md+=`## HABILIDADES\n\n`;
+    if(skills.tecnica.length) md+=`**Técnicas:** ${skills.tecnica.join(', ')}\n`;
+    if(skills.herramienta.length) md+=`**Herramientas / Software:** ${skills.herramienta.join(', ')}\n`;
+    const idiomas=document.querySelectorAll('#idiomas-list .entry');
+    if(idiomas.length){
+      const idArr=[];
+      idiomas.forEach(i=>{
+        const id2=i.querySelector('.e-idioma').value;
+        const nv=i.querySelector('.e-nivel').value;
+        if(id2) idArr.push(`${id2} (${nv})`);
+      });
+      if(idArr.length) md+=`**Idiomas:** ${idArr.join(', ')}\n`;
+    }
+    md+=`\n---\n\n`;
+  }
+
+  const logros=document.querySelectorAll('#logros-list .entry');
+  if(logros.length){
+    md+=`## LOGROS Y RECONOCIMIENTOS\n\n`;
+    logros.forEach(l=>{
+      const lo=l.querySelector('.e-logro').value;
+      const org=l.querySelector('.e-org').value;
+      if(lo) md+=`- ${lo}${org?' — '+org:''}\n`;
+    });
+    md+=`\n---\n\n`;
+  }
+
+  const disp=g('disponibilidad'); const mod=g('modalidad');
+  const dui=g('dui'); const notas=g('notas');
+  if(disp||mod||dui||notas){
+    md+=`## DATOS ADICIONALES\n\n`;
+    if(disp) md+=`- **Disponibilidad:** ${disp}\n`;
+    if(mod) md+=`- **Modalidad:** ${mod}\n`;
+    if(dui) md+=`- ${dui}\n`;
+    if(notas) notas.split('\n').filter(l=>l.trim()).forEach(l=>{md+=`- ${l.trim()}\n`});
+    md+=`\n`;
+  }
+
+  md+=`- Referencias disponibles a solicitud\n`;
+  return md;
+}
+
+function updatePreview(){
+  document.getElementById('preview-content').textContent=buildMarkdown();
+}
+
+function exportMD(){
+  const md=buildMarkdown();
+  const blob=new Blob([md],{type:'text/markdown'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=(g('nombre').replace(/\s+/g,'_')||'CV')+'_ATS.md';
+  a.click();
+}
+
+function exportPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:'mm',format:'letter'});
+  const md=buildMarkdown();
+  const margin=20; const pageW=216; const lineW=pageW-2*margin;
+  const lines=md.split('\n');
+  let y=margin;
+  const addPage=()=>{doc.addPage();y=margin;};
+
+  if(photoData){
+    try{doc.addImage(photoData,'JPEG',pageW-margin-28,y,28,28);} catch(e){}
+  }
+
+  lines.forEach(line=>{
+    if(y>270) addPage();
+    if(line.startsWith('# ')){
+      doc.setFontSize(18);doc.setFont('helvetica','bold');
+      doc.text(line.replace(/^# /,''),margin,y);y+=8;
+    } else if(line.startsWith('## ')){
+      y+=3;doc.setFontSize(12);doc.setFont('helvetica','bold');
+      doc.text(line.replace(/^## /,'').toUpperCase(),margin,y);y+=5;
+      doc.setDrawColor(83,74,183);doc.setLineWidth(0.5);
+      doc.line(margin,y,pageW-margin,y);y+=4;
+    } else if(line.startsWith('---')){
+      // skip
+    } else if(line.startsWith('- ')){
+      doc.setFontSize(10);doc.setFont('helvetica','normal');
+      const txt=line.replace(/^- /,'').replace(/\*\*/g,'').replace(/_/g,'');
+      const split=doc.splitTextToSize(`• ${txt}`,lineW-5);
+      split.forEach(s=>{if(y>270) addPage();doc.text(s,margin+3,y);y+=5;});
+    } else if(line.startsWith('**')){
+      doc.setFontSize(11);doc.setFont('helvetica','bold');
+      const txt=line.replace(/\*\*/g,'').replace(/— /,'').replace(/_/g,'');
+      doc.text(txt,margin,y);y+=5;
+    } else if(line.startsWith('*')){
+      doc.setFontSize(10);doc.setFont('helvetica','italic');
+      doc.text(line.replace(/\*/g,''),margin,y);y+=5;
+    } else if(line.trim()){
+      doc.setFontSize(10);doc.setFont('helvetica','normal');
+      const txt=line.replace(/\*\*/g,'').replace(/_/g,'');
+      const split=doc.splitTextToSize(txt,lineW);
+      split.forEach(s=>{if(y>270) addPage();doc.text(s,margin,y);y+=5;});
+    } else {
+      y+=3;
+    }
+  });
+
+  doc.save((g('nombre').replace(/\s+/g,'_')||'CV')+'_ATS.pdf');
+}
+
+function importMarkdown(){
+  const md=document.getElementById('import-md').value.trim();
+  if(!md){document.getElementById('import-msg').textContent='Pega el contenido primero.';return;}
+
+  document.getElementById('exp-list').innerHTML='';
+  document.getElementById('edu-list').innerHTML='';
+  document.getElementById('idiomas-list').innerHTML='';
+  document.getElementById('logros-list').innerHTML='';
+  skills.tecnica=[];skills.herramienta=[];expCount=0;eduCount=0;idiomaCount=0;logroCount=0;
+
+  const lines=md.split('\n');
+  let section='';
+  let curExp=null,curEdu=null;
+
+  const flush=()=>{
+    if(curExp){
+      addExp();
+      const entries=document.querySelectorAll('#exp-list .entry');
+      const e=entries[entries.length-1];
+      e.querySelector('.e-cargo').value=curExp.cargo||'';
+      e.querySelector('.e-empresa').value=curExp.empresa||'';
+      e.querySelector('.e-ciudad').value=curExp.ciudad||'';
+      e.querySelector('.e-desde').value=curExp.desde||'';
+      e.querySelector('.e-hasta').value=curExp.hasta||'';
+      e.querySelector('.e-logros').value=(curExp.logros||[]).join('\n');
+      curExp=null;
+    }
+    if(curEdu){
+      addEdu();
+      const entries=document.querySelectorAll('#edu-list .entry');
+      const e=entries[entries.length-1];
+      e.querySelector('.e-titulo').value=curEdu.titulo||'';
+      e.querySelector('.e-inst').value=curEdu.inst||'';
+      e.querySelector('.e-anio').value=curEdu.anio||'';
+      curEdu=null;
+    }
+  };
+
+  lines.forEach(line=>{
+    const t=line.trim();
+    if(t.startsWith('# ')&&!t.startsWith('## ')){
+      document.getElementById('nombre').value=t.replace(/^# /,'');
+    } else if(t.startsWith('## ')){
+      flush();
+      const s=t.replace(/^## /,'').toUpperCase();
+      if(s.includes('RESUMEN')||s.includes('SUMMARY')) section='resumen';
+      else if(s.includes('EXPERIENCIA')||s.includes('EXPERIENCE')) section='exp';
+      else if(s.includes('EDUCACI')||s.includes('EDUCATION')) section='edu';
+      else if(s.includes('HABILIDAD')||s.includes('SKILL')) section='skills';
+      else if(s.includes('LOGRO')||s.includes('ACHIEVE')||s.includes('RECONOCI')) section='logros';
+      else if(s.includes('ADICIONAL')||s.includes('ADDITIONAL')) section='adicional';
+      else section='';
+    } else if(t.startsWith('**')&&section==='exp'){
+      flush();
+      const parts=t.replace(/\*\*/g,'').split('|');
+      const cargo=parts[0]?.trim()||'';
+      const rest=parts[1]||'';
+      const cityParts=rest.split('—');
+      curExp={cargo,empresa:cityParts[0]?.trim()||'',ciudad:cityParts[1]?.trim()||'',logros:[]};
+    } else if(t.startsWith('*')&&curExp){
+      const period=t.replace(/\*/g,'').replace(/–|-/g,'|').split('|');
+      curExp.desde=period[0]?.trim()||'';
+      curExp.hasta=period[1]?.trim()||'';
+    } else if(t.startsWith('- ')&&section==='exp'&&curExp){
+      curExp.logros.push(t.replace(/^- /,''));
+    } else if(t.startsWith('**')&&section==='edu'){
+      flush();
+      const parts=t.replace(/\*\*/g,'').replace(/_/g,'').split('—');
+      curEdu={titulo:parts[0]?.trim()||'',inst:parts[1]?.trim()||''};
+    } else if(t.startsWith('*')&&curEdu){
+      curEdu.anio=t.replace(/\*/g,'').replace(/\(.*\)/,'').trim();
+    } else if(section==='resumen'&&t&&!t.startsWith('#')){
+      const cur=document.getElementById('resumen').value;
+      document.getElementById('resumen').value=cur+(cur?'\n':'')+t;
+    } else if(section==='skills'&&t.startsWith('**Técnicas')){
+      const vals=t.replace(/\*\*Técnicas:\*\*/,'').replace(/\*\*/g,'').trim();
+      skills.tecnica=vals.split(',').map(s=>s.trim()).filter(Boolean);
+      renderSkills('tecnica');
+    } else if(section==='skills'&&t.startsWith('**Herramientas')){
+      const vals=t.replace(/\*\*Herramientas \/ Software:\*\*/,'').replace(/\*\*/g,'').trim();
+      skills.herramienta=vals.split(',').map(s=>s.trim()).filter(Boolean);
+      renderSkills('herramienta');
+    } else if(section==='skills'&&t.startsWith('**Idiomas')){
+      const vals=t.replace(/\*\*Idiomas:\*\*/,'').replace(/\*\*/g,'').trim();
+      vals.split(',').forEach(id=>{
+        const m=id.match(/(.+)\((.+)\)/);
+        if(m){
+          addIdioma();
+          const entries=document.querySelectorAll('#idiomas-list .entry');
+          const e=entries[entries.length-1];
+          e.querySelector('.e-idioma').value=m[1].trim();
+          const nv=m[2].trim();
+          const sel=e.querySelector('.e-nivel');
+          for(let o of sel.options){if(o.value.toLowerCase().includes(nv.toLowerCase()))o.selected=true;}
+        }
+      });
+    } else if(section==='logros'&&t.startsWith('- ')){
+      const parts=t.replace(/^- /,'').split('—');
+      addLogro();
+      const entries=document.querySelectorAll('#logros-list .entry');
+      const e=entries[entries.length-1];
+      e.querySelector('.e-logro').value=parts[0]?.trim()||'';
+      e.querySelector('.e-org').value=parts[1]?.trim()||'';
+    } else if(section==='adicional'&&t.startsWith('- **Disponibilidad')){
+      document.getElementById('disponibilidad').value=t.replace(/.*Disponibilidad:\*\*/,'').trim();
+    } else if(section==='adicional'&&t.startsWith('- **Modalidad')){
+      document.getElementById('modalidad').value=t.replace(/.*Modalidad:\*\*/,'').trim();
+    }
+  });
+  flush();
+
+  const contactLine=lines.find(l=>l.includes('@')||l.includes('+503'));
+  if(contactLine){
+    const parts=contactLine.split('|').map(p=>p.trim());
+    parts.forEach(p=>{
+      if(p.includes('@')) document.getElementById('correo').value=p;
+      else if(p.match(/\+?\d[\d\s\-]{6,}/)) document.getElementById('tel').value=p;
+      else if(p.includes('.com')||p.includes('linkedin')) document.getElementById('linkedin').value=p;
+      else if(p) document.getElementById('ciudad').value=p;
+    });
+  }
+
+  document.getElementById('import-msg').style.color='#1D9E75';
+  document.getElementById('import-msg').textContent='CV importado correctamente. Revisa cada sección y edita lo necesario.';
+  showTab('personal');
+  document.querySelectorAll('.tab')[0].classList.add('active');
+  document.querySelectorAll('.tab').forEach((t,i)=>{if(i!==0)t.classList.remove('active')});
+}
+</script>
+</body>
+</html>
