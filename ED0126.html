@@ -462,7 +462,7 @@ function openModal(idx,rowIdx){
   document.getElementById('m-title').textContent=r[0]||'—';
   document.getElementById('m-sub').textContent=`Docente: ${r[1]||'—'} · ${NAMES[idx]}`;
   document.getElementById('m-pct').textContent=pct!==null?`${pctVal.toFixed(1)}%`:'Sin dato';
-  document.getElementById('m-pct').style.color=col;
+  document.getElementById('m-pct').style.color=estadoColor;
   document.getElementById('m-alumnos').textContent=r[2]||'—';
   document.getElementById('m-hechos').textContent=r[3]||'—';
   document.getElementById('m-autoev').textContent=r[5]||'—';
@@ -475,7 +475,9 @@ function openModal(idx,rowIdx){
   else if(pct>=1)    {estado='🔴 Demorado';      estadoColor='#e55353';}
   else               {estado='❌ No iniciado';   estadoColor='#c53030';}
   const el=document.getElementById('m-estado');
-  el.textContent=estado;el.style.color=estadoColor;
+  el.textContent=estado;
+  el.style.color=estadoColor;
+  el.style.fontWeight='700';
   setTimeout(()=>{
     const bar=document.getElementById('m-bar');
     bar.style.width=`${Math.min(pctVal,100)}%`;
