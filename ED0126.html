@@ -513,17 +513,24 @@ function renderRankings(){
     const bot5=[...sorted].reverse().slice(0,10);
     const col=COLORS[idx];
     const renderList=(items,type)=>items.map((it,i)=>{
-      const bc=type==='top'?'#38a169':'#e53e3e';
-        return`<div class="rank-item" onclick="openModal(${idx},${it.idx})">
-        <div class="rank-num ${type}">${i+1}</div>
-        <div class="rank-info">
-          <div class="rank-name">${it.name}</div>
-          <div class="rank-sub">${it.doc}</div>
-          <div class="rank-bar-bg"><div class="rank-bar" style="width:${Math.min(it.pct,100)}%;background:${bc}"></div></div>
-        </div>
-        <div class="rank-pct ${type}">${it.pct.toFixed(1)}%</div>
-      </div>`;
-    }).join('');
+  let estadoColor='';
+  if(it.pct===null)     estadoColor='#a0aec0';
+  else if(it.pct===100) estadoColor='#38a169';
+  else if(it.pct>=75)   estadoColor='#2f855a';
+  else if(it.pct>=60)   estadoColor='#e8a020';
+  else if(it.pct>=40)   estadoColor='#dd6b20';
+  else if(it.pct>=1)    estadoColor='#e55353';
+  else                  estadoColor='#c53030';
+  return`<div class="rank-item" onclick="openModal(${idx},${it.idx})">
+    <div class="rank-num ${type}">${i+1}</div>
+    <div class="rank-info">
+      <div class="rank-name">${it.name}</div>
+      <div class="rank-sub">${it.doc}</div>
+      <div class="rank-bar-bg"><div class="rank-bar" style="width:${Math.min(it.pct,100)}%;background:${estadoColor}"></div></div>
+    </div>
+    <div class="rank-pct ${type}" style="color:${estadoColor}">${it.pct.toFixed(1)}%</div>
+  </div>`;
+}).join('');
     html+=`<div style="margin-bottom:22px">
       <div class="rank-section-title" style="color:${col};margin-bottom:10px">${['⚖️','📊','🎓'][idx]} ${NAMES[idx]}</div>
       <div class="rank-grid">
