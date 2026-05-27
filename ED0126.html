@@ -336,6 +336,14 @@ const allData=[null,null,null];
 const loaded=[false,false,false];
 let chartAvance=null,chartDist=null,gaugeChartInst=null;
 
+function toggleAutoev(){
+  const body=document.getElementById('autoev-body');
+  const arrow=document.getElementById('autoev-arrow');
+  const visible=body.style.display!=='none';
+  body.style.display=visible?'none':'block';
+  arrow.textContent=visible?'▶':'▼';
+}
+  
 function parseCSV(txt){
   const rows=[];
   txt=txt.replace(/\r\n/g,'\n').replace(/\r/g,'\n');
