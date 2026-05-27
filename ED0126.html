@@ -192,6 +192,24 @@ tbody td{padding:10px 16px;color:#4a5568}
         <div class="chart-wrap"><canvas id="chartDist"></canvas></div>
       </div>
     </div>
+
+    <div class="card" style="margin-bottom:22px">
+  <div class="card-header">
+    <h2>📋 Pendientes de Autoevaluación</h2>
+    <span class="badge" id="autoev-total">—</span>
+  </div>
+  <div style="padding:4px 16px 0">
+    <div style="display:flex;gap:4px;border-bottom:1px solid #f0f0f0;margin-bottom:0">
+      <button class="autoev-tab active" onclick="switchAutoevTab(0)" id="atab-0" style="padding:10px 16px;border:none;background:transparent;font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:600;color:#1a56db;border-bottom:2px solid #1a56db;cursor:pointer">⚖️ Jurídicas <span id="autoev-count-0"></span></button>
+      <button class="autoev-tab" onclick="switchAutoevTab(1)" id="atab-1" style="padding:10px 16px;border:none;background:transparent;font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:500;color:#718096;border-bottom:2px solid transparent;cursor:pointer">📊 Económicas <span id="autoev-count-1"></span></button>
+      <button class="autoev-tab" onclick="switchAutoevTab(2)" id="atab-2" style="padding:10px 16px;border:none;background:transparent;font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:500;color:#718096;border-bottom:2px solid transparent;cursor:pointer">🎓 Humanidades <span id="autoev-count-2"></span></button>
+    </div>
+  </div>
+  <div id="autoev-panel-0" class="autoev-panel" style="padding:12px 18px"></div>
+  <div id="autoev-panel-1" class="autoev-panel" style="padding:12px 18px;display:none"></div>
+  <div id="autoev-panel-2" class="autoev-panel" style="padding:12px 18px;display:none"></div>
+</div>
+    
     <div id="rankings-container"></div>
   </div>
 
@@ -638,7 +656,7 @@ async function loadSheet(idx){
     badge.textContent=`${body.length} registros`;
     el.innerHTML=body.length?buildTable(headers,body,idx):'<div class="state-msg">Sin datos</div>';
     updateKPIs();
-    if(allData.every(d=>d!==null)){renderCharts();renderRankings();}
+    if(allData.every(d=>d!==null)){renderCharts();renderRankings();renderAutoev();}
   }catch(e){
     const el=document.getElementById(`table-${idx}`);
     if(el)el.innerHTML=`<div class="state-msg">⚠️ ${e.message}</div>`;
@@ -646,6 +664,48 @@ async function loadSheet(idx){
   }
 }
 
+  function switchAutoevTab(idx){
+  [0,1,2].forEach(i=>{
+    const tab=document.getElementById(`atab-${i}`);
+    const panel=document.getElementById(`autoev-panel-${i}`);
+    const active=i===idx;
+    tab.style.color=active?'#1a56db':'#718096';
+    tab.style.borderBottom=active?'2px solid #1a56db':'2px solid transparent';
+    tab.style.fontWeight=active?'600':'500';
+    panel.style.display=active?'block':'none';
+  });
+}
+
+function renderAutoev(){
+  let total=0;
+  allData.forEach((d,idx)=>{
+    if(!d)return;
+    const pendientes=d.body.filter(r=>(r[5]||'').toString().trim().toLowerCase()==='no'||(r[5]||'').toString().trim()==='');
+    const count=pendientes.length;
+    total+=count;
+    document.getElementById(`autoev-count-${idx}`).textContent=count?`(${count})`:'';
+
+    const panel=document.getElementById(`autoev-panel-${idx}`);
+    if(!count){
+      panel.innerHTML=`<div style="padding:16px 0;text-align:center;color:#38a169;font-size:.83rem;font-weight:600">✅ Todos completaron su autoevaluación</div>`;
+      return;
+    }
+
+    // Agrupar por docente (puede tener varias materias)
+    const docentes=[...new Set(pendientes.map(r=>r[1]||'—'))];
+    panel.innerHTML=`
+      <div style="display:flex;flex-wrap:wrap;gap:8px;padding:8px 0">
+        ${docentes.map(doc=>`
+          <div style="background:#fff5f5;border:1px solid #fed7d7;border-radius:8px;padding:7px 14px;font-size:.78rem;font-weight:600;color:#c53030;display:flex;align-items:center;gap:6px">
+            <span style="color:#e53e3e">⚠️</span> ${doc}
+          </div>
+        `).join('')}
+      </div>
+    `;
+  });
+  document.getElementById('autoev-total').textContent=`${total} pendientes`;
+}
+  
 function switchTab(idx){
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
   document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===idx));
