@@ -690,27 +690,25 @@ function renderAutoev(){
   allData.forEach((d,idx)=>{
     if(!d)return;
     const pendientes=d.body.filter(r=>(r[5]||'').toString().trim().toLowerCase()==='no');
-    const count=pendientes.length;
-    total+=count;
-    document.getElementById(`autoev-count-${idx}`).textContent=count?`(${count})`:'';
+const docentes=[...new Set(pendientes.map(r=>r[1]||'—'))];
+const count=docentes.length;
+total+=count;
+document.getElementById(`autoev-count-${idx}`).textContent=count?`(${count})`:'';
 
-    const panel=document.getElementById(`autoev-panel-${idx}`);
-    if(!count){
-      panel.innerHTML=`<div style="padding:16px 0;text-align:center;color:#38a169;font-size:.83rem;font-weight:600">✅ Todos completaron su autoevaluación</div>`;
-      return;
-    }
-
-    // Agrupar por docente (puede tener varias materias)
-    const docentes=[...new Set(pendientes.map(r=>r[1]||'—'))];
-    panel.innerHTML=`
-      <div style="display:flex;flex-wrap:wrap;gap:8px;padding:8px 0">
-        ${docentes.map(doc=>`
-          <div style="background:#fff5f5;border:1px solid #fed7d7;border-radius:8px;padding:7px 14px;font-size:.78rem;font-weight:600;color:#c53030;display:flex;align-items:center;gap:6px">
-            <span style="color:#e53e3e">⚠️</span> ${doc}
-          </div>
-        `).join('')}
+const panel=document.getElementById(`autoev-panel-${idx}`);
+if(!count){
+  panel.innerHTML=`<div style="padding:16px 0;text-align:center;color:#38a169;font-size:.83rem;font-weight:600">✅ Todos completaron su autoevaluación</div>`;
+  return;
+}
+panel.innerHTML=`
+  <div style="display:flex;flex-wrap:wrap;gap:8px;padding:8px 0">
+    ${docentes.map(doc=>`
+      <div style="background:#fff5f5;border:1px solid #fed7d7;border-radius:8px;padding:7px 14px;font-size:.78rem;font-weight:600;color:#c53030;display:flex;align-items:center;gap:6px">
+        <span style="color:#e53e3e">⚠️</span> ${doc}
       </div>
-    `;
+    `).join('')}
+  </div>
+`;
   });
   document.getElementById('autoev-total').textContent=`${total} pendientes`;
 }
