@@ -551,7 +551,7 @@ function renderRankings(){
   return`<div class="rank-item" onclick="openModal(${idx},${it.idx})">
     <div class="rank-num ${type}">${i+1}</div>
     <div class="rank-info">
-      <div class="rank-name">${it.name}</div>
+      <div class="rank-name">${it.pct===100?'🏆 ':''}${it.name}</div>
       <div class="rank-sub">${it.doc}</div>
       <div class="rank-bar-bg"><div class="rank-bar" style="width:${Math.min(it.pct,100)}%;background:${estadoColor}"></div></div>
     </div>
