@@ -383,7 +383,7 @@ function pctColor(p){
 function buildTable(headers, rows, idx) {
   const fallback = ['Materia','Docente','Alumnos','Hechos','%','AutoEv.'];
   const heads = headers.map((h,i) => h && h !== '—' ? h : fallback[i] || '—');
-  const sortable = [2,3,4]; // índices de Alumnos, Hechos, %
+  const sortable = [2,3,4,5]; // índices de Alumnos, Hechos, %
   const center = [2,3,4,5]; // índices centrados
 
   // Estado de ordenamiento por tabla
