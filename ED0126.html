@@ -689,7 +689,7 @@ function renderAutoev(){
   let total=0;
   allData.forEach((d,idx)=>{
     if(!d)return;
-    const pendientes=d.body.filter(r=>(r[5]||'').toString().trim().toLowerCase()==='no'||(r[5]||'').toString().trim()==='');
+    const pendientes=d.body.filter(r=>(r[5]||'').toString().trim().toLowerCase()==='no');
     const count=pendientes.length;
     total+=count;
     document.getElementById(`autoev-count-${idx}`).textContent=count?`(${count})`:'';
