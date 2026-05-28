@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Banco de Expertos Formadores</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a1a;min-height:100vh}
+
+/* NAV */
+nav{background:#fff;border-bottom:1px solid #e5e5e0;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.brand{display:flex;align-items:center;gap:8px}
+.brand-dot{width:9px;height:9px;border-radius:50%;background:#4A3FA0}
+.brand-name{font-size:14px;font-weight:600;color:#1a1a1a}
+.nav-links{display:flex;gap:20px}
+.nav-links a{font-size:12px;color:#666;text-decoration:none}
+.nav-links a.active{color:#4A3FA0;font-weight:600;border-bottom:2px solid #4A3FA0;padding-bottom:2px}
+
+/* HERO */
+.hero{background:#fff;border-bottom:1px solid #e5e5e0;padding:24px 24px 20px}
+.hero-eye{font-size:11px;color:#4A3FA0;font-weight:600;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.hero-title{font-size:22px;font-weight:600;color:#1a1a1a;margin-bottom:4px}
+.hero-sub{font-size:13px;color:#666}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:16px 24px;background:#fff;border-bottom:1px solid #e5e5e0}
+.kpi{background:#f5f4f0;border-radius:10px;padding:12px 14px}
+.kpi-val{font-size:24px;font-weight:600;color:#1a1a1a;line-height:1}
+.kpi-val sup{font-size:13px;font-weight:400}
+.kpi-lbl{font-size:11px;color:#888;margin-top:4px}
+.kpi-bar{margin-top:7px;height:3px;border-radius:2px;background:#e5e5e0;overflow:hidden}
+.kpi-fill{height:100%;border-radius:2px;transition:width .6s ease}
+
+/* BODY */
+.body{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 220px)}
+
+/* SIDEBAR */
+.sidebar{background:#fff;border-right:1px solid #e5e5e0;padding:16px 14px;position:sticky;top:61px;height:calc(100vh - 61px);overflow-y:auto}
+.search-wrap{position:relative;margin-bottom:16px}
+.search-wrap i{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:#aaa;font-size:14px}
+#search{width:100%;padding:8px 10px 8px 30px;border:1px solid #e5e5e0;border-radius:8px;font-size:12px;background:#f9f9f7;color:#1a1a1a}
+#search:focus{outline:none;border-color:#4A3FA0}
+.f-section{margin-bottom:16px}
+.f-label{font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{font-size:11px;padding:4px 10px;border-radius:20px;border:1px solid #e5e5e0;cursor:pointer;color:#555;background:#fff;transition:all .15s;display:inline-flex;align-items:center;gap:4px}
+.chip.on{border-color:#4A3FA0;background:#EAE8FC;color:#3C3489}
+.chip:hover:not(.on){border-color:#bbb}
+.dot6{width:6px;height:6px;border-radius:50%;display:inline-block;flex-shrink:0}
+
+/* GRID */
+.grid-wrap{padding:14px 18px}
+.grid-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.count{font-size:12px;color:#888}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+
+/* CARD */
+.card{background:#fff;border:1px solid #e5e5e0;border-radius:12px;padding:14px;cursor:pointer;transition:border-color .15s,transform .1s}
+.card:hover{border-color:#4A3FA0;transform:translateY(-1px)}
+.card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;object-fit:cover}
+.card-name{font-size:13px;font-weight:600;color:#1a1a1a;line-height:1.3}
+.card-role{font-size:11px;color:#888;margin-top:1px}
+.card-tags{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:8px}
+.tag{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:500}
+.t-eco{background:#EAE8FC;color:#3C3489}
+.t-hum{background:#E1F5EE;color:#085041}
+.t-jur{background:#FEF3DC;color:#7A4F00}
+.t-pre{background:#E1F5EE;color:#085041}
+.t-vir{background:#E6F1FB;color:#0C447C}
+.t-hib{background:#FAEEDA;color:#633806}
+.t-gray{background:#f0f0ee;color:#555}
+.card-area{font-size:11px;color:#888;line-height:1.5;margin-bottom:8px}
+.card-footer{padding-top:8px;border-top:1px solid #f0f0ee;display:flex;justify-content:space-between;align-items:center}
+.badge-dr{font-size:10px;padding:2px 8px;border-radius:20px;background:#F0F0FF;color:#534AB7;font-weight:500}
+.cta{font-size:11px;color:#4A3FA0;font-weight:500}
+
+/* LOADING / EMPTY */
+.state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;color:#aaa;gap:10px;grid-column:1/-1}
+.spinner{width:28px;height:28px;border:3px solid #e5e5e0;border-top-color:#4A3FA0;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:200;align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto;position:relative}
+.modal-close{position:absolute;top:12px;right:14px;background:none;border:none;font-size:20px;cursor:pointer;color:#aaa;line-height:1;z-index:10}
+.modal-close:hover{color:#333}
+.m-header{padding:20px 20px 14px;border-bottom:1px solid #f0f0ee;display:flex;gap:14px;align-items:center}
+.m-avatar{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:600;flex-shrink:0;object-fit:cover}
+.m-name{font-size:17px;font-weight:600;color:#1a1a1a}
+.m-role{font-size:12px;color:#888;margin-top:3px}
+.m-body{padding:16px 20px}
+.s-title{font-size:10px;font-weight:600;color:#aaa;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 7px}
+.s-title:first-child{margin-top:0}
+.m-tags{display:flex;flex-wrap:wrap;gap:4px}
+.tl{border-left:2px solid #e5e5e0;padding-left:12px}
+.tl-item{margin-bottom:10px}
+.tl-year{font-size:10px;color:#aaa}
+.tl-desc{font-size:12px;color:#333;line-height:1.5}
+.m-stat{font-size:12px;color:#555;line-height:1.8}
+.m-links{display:flex;gap:8px;margin-top:4px;flex-wrap:wrap}
+.m-btn{font-size:11px;padding:5px 12px;border-radius:8px;border:1px solid #e5e5e0;text-decoration:none;color:#4A3FA0;font-weight:500;cursor:pointer;background:#fff;transition:background .15s}
+.m-btn:hover{background:#EAE8FC}
+.m-btn.dl{background:#4A3FA0;color:#fff;border-color:#4A3FA0}
+.m-btn.dl:hover{background:#3C3489}
+
+@media(max-width:640px){
+  .body{grid-template-columns:1fr}
+  .sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid #e5e5e0}
+  .kpis{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand">
+    <div class="brand-dot"></div>
+    <span class="brand-name">Banco de Expertos Formadores</span>
+  </div>
+  <div class="nav-links">
+    <a href="#" class="active">Directorio</a>
+    <a href="#">Estadísticas</a>
+    <a href="#">Contacto</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eye">Portal Académico · Comité de Formación</div>
+  <div class="hero-title">Directorio de Expertos Formadores</div>
+  <div class="hero-sub">Especialistas disponibles para formación presencial, virtual e híbrida.</div>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><div class="kpi-val" id="k-total">—</div><div class="kpi-lbl">Total de expertos</div><div class="kpi-bar"><div class="kpi-fill" id="kb-total" style="width:0%;background:#4A3FA0"></div></div></div>
+  <div class="kpi"><div class="kpi-val" id="k-dr">—<sup>%</sup></div><div class="kpi-lbl">Con grado doctoral</div><div class="kpi-bar"><div class="kpi-fill" id="kb-dr" style="width:0%;background:#1D9E75"></div></div></div>
+  <div class="kpi"><div class="kpi-val" id="k-fac">3</div><div class="kpi-lbl">Facultades cubiertas</div><div class="kpi-bar"><div class="kpi-fill" style="width:100%;background:#BA7517"></div></div></div>
+  <div class="kpi"><div class="kpi-val" id="k-vir">—<sup>%</sup></div><div class="kpi-lbl">Disponibilidad virtual</div><div class="kpi-bar"><div class="kpi-fill" id="kb-vir" style="width:0%;background:#185FA5"></div></div></div>
+</div>
+
+<div class="body">
+  <div class="sidebar">
+    <div class="search-wrap">
+      <svg style="position:absolute;left:9px;top:50%;transform:translateY(-50%);width:13px;height:13px;stroke:#aaa;fill:none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="search" placeholder="Buscar experto o tema…" oninput="render()"/>
+    </div>
+    <div class="f-section">
+      <div class="f-label">Facultad</div>
+      <div class="chips" id="f-fac">
+        <span class="chip on" data-v="">Todas</span>
+        <span class="chip" data-v="Economía"><span class="dot6" style="background:#4A3FA0"></span>Economía</span>
+        <span class="chip" data-v="Humanidades"><span class="dot6" style="background:#1D9E75"></span>Humanidades</span>
+        <span class="chip" data-v="Jurisprudencia"><span class="dot6" style="background:#BA7517"></span>Jurisprudencia</span>
+      </div>
+    </div>
+    <div class="f-section">
+      <div class="f-label">Modalidad</div>
+      <div class="chips" id="f-mod">
+        <span class="chip on" data-v="">Todas</span>
+        <span class="chip" data-v="Presencial"><span class="dot6" style="background:#1D9E75"></span>Presencial</span>
+        <span class="chip" data-v="Virtual"><span class="dot6" style="background:#185FA5"></span>Virtual</span>
+        <span class="chip" data-v="Híbrida"><span class="dot6" style="background:#BA7517"></span>Híbrida</span>
+      </div>
+    </div>
+    <div class="f-section">
+      <div class="f-label">Grado académico</div>
+      <div class="chips" id="f-grado">
+        <span class="chip on" data-v="">Todos</span>
+        <span class="chip" data-v="Doctor">Doctor/a</span>
+        <span class="chip" data-v="Magíster">Magíster</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-wrap">
+    <div class="grid-header">
+      <span class="count" id="count">Cargando expertos…</span>
+    </div>
+    <div class="cards" id="cards">
+      <div class="state"><div class="spinner"></div><span>Conectando con Airtable…</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+const TOKEN = 'patKsK9imlpOn3KFa.fe843ac85c6c4ffc9e9f581ddfa42a3b677e24090f0c81f58974ad05dc71dc59';
+const BASE  = 'dbExpUMA';
+const TABLE = 'Expertos';
+
+let allRecords = [];
+let facFilter = '', modFilter = '', gradoFilter = '';
+
+// ── Fetch all records (handles pagination) ──
+async function fetchAll() {
+  let records = [], offset = '';
+  const url = `https://api.airtable.com/v0/${BASE}/${encodeURIComponent(TABLE)}`;
+  try {
+    do {
+      const r = await fetch(url + (offset ? `?offset=${offset}` : ''), {
+        headers: { Authorization: `Bearer ${TOKEN}` }
+      });
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const d = await r.json();
+      records = records.concat(d.records);
+      offset = d.offset || '';
+    } while (offset);
+    return records;
+  } catch(e) {
+    document.getElementById('cards').innerHTML =
+      `<div class="state">⚠️ No se pudo conectar con Airtable.<br><small>${e.message}</small></div>`;
+    return [];
+  }
+}
+
+// ── Initials from name ──
+function initials(name) {
+  if (!name) return '?';
+  return name.replace(/^(Dr|Dra|Mg|Mgtr|Lic|PhD)\.?\s*/i,'')
+    .split(' ').filter(Boolean).slice(0,2)
+    .map(w => w[0].toUpperCase()).join('');
+}
+
+// ── Avatar color by faculty ──
+function avatarStyle(fac) {
+  if (!fac) return 'background:#f0f0ee;color:#555';
+  if (fac.includes('Eco')) return 'background:#EAE8FC;color:#3C3489';
+  if (fac.includes('Hum')) return 'background:#E1F5EE;color:#085041';
+  if (fac.includes('Jur')) return 'background:#FAEEDA;color:#633806';
+  return 'background:#f0f0ee;color:#555';
+}
+
+// ── Faculty tag class ──
+function facClass(fac) {
+  if (!fac) return 't-gray';
+  if (fac.includes('Eco')) return 't-eco';
+  if (fac.includes('Hum')) return 't-hum';
+  if (fac.includes('Jur')) return 't-jur';
+  return 't-gray';
+}
+
+// ── Modalidad tags ──
+function modTags(val) {
+  if (!val) return '';
+  const mods = Array.isArray(val) ? val : [val];
+  return mods.map(m => {
+    const cls = m.toLowerCase().includes('pres') ? 't-pre'
+               : m.toLowerCase().includes('virt') ? 't-vir'
+               : m.toLowerCase().includes('híb') || m.toLowerCase().includes('hib') ? 't-hib'
+               : 't-gray';
+    return `<span class="tag ${cls}">${m}</span>`;
+  }).join('');
+}
+
+// ── Degree badge ──
+function gradoBadge(grado) {
+  if (!grado) return '';
+  const color = grado.toLowerCase().includes('doc') ? '#534AB7' : '#1D9E75';
+  const bg    = grado.toLowerCase().includes('doc') ? '#F0F0FF' : '#E1F5EE';
+  return `<span class="badge-dr" style="background:${bg};color:${color}">${grado}</span>`;
+}
+
+// ── f(x) value helper ──
+function f(r, key) {
+  return r.fields[key] || '';
+}
+
+// ── Update KPIs ──
+function updateKPIs(records) {
+  const total = records.length;
+  const drs   = records.filter(r => String(f(r,'Grado Académico')).toLowerCase().includes('doc')).length;
+  const virs  = records.filter(r => {
+    const m = f(r,'Modalidad');
+    const s = Array.isArray(m) ? m.join(' ') : String(m);
+    return s.toLowerCase().includes('virt');
+  }).length;
+  document.getElementById('k-total').textContent = total;
+  document.getElementById('kb-total').style.width = Math.min(total,100)+'%';
+  const drPct = total ? Math.round(drs/total*100) : 0;
+  document.getElementById('k-dr').innerHTML = drPct+'<sup>%</sup>';
+  document.getElementById('kb-dr').style.width = drPct+'%';
+  const virPct = total ? Math.round(virs/total*100) : 0;
+  document.getElementById('k-vir').innerHTML = virPct+'<sup>%</sup>';
+  document.getElementById('kb-vir').style.width = virPct+'%';
+}
+
+// ── Render cards ──
+function render() {
+  const q     = document.getElementById('search').value.toLowerCase();
+  const shown = allRecords.filter(r => {
+    const fac   = String(f(r,'Facultad'));
+    const mod   = Array.isArray(f(r,'Modalidad')) ? f(r,'Modalidad').join(' ') : String(f(r,'Modalidad'));
+    const grado = String(f(r,'Grado Académico'));
+    const name  = String(f(r,'Nombre Completo')).toLowerCase();
+    const areas = String(f(r,'Áreas de Especialización')).toLowerCase();
+    const temas = String(f(r,'Temas de Formación')).toLowerCase();
+    return (!facFilter   || fac.includes(facFilter))
+        && (!modFilter   || mod.toLowerCase().includes(modFilter.toLowerCase()))
+        && (!gradoFilter || grado.includes(gradoFilter))
+        && (!q           || name.includes(q) || areas.includes(q) || temas.includes(q));
+  });
+
+  document.getElementById('count').textContent =
+    `Mostrando ${shown.length} de ${allRecords.length} expertos`;
+
+  if (!shown.length) {
+    document.getElementById('cards').innerHTML =
+      '<div class="state">No se encontraron expertos con esos filtros.</div>';
+    return;
+  }
+
+  document.getElementById('cards').innerHTML = shown.map(r => {
+    const name  = f(r,'Nombre Completo') || 'Sin nombre';
+    const role  = f(r,'Cargo Actual') || f(r,'Título Obtenido') || '';
+    const fac   = f(r,'Facultad');
+    const mod   = f(r,'Modalidad');
+    const areas = f(r,'Áreas de Especialización') || '';
+    const grado = f(r,'Grado Académico');
+    const foto  = r.fields['Foto'];
+    const avatarImg = foto && foto[0]
+      ? `<img class="avatar" src="${foto[0].url}" style="${avatarStyle(fac)}" alt="${name}"/>`
+      : `<div class="avatar" style="${avatarStyle(fac)}">${initials(name)}</div>`;
+
+    return `<div class="card" onclick="openModal('${r.id}')">
+      <div class="card-top">
+        ${avatarImg}
+        <div>
+          <div class="card-name">${name}</div>
+          <div class="card-role">${role}</div>
+        </div>
+      </div>
+      <div class="card-tags">
+        ${fac ? `<span class="tag ${facClass(fac)}">${fac}</span>` : ''}
+        ${modTags(mod)}
+      </div>
+      <div class="card-area">${areas.split(',').slice(0,3).join(' · ')}</div>
+      <div class="card-footer">
+        ${gradoBadge(grado)}
+        <span class="cta">Ver perfil →</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Open modal ──
+function openModal(id) {
+  const r = allRecords.find(x => x.id === id);
+  if (!r) return;
+  const name    = f(r,'Nombre Completo');
+  const role    = f(r,'Cargo Actual');
+  const inst    = f(r,'Institución Actual');
+  const fac     = f(r,'Facultad');
+  const mod     = f(r,'Modalidad');
+  const grado   = f(r,'Grado Académico');
+  const titulo  = f(r,'Título Obtenido');
+  const instTit = f(r,'Institución que Otorgó el Título');
+  const areas   = f(r,'Áreas de Especialización');
+  const temas   = f(r,'Temas de Formación');
+  const tray    = f(r,'Trayectoria Destacada');
+  const pubs    = f(r,'Publicaciones (cantidad)');
+  const hindex  = f(r,'Índice H');
+  const idiomas = f(r,'Idiomas');
+  const email   = f(r,'Email de Contacto');
+  const linkedin= f(r,'Perfil LinkedIn');
+  const foto    = r.fields['Foto'];
+  const cv      = r.fields['CV'];
+  const expDoc  = f(r,'Experiencia Docente (años)');
+  const expProf = f(r,'Experiencia Profesional (años)');
+
+  const avatarImg = foto && foto[0]
+    ? `<img class="m-avatar" src="${foto[0].url}" style="${avatarStyle(fac)}" alt="${name}"/>`
+    : `<div class="m-avatar" style="${avatarStyle(fac)}">${initials(name)}</div>`;
+
+  const areasTags = areas ? areas.split(',').map(a =>
+    `<span class="tag t-gray">${a.trim()}</span>`).join('') : '';
+  const temasTags = temas ? temas.split(',').map(t =>
+    `<span class="tag" style="background:#f0f0ee;color:#444">${t.trim()}</span>`).join('') : '';
+
+  let trayHTML = '';
+  if (tray) {
+    trayHTML = tray.split('\n').filter(Boolean).map(line => {
+      const m = line.match(/^(\d{4}[^:]*):(.+)$/);
+      return m
+        ? `<div class="tl-item"><div class="tl-year">${m[1].trim()}</div><div class="tl-desc">${m[2].trim()}</div></div>`
+        : `<div class="tl-item"><div class="tl-desc">${line}</div></div>`;
+    }).join('');
+  }
+
+  document.getElementById('modal-content').innerHTML = `
+    <div class="m-header">
+      ${avatarImg}
+      <div>
+        <div class="m-name">${name}</div>
+        <div class="m-role">${role}${inst ? ' · '+inst : ''}</div>
+      </div>
+    </div>
+    <div class="m-body">
+      <div class="s-title">Facultad y modalidades</div>
+      <div class="m-tags">
+        ${fac ? `<span class="tag ${facClass(fac)}">${fac}</span>` : ''}
+        ${modTags(mod)}
+        ${gradoBadge(grado)}
+      </div>
+
+      ${areas ? `<div class="s-title">Áreas de especialización</div><div class="m-tags">${areasTags}</div>` : ''}
+      ${temas ? `<div class="s-title">Temas de formación</div><div class="m-tags">${temasTags}</div>` : ''}
+
+      ${tray ? `<div class="s-title">Trayectoria destacada</div><div class="tl">${trayHTML}</div>` : ''}
+
+      ${(titulo || instTit) ? `
+        <div class="s-title">Formación académica</div>
+        <div class="m-stat">${titulo}${instTit ? ' — '+instTit : ''}</div>` : ''}
+
+      <div class="s-title">Indicadores académicos</div>
+      <div class="m-stat">
+        ${expDoc    ? `Exp. docente: ${expDoc} años<br>` : ''}
+        ${expProf   ? `Exp. profesional: ${expProf} años<br>` : ''}
+        ${pubs      ? `Publicaciones: ${pubs}<br>` : ''}
+        ${hindex    ? `Índice H: ${hindex}<br>` : ''}
+        ${idiomas   ? `Idiomas: ${idiomas}` : ''}
+      </div>
+
+      <div class="s-title">Contacto y recursos</div>
+      <div class="m-links">
+        ${email    ? `<a class="m-btn" href="mailto:${email}">✉ Email</a>` : ''}
+        ${linkedin ? `<a class="m-btn" href="https://${linkedin}" target="_blank">in LinkedIn</a>` : ''}
+        ${cv && cv[0] ? `<a class="m-btn dl" href="${cv[0].url}" target="_blank">⬇ Descargar CV</a>` : ''}
+      </div>
+    </div>`;
+
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.remove('open');
+}
+
+// ── Filter chip logic ──
+function setupChips(groupId, setter) {
+  document.getElementById(groupId).querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.getElementById(groupId).querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+      chip.classList.add('on');
+      setter(chip.dataset.v);
+      render();
+    });
+  });
+}
+
+// ── Init ──
+(async () => {
+  allRecords = await fetchAll();
+  if (allRecords.length) {
+    updateKPIs(allRecords);
+    render();
+  }
+})();
+
+setupChips('f-fac',   v => facFilter   = v);
+setupChips('f-mod',   v => modFilter   = v);
+setupChips('f-grado', v => gradoFilter = v);
+</script>
+</body>
+</html>
