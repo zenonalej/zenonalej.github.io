@@ -194,23 +194,23 @@ tbody td{padding:10px 16px;color:#4a5568}
     </div>
 
     <div class="card" style="margin-bottom:22px">
-<div class="card-header" onclick="toggleAutoev()" style="cursor:pointer;user-select:none">
-  <h2>📋 Pendientes de Autoevaluación <span id="autoev-arrow" style="font-size:.8rem;margin-left:6px">▼</span></h2>
-  <span class="badge" id="autoev-total">—</span>
-</div>
-<div id="autoev-body">
-  <div style="padding:4px 16px 0">
-    <div style="display:flex;gap:4px;border-bottom:1px solid #f0f0f0;margin-bottom:0">
-      <button class="autoev-tab active" onclick="switchAutoevTab(0)" id="atab-0" style="padding:10px 16px;border:none;background:transparent;font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:600;color:#1a56db;border-bottom:2px solid #1a56db;cursor:pointer">⚖️ Jurídicas <span id="autoev-count-0"></span></button>
-      <button class="autoev-tab" onclick="switchAutoevTab(1)" id="atab-1" style="padding:10px 16px;border:none;background:transparent;font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:500;color:#718096;border-bottom:2px solid transparent;cursor:pointer">📊 Económicas <span id="autoev-count-1"></span></button>
-      <button class="autoev-tab" onclick="switchAutoevTab(2)" id="atab-2" style="padding:10px 16px;border:none;background:transparent;font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:500;color:#718096;border-bottom:2px solid transparent;cursor:pointer">🎓 Humanidades <span id="autoev-count-2"></span></button>
-    </div>
+  <div class="card-header" onclick="toggleAutoev()" style="cursor:pointer;user-select:none">
+    <h2>📋 Pendientes de Autoevaluación <span id="autoev-arrow" style="font-size:.8rem;margin-left:6px">▼</span></h2>
+    <span class="badge" id="autoev-total">—</span>
   </div>
-  <div id="autoev-panel-0" class="autoev-panel" style="padding:12px 18px"></div>
-  <div id="autoev-panel-1" class="autoev-panel" style="padding:12px 18px;display:none"></div>
-  <div id="autoev-panel-2" class="autoev-panel" style="padding:12px 18px;display:none"></div>
-</div>
-    
+  <div id="autoev-body">
+    <div style="padding:4px 16px 0">
+      <div style="display:flex;gap:4px;border-bottom:1px solid #f0f0f0;margin-bottom:0">
+        <button onclick="event.stopPropagation();switchAutoevTab(0)" id="atab-0" style="padding:10px 16px;border:none;background:transparent;font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:600;color:#1a56db;border-bottom:2px solid #1a56db;cursor:pointer">⚖️ Jurídicas <span id="autoev-count-0"></span></button>
+        <button onclick="event.stopPropagation();switchAutoevTab(1)" id="atab-1" style="padding:10px 16px;border:none;background:transparent;font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:500;color:#718096;border-bottom:2px solid transparent;cursor:pointer">📊 Económicas <span id="autoev-count-1"></span></button>
+        <button onclick="event.stopPropagation();switchAutoevTab(2)" id="atab-2" style="padding:10px 16px;border:none;background:transparent;font-family:'Montserrat',sans-serif;font-size:.78rem;font-weight:500;color:#718096;border-bottom:2px solid transparent;cursor:pointer">🎓 Humanidades <span id="autoev-count-2"></span></button>
+      </div>
+    </div>
+    <div id="autoev-panel-0" style="padding:12px 18px"></div>
+    <div id="autoev-panel-1" style="padding:12px 18px;display:none"></div>
+    <div id="autoev-panel-2" style="padding:12px 18px;display:none"></div>
+  </div>
+</div>    
     <div id="rankings-container"></div>
   </div>
 
