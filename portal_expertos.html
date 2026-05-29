@@ -112,7 +112,7 @@ nav{background:#fff;border-bottom:1px solid #e5e5e0;padding:12px 24px;display:fl
 <div class="kpis">
   <div class="kpi"><div class="kpi-val" id="k-total">—</div><div class="kpi-lbl">Total de expertos</div><div class="kpi-bar"><div class="kpi-fill" id="kb-total" style="width:0%;background:#4A3FA0"></div></div></div>
   <div class="kpi"><div class="kpi-val" id="k-dr">—<sup>%</sup></div><div class="kpi-lbl">Con grado doctoral</div><div class="kpi-bar"><div class="kpi-fill" id="kb-dr" style="width:0%;background:#1D9E75"></div></div></div>
-  <div class="kpi"><div class="kpi-val" id="k-fac">3</div><div class="kpi-lbl">Facultades cubiertas</div><div class="kpi-bar"><div class="kpi-fill" style="width:100%;background:#BA7517"></div></div></div>
+  <div class="kpi"><div class="kpi-val" id="k-mag">3</div><div class="kpi-lbl">Con grado de maestría</div><div class="kpi-bar"><div class="kpi-fill" id="kb-mag" style="width:100%;background:#BA7517"></div></div></div>
   <div class="kpi"><div class="kpi-val" id="k-vir">—<sup>%</sup></div><div class="kpi-lbl">Disponibilidad virtual</div><div class="kpi-bar"><div class="kpi-fill" id="kb-vir" style="width:0%;background:#185FA5"></div></div></div>
 </div>
 
@@ -322,6 +322,8 @@ function updateKPIs(recs) {
   document.getElementById('kb-total').style.width = Math.min(total,100)+'%';
   document.getElementById('k-dr').innerHTML = drPct+'<sup>%</sup>';
   document.getElementById('kb-dr').style.width = drPct+'%';
+  document.getElementById('k-mag').innerHTML = magPct+'<sup>%</sup>';
+  document.getElementById('kb-mag').style.width = magPct+'%';
   document.getElementById('k-vir').innerHTML = virPct+'<sup>%</sup>';
   document.getElementById('kb-vir').style.width = virPct+'%';
 }
