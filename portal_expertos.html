@@ -316,7 +316,7 @@ function updateKPIs(recs) {
     const m = f(r,'Modalidad');
     return (Array.isArray(m)?m.join(' '):String(m)).toLowerCase().includes('virt');
   }).length / total * 100) : 0;
-  const mags   = recs.filter(r => String(f(r,'Grado Académico')).toLowerCase().includes('mag')).length;
+  const mags   = recs.filter(r => String(f(r,'Grado Académico')).toLowerCase().includes('maestro')).length;
   const magPct = total ? Math.round(mags/total*100) : 0;
   const drPct  = total ? Math.round(drs/total*100) : 0;
 
