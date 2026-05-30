@@ -140,17 +140,44 @@ const PAGE_SIZE = 30;
 
 const WORKER_URL = 'https://zenonalej.zenon-lopez.workers.dev/';
 
-// ── Carga datos via Claude API (evita CORS con Airtable) ──
+// ── Fetch directo a Airtable ──────────────────────────────
+async function fetchDirect() {
+  let records = [], offset = '';
+  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${encodeURIComponent(AIRTABLE_TABLE)}`;
+  do {
+    const r = await fetch(url + (offset ? `?offset=${offset}` : ''), {
+      headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` }
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    d.records.forEach(rec => records.push({ id: rec.id, ...rec.fields }));
+    offset = d.offset || '';
+  } while (offset);
+  return records;
+}
+
+// ── Fetch via Worker (fallback CORS) ─────────────────────
+async function fetchViaWorker() {
+  const res = await fetch(WORKER_URL);
+  if (!res.ok) throw new Error(`Worker HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.error) throw new Error(JSON.stringify(data.error));
+  return data;
+}
+
+// ── Carga datos: intenta directo, si falla usa Worker ────
 async function loadData() {
   showLoading('Conectando con Airtable...');
   try {
-    const res = await fetch(WORKER_URL);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (data.error) throw new Error(JSON.stringify(data.error));
-    if (!Array.isArray(data)) throw new Error('Formato inesperado');
-
-    allRecords = data;
+    // Primero intento directo
+    try {
+      const data = await fetchDirect();
+      allRecords = data;
+    } catch(e) {
+      console.log('Fetch directo bloqueado, usando Worker…');
+      const data = await fetchViaWorker();
+      allRecords = data;
+    }
     populateSelects();
     applyFilters();
   } catch(e) {
