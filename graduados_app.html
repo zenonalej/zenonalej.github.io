@@ -93,8 +93,8 @@
 <header>
   <div class="logo">🎓</div>
   <div>
-    <h1>Sistema de Graduados</h1>
-    <p>Universidad Modular Abierta · Sede Sonsonate</p>
+    <h1>Base de Datos de Graduados</h1>
+    <p>Universidad Modular Abierta · Regional Sonsonate</p>
   </div>
 </header>
 
@@ -138,7 +138,7 @@
 let allRecords = [], filtered = [], currentPage = 1;
 const PAGE_SIZE = 30;
 
-const WORKER_URL = 'https://zenonalej.zenon-lopez.workers.dev/';
+const WORKER_URL = 'https://graduados-proxy.zenon-lopez.workers.dev/';
 
 // ── Fetch directo a Airtable ──────────────────────────────
 async function fetchDirect() {
