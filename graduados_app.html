@@ -149,25 +149,16 @@
 <header>
   <div class="logo">🎓</div>
   <div>
-    <h1>Sistema de Graduados</h1>
-    <p>Universidad Modular Abierta · Sede Sonsonate</p>
+    <h1>Base de Datos de Graduados</h1>
+    <p>Universidad Modular Abierta · Regional Sonsonate</p>
   </div>
 </header>
 
-<!-- Config Airtable -->
-<div class="config-bar" id="configBar">
-  <span>⚙️ <strong>Configuración Airtable:</strong></span>
-  <input type="text" id="airtableToken" placeholder="Token de acceso personal (patXXXXXX...)" />
-  <input type="text" id="airtableBase" placeholder="Base ID (appXXXXXX...)" style="width:200px"/>
-  <input type="text" id="airtableTable" placeholder="Nombre de tabla" value="GRADUADOS" style="width:160px"/>
-  <button onclick="connectAirtable()">Conectar</button>
-  <button onclick="useDemoData()" style="background:#6c757d;color:white">Usar datos demo</button>
-</div>
+<!-- Config Airtable (oculta, valores fijos) -->
+<div id="configBar" style="display:none"></div>
 
 <div class="main">
-  <div id="demoNote" class="demo-note" style="display:none">
-    📋 Mostrando <strong>datos de muestra</strong> del CSV. Para conectar tu base de Airtable, ingresa tu token y Base ID arriba.
-  </div>
+  <div id="demoNote" style="display:none"></div>
 
   <!-- Filtros -->
   <div class="filters">
@@ -253,13 +244,10 @@ const DEMO_DATA = [
 
 // ── Conexión Airtable ─────────────────────────────────────
 async function connectAirtable() {
-  const token = document.getElementById('airtableToken').value.trim();
-  const base  = document.getElementById('airtableBase').value.trim();
-  const table = document.getElementById('airtableTable').value.trim() || 'GRADUADOS';
+  const token = 'patFpXtk3ndC94huP.9acf2104b711636b3aef4a7d7875f62028dff6084bcc8d2c2f0cdf05c765f226';
+  const base  = 'appmLEatZG3pjsQZK';
+  const table = 'GRADUADOS';
 
-  if (!token || !base) {
-    alert('Por favor ingresa el Token y el Base ID de Airtable.'); return;
-  }
   showLoading('Conectando con Airtable...');
 
   try {
