@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graduados - UMA Sonsonate</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; }
+
+  header {
+    background: linear-gradient(135deg, #1e3a5f, #2d6a9f);
+    color: white; padding: 20px 30px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  header .logo { font-size: 2rem; }
+  header h1 { font-size: 1.4rem; font-weight: 700; }
+  header p { font-size: 0.82rem; opacity: 0.8; }
+
+  .config-bar {
+    background: #fff3cd; border-bottom: 1px solid #ffc107;
+    padding: 10px 24px; font-size: 0.85rem; color: #856404;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .config-bar input {
+    border: 1px solid #ffc107; border-radius: 6px; padding: 5px 10px;
+    font-size: 0.85rem; width: 340px; background: #fffdf0;
+  }
+  .config-bar button {
+    background: #ffc107; border: none; border-radius: 6px;
+    padding: 5px 14px; cursor: pointer; font-weight: 600; font-size: 0.82rem;
+  }
+
+  .main { padding: 20px 24px; }
+
+  .filters {
+    background: white; border-radius: 12px; padding: 18px 20px;
+    margin-bottom: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .filters h2 { font-size: 0.95rem; color: #4a5568; margin-bottom: 12px; }
+  .filter-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px;
+  }
+  .filter-grid input, .filter-grid select {
+    border: 1px solid #e2e8f0; border-radius: 8px;
+    padding: 7px 11px; font-size: 0.85rem; width: 100%;
+    transition: border-color .2s;
+  }
+  .filter-grid input:focus, .filter-grid select:focus {
+    outline: none; border-color: #2d6a9f;
+  }
+  .filter-actions { margin-top: 12px; display: flex; gap: 10px; align-items: center; }
+  .btn-primary {
+    background: #2d6a9f; color: white; border: none; border-radius: 8px;
+    padding: 8px 18px; cursor: pointer; font-size: 0.88rem; font-weight: 600;
+  }
+  .btn-secondary {
+    background: #e2e8f0; color: #4a5568; border: none; border-radius: 8px;
+    padding: 8px 14px; cursor: pointer; font-size: 0.85rem;
+  }
+  .btn-primary:hover { background: #1e4f7a; }
+  .btn-secondary:hover { background: #cbd5e0; }
+
+  .stats-bar {
+    display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .stat-card {
+    background: white; border-radius: 10px; padding: 12px 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07); flex: 1; min-width: 130px;
+  }
+  .stat-card .num { font-size: 1.6rem; font-weight: 700; color: #2d6a9f; }
+  .stat-card .lbl { font-size: 0.75rem; color: #718096; }
+
+  .table-wrap {
+    background: white; border-radius: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: auto;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  th {
+    background: #1e3a5f; color: white; padding: 11px 12px;
+    text-align: left; white-space: nowrap; position: sticky; top: 0; z-index: 2;
+  }
+  td { padding: 9px 12px; border-bottom: 1px solid #f0f4f8; vertical-align: top; }
+  tr:hover td { background: #ebf4ff; }
+  tr:last-child td { border-bottom: none; }
+
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 0.73rem; font-weight: 600; white-space: nowrap;
+  }
+  .badge-pub  { background: #bee3f8; color: #1a6fa3; }
+  .badge-priv { background: #c6f6d5; color: #276749; }
+  .badge-ind  { background: #fefcbf; color: #744210; }
+  .badge-otro { background: #e9d8fd; color: #553c9a; }
+
+  .carrera-tag {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 0.72rem; font-weight: 600;
+  }
+  .tag-adm   { background: #fed7e2; color: #97266d; }
+  .tag-cont  { background: #feebc8; color: #c05621; }
+  .tag-jur   { background: #c3dafe; color: #2b4db0; }
+  .tag-edu   { background: #d1fae5; color: #065f46; }
+  .tag-psi   { background: #e9d8fd; color: #553c9a; }
+  .tag-let   { background: #fff3cd; color: #7c4a03; }
+  .tag-ing   { background: #bfdbfe; color: #1d4ed8; }
+  .tag-otras { background: #f3f4f6; color: #374151; }
+
+  .loading { text-align: center; padding: 50px; color: #718096; font-size: 0.95rem; }
+  .loading .spinner {
+    width: 36px; height: 36px; border: 4px solid #e2e8f0;
+    border-top-color: #2d6a9f; border-radius: 50%;
+    animation: spin .8s linear infinite; margin: 0 auto 14px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-box {
+    background: #fff5f5; border: 1px solid #fc8181; border-radius: 10px;
+    padding: 20px; color: #c53030; text-align: center; margin: 20px 0;
+  }
+  .no-results { text-align: center; padding: 40px; color: #a0aec0; }
+
+  .pagination {
+    display: flex; justify-content: center; align-items: center;
+    gap: 8px; padding: 16px; flex-wrap: wrap;
+  }
+  .pagination button {
+    border: 1px solid #e2e8f0; background: white; border-radius: 6px;
+    padding: 5px 12px; cursor: pointer; font-size: 0.83rem;
+  }
+  .pagination button.active { background: #2d6a9f; color: white; border-color: #2d6a9f; }
+  .pagination button:hover:not(.active) { background: #edf2f7; }
+  .pagination .info { color: #718096; font-size: 0.82rem; }
+
+  .demo-note {
+    background: #ebf8ff; border: 1px solid #90cdf4; border-radius: 8px;
+    padding: 10px 14px; font-size: 0.82rem; color: #2b6cb0; margin-bottom: 14px;
+  }
+
+  @media(max-width:768px) {
+    .filter-grid { grid-template-columns: 1fr 1fr; }
+    th, td { padding: 7px 8px; font-size: 0.78rem; }
+    .config-bar input { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🎓</div>
+  <div>
+    <h1>Sistema de Graduados</h1>
+    <p>Universidad Modular Abierta · Sede Sonsonate</p>
+  </div>
+</header>
+
+<!-- Config Airtable -->
+<div class="config-bar" id="configBar">
+  <span>⚙️ <strong>Configuración Airtable:</strong></span>
+  <input type="text" id="airtableToken" placeholder="Token de acceso personal (patXXXXXX...)" />
+  <input type="text" id="airtableBase" placeholder="Base ID (appXXXXXX...)" style="width:200px"/>
+  <input type="text" id="airtableTable" placeholder="Nombre de tabla" value="GRADUADOS" style="width:160px"/>
+  <button onclick="connectAirtable()">Conectar</button>
+  <button onclick="useDemoData()" style="background:#6c757d;color:white">Usar datos demo</button>
+</div>
+
+<div class="main">
+  <div id="demoNote" class="demo-note" style="display:none">
+    📋 Mostrando <strong>datos de muestra</strong> del CSV. Para conectar tu base de Airtable, ingresa tu token y Base ID arriba.
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters">
+    <h2>🔍 Filtros</h2>
+    <div class="filter-grid">
+      <input type="text" id="fNombre" placeholder="Buscar por nombre/apellido..." oninput="applyFilters()">
+      <select id="fCarrera" onchange="applyFilters()">
+        <option value="">Todas las carreras</option>
+      </select>
+      <select id="fSector" onchange="applyFilters()">
+        <option value="">Todos los sectores</option>
+        <option value="Sector Público">Sector Público</option>
+        <option value="Sector Privado">Sector Privado</option>
+        <option value="Independiente">Independiente</option>
+        <option value="Otros">Otros</option>
+      </select>
+      <select id="fAnio" onchange="applyFilters()">
+        <option value="">Todos los años</option>
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button class="btn-primary" onclick="applyFilters()">Aplicar filtros</button>
+      <button class="btn-secondary" onclick="clearFilters()">Limpiar</button>
+      <button class="btn-secondary" onclick="exportCSV()">⬇ Exportar CSV</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card"><div class="num" id="statTotal">—</div><div class="lbl">Total registros</div></div>
+    <div class="stat-card"><div class="num" id="statFiltrado">—</div><div class="lbl">Filtrados</div></div>
+    <div class="stat-card"><div class="num" id="statPublico">—</div><div class="lbl">Sector Público</div></div>
+    <div class="stat-card"><div class="num" id="statPrivado">—</div><div class="lbl">Sector Privado</div></div>
+  </div>
+
+  <!-- Tabla -->
+  <div class="table-wrap">
+    <div id="tableContainer">
+      <div class="loading">
+        <div class="spinner"></div>
+        Conecta tu base de Airtable o usa los datos demo para comenzar
+      </div>
+    </div>
+    <div class="pagination" id="paginationBar" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+// ── Estado ──────────────────────────────────────────────
+let allRecords = [];
+let filtered   = [];
+let currentPage = 1;
+const PAGE_SIZE = 30;
+
+// ── Datos demo (muestra del CSV) ─────────────────────────
+const DEMO_DATA = [
+{"APELLIDOS":"Aguilar de Ramírez","NOMBRES":"Gloria Yesenia","CARRERA":"Administración de Empresas","PROFESORADO":"","MAESTRIA":"Docencia Universitaria","AÑO":"2014","SECTOR":"Sector Público","LUGAR_TRABAJO":"Ministerio de Educación","TEL_FIJO":"","TEL_PARTICULAR":"7183-2327","CELULAR":"","CELULAR2":"","CORREO":"yesenia.aguilarfomiii@gmail.com"},
+{"APELLIDOS":"Aguilar Machado","NOMBRES":"William Ernesto","CARRERA":"Administración de Empresas","PROFESORADO":"","MAESTRIA":"","AÑO":"2013","SECTOR":"Sector Privado","LUGAR_TRABAJO":"Negocio Propio","TEL_FIJO":"","TEL_PARTICULAR":"","CELULAR":"7917-6701","CELULAR2":"","CORREO":"mesut503@gmail.com"},
+{"APELLIDOS":"Alas Miranda","NOMBRES":"Jesús Manuel","CARRERA":"Administración de Empresas","PROFESORADO":"","MAESTRIA":"","AÑO":"2006","SECTOR":"","LUGAR_TRABAJO":"Departamental de Educación","TEL_FIJO":"2429-0567","TEL_PARTICULAR":"","CELULAR":"","CELULAR2":"","CORREO":"alex.man.527@hotmail.com"},
+{"APELLIDOS":"Amaya","NOMBRES":"Karina Maricella","CARRERA":"Administración de Empresas","PROFESORADO":"","MAESTRIA":"","AÑO":"2013","SECTOR":"Sector Privado","LUGAR_TRABAJO":"Hotel Royal Decameron Salinitas","TEL_FIJO":"22093000","TEL_PARTICULAR":"","CELULAR":"63028-8138","CELULAR2":"","CORREO":"karinaamaya7@yahoo.com"},
+{"APELLIDOS":"Ayala Morán","NOMBRES":"Carlos Efrain","CARRERA":"Administración de Empresas","PROFESORADO":"","MAESTRIA":"","AÑO":"2017","SECTOR":"Sector Público","LUGAR_TRABAJO":"Asamblea Legislativa","TEL_FIJO":"2429-0017","TEL_PARTICULAR":"2421-3055","CELULAR":"6300-1235","CELULAR2":"","CORREO":"carlos.efrain.ayala.moran@gmail.com"},
+{"APELLIDOS":"Cartagena Guardado","NOMBRES":"Jose Domingo","CARRERA":"Contaduría Pública","PROFESORADO":"Ciencias Comerciales","MAESTRIA":"","AÑO":"2000","SECTOR":"Sector Público","LUGAR_TRABAJO":"INI","TEL_FIJO":"2453-5405","TEL_PARTICULAR":"2453-6208","CELULAR":"7860-6211","CELULAR2":"","CORREO":"cartita1962@yahoo.com.mx"},
+{"APELLIDOS":"Castro Galdámez","NOMBRES":"Luis Enrique","CARRERA":"Contaduría Pública","PROFESORADO":"","MAESTRIA":"","AÑO":"2017","SECTOR":"Sector Público","LUGAR_TRABAJO":"Corte de Cuentas","TEL_FIJO":"2441-3585","TEL_PARTICULAR":"","CELULAR":"7490-7703","CELULAR2":"","CORREO":"luiscastro1972@yahoo.com"},
+{"APELLIDOS":"Chinco Elas","NOMBRES":"Rene Wilfredo","CARRERA":"Contaduría Pública","PROFESORADO":"","MAESTRIA":"","AÑO":"2017","SECTOR":"Sector Privado","LUGAR_TRABAJO":"MACOGA S.A. de C.V.","TEL_FIJO":"24016000","TEL_PARTICULAR":"2453-5888","CELULAR":"6420-1246","CELULAR2":"","CORREO":"renesito_1230@yahoo.com"},
+{"APELLIDOS":"Acosta Canales","NOMBRES":"Geraldine","CARRERA":"Ciencias Jurídicas","PROFESORADO":"","MAESTRIA":"","AÑO":"2015","SECTOR":"Independiente","LUGAR_TRABAJO":"","TEL_FIJO":"7021-2576","TEL_PARTICULAR":"","CELULAR":"7021-2576","CELULAR2":"","CORREO":""},
+{"APELLIDOS":"Aguilar","NOMBRES":"Freddy Scott","CARRERA":"Ciencias Jurídicas","PROFESORADO":"","MAESTRIA":"","AÑO":"2013","SECTOR":"Sector Público","LUGAR_TRABAJO":"PNC","TEL_FIJO":"6104-4615","TEL_PARTICULAR":"","CELULAR":"6104-4615","CELULAR2":"","CORREO":"scottcez@yahoo.com"},
+{"APELLIDOS":"Alfaro de Gutiérrez","NOMBRES":"Andrea Marisol","CARRERA":"Ciencias Jurídicas","PROFESORADO":"","MAESTRIA":"","AÑO":"2015","SECTOR":"Independiente","LUGAR_TRABAJO":"","TEL_FIJO":"2407-0591","TEL_PARTICULAR":"2407-0591","CELULAR":"7795-5048","CELULAR2":"","CORREO":"andrea_jordan@outlook.com"},
+{"APELLIDOS":"Barrera Leiva","NOMBRES":"Hugo Javier","CARRERA":"Ciencias Jurídicas","PROFESORADO":"","MAESTRIA":"","AÑO":"2017","SECTOR":"Sector Público","LUGAR_TRABAJO":"Juzgado de Teotepeque, La Libertad","TEL_FIJO":"2346-9829","TEL_PARTICULAR":"7664-6166","CELULAR":"","CELULAR2":"","CORREO":"barrera19921@hotmail.com"},
+{"APELLIDOS":"Galdámez","NOMBRES":"Nefy Antonio","CARRERA":"Ciencias Jurídicas","PROFESORADO":"","MAESTRIA":"","AÑO":"2006","SECTOR":"Sector Público","LUGAR_TRABAJO":"Juzgado de San Antonio del Monte","TEL_FIJO":"2451-5777","TEL_PARTICULAR":"","CELULAR":"7628-0542","CELULAR2":"","CORREO":"nefygaldamez1965@gmail.com"},
+{"APELLIDOS":"Aguilar","NOMBRES":"Gloria Mercedes","CARRERA":"","PROFESORADO":"Educacion Parvularia","MAESTRIA":"","AÑO":"1999","SECTOR":"Sector Público","LUGAR_TRABAJO":"Centro Escolar de la Colonia el Progreso","TEL_FIJO":"7648-2837","TEL_PARTICULAR":"7648-2837","CELULAR":"","CELULAR2":"","CORREO":""},
+{"APELLIDOS":"Aguilar Lúe","NOMBRES":"Erick Marlon","CARRERA":"Ciencias de la Educación - CC Sociales","PROFESORADO":"","MAESTRIA":"","AÑO":"2011","SECTOR":"Sector Público","LUGAR_TRABAJO":"Complejo Educativo Dr. Jose Ciro Brito","TEL_FIJO":"2453-0235","TEL_PARTICULAR":"2453-0235","CELULAR":"","CELULAR2":"","CORREO":"marlonaguilar17@hotmail.com"},
+{"APELLIDOS":"Amaya","NOMBRES":"Fabricio Edgardo","CARRERA":"Psicología","PROFESORADO":"","MAESTRIA":"Docencia Universitaria","AÑO":"2019","SECTOR":"Sector Privado","LUGAR_TRABAJO":"Colectigo de Alejandria ONG","TEL_FIJO":"2235-2486","TEL_PARTICULAR":"","CELULAR":"6196-6753","CELULAR2":"","CORREO":"edgardofabri@gmail.com"},
+{"APELLIDOS":"Arévalo Lue","NOMBRES":"Mercedes","CARRERA":"Psicología","PROFESORADO":"","MAESTRIA":"","AÑO":"2015","SECTOR":"Sector Público","LUGAR_TRABAJO":"PNC-Sonsonate","TEL_FIJO":"2420-8526","TEL_PARTICULAR":"","CELULAR":"77495733","CELULAR2":"","CORREO":"arevalomercedes562@gmail.com"},
+{"APELLIDOS":"Fajardo de Soltero","NOMBRES":"Helen Yamileth","CARRERA":"Psicología","PROFESORADO":"","MAESTRIA":"","AÑO":"2018","SECTOR":"Sector Público","LUGAR_TRABAJO":"Hospital Nacional Benajin Bloom","TEL_FIJO":"2451-1063","TEL_PARTICULAR":"","CELULAR":"7604-8454","CELULAR2":"","CORREO":"helenmenamora@hotmail.com"},
+{"APELLIDOS":"Martínez de Escobar","NOMBRES":"Blanca Patricia","CARRERA":"Psicología","PROFESORADO":"","MAESTRIA":"","AÑO":"2015","SECTOR":"Sector Público","LUGAR_TRABAJO":"Ministerio de Trabajo y Prevision Social","TEL_FIJO":"7758-4807","TEL_PARTICULAR":"","CELULAR":"7758-4807","CELULAR2":"","CORREO":"patti_d.escobar@hotmail.com"},
+{"APELLIDOS":"Alfaro Escobar","NOMBRES":"José Mauricio","CARRERA":"","PROFESORADO":"","MAESTRIA":"Docencia Universitaria","AÑO":"2012","SECTOR":"Independiente","LUGAR_TRABAJO":"","TEL_FIJO":"2407-8983","TEL_PARTICULAR":"2407-8983","CELULAR":"7797-5713","CELULAR2":"","CORREO":"josmalfa@gmail.com"},
+{"APELLIDOS":"González de Rogel","NOMBRES":"María Isabel","CARRERA":"","PROFESORADO":"","MAESTRIA":"Docencia Universitaria","AÑO":"2013","SECTOR":"Sector Público","LUGAR_TRABAJO":"Hospital Naciona Dr. Jorge Mazzini","TEL_FIJO":"7877-0610","TEL_PARTICULAR":"2451-3445","CELULAR":"7877-0610","CELULAR2":"","CORREO":"isarogel7@yahoo.es"},
+{"APELLIDOS":"Alfaro Martínez","NOMBRES":"Dagoberto","CARRERA":"","PROFESORADO":"En Inglés","MAESTRIA":"","AÑO":"1998","SECTOR":"Sector Público","LUGAR_TRABAJO":"Complejo Educactivo Pedro F. Cantor","TEL_FIJO":"","TEL_PARTICULAR":"","CELULAR":"7545-6944","CELULAR2":"","CORREO":"dagoberto68alfaro@gmail.com"},
+{"APELLIDOS":"Durán Rivas","NOMBRES":"Carolina Abigail","CARRERA":"Administración de Empresas","PROFESORADO":"","MAESTRIA":"","AÑO":"2019","SECTOR":"Independiente","LUGAR_TRABAJO":"","TEL_FIJO":"2451-4184","TEL_PARTICULAR":"","CELULAR":"7667-5454","CELULAR2":"","CORREO":"abby.rivas25@gmail.com"},
+{"APELLIDOS":"Meléndez López","NOMBRES":"Yessica Elizabeth","CARRERA":"Contaduría Pública","PROFESORADO":"","MAESTRIA":"","AÑO":"2019","SECTOR":"Sector Privado","LUGAR_TRABAJO":"Despacho Contable","TEL_FIJO":"","TEL_PARTICULAR":"2417-8084","CELULAR":"7668-0225","CELULAR2":"","CORREO":"lopezmelendezyessica@gmail.com"},
+{"APELLIDOS":"Reyes Montano","NOMBRES":"Douglas Ernesto","CARRERA":"Administración de Empresas","PROFESORADO":"","MAESTRIA":"","AÑO":"2018","SECTOR":"Sector Privado","LUGAR_TRABAJO":"Zona Industrial Acajutla","TEL_FIJO":"2452-3037","TEL_PARTICULAR":"76908304","CELULAR":"60271037","CELULAR2":"","CORREO":"montano_douglas@hotmail.com"}
+];
+
+// ── Conexión Airtable ─────────────────────────────────────
+async function connectAirtable() {
+  const token = document.getElementById('airtableToken').value.trim();
+  const base  = document.getElementById('airtableBase').value.trim();
+  const table = document.getElementById('airtableTable').value.trim() || 'GRADUADOS';
+
+  if (!token || !base) {
+    alert('Por favor ingresa el Token y el Base ID de Airtable.'); return;
+  }
+  showLoading('Conectando con Airtable...');
+
+  try {
+    let records = [];
+    let offset = null;
+    do {
+      const url = `https://api.airtable.com/v0/${base}/${encodeURIComponent(table)}` +
+                  (offset ? `?offset=${offset}` : '');
+      const res = await fetch(url, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error?.message || `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      records = records.concat(data.records.map(r => r.fields));
+      offset = data.offset || null;
+    } while (offset);
+
+    allRecords = records;
+    document.getElementById('demoNote').style.display = 'none';
+    initTable();
+  } catch(e) {
+    showError(`Error al conectar con Airtable: ${e.message}<br><small>Verifica el token, Base ID y nombre de tabla.</small>`);
+  }
+}
+
+function useDemoData() {
+  allRecords = DEMO_DATA;
+  document.getElementById('demoNote').style.display = 'block';
+  initTable();
+}
+
+// ── Inicializar tabla ─────────────────────────────────────
+function initTable() {
+  populateSelects();
+  applyFilters();
+}
+
+function populateSelects() {
+  const carreras = [...new Set(allRecords.map(r =>
+    r.CARRERA || r.LICENCIATURA || r.PROFESORADO || '(Sin especificar)'
+  ).filter(Boolean))].sort();
+
+  const selC = document.getElementById('fCarrera');
+  selC.innerHTML = '<option value="">Todas las carreras</option>';
+  carreras.forEach(c => {
+    const o = document.createElement('option');
+    o.value = o.textContent = c;
+    selC.appendChild(o);
+  });
+
+  const años = [...new Set(allRecords.map(r => r.AÑO).filter(Boolean))].sort((a,b) => b-a);
+  const selA = document.getElementById('fAnio');
+  selA.innerHTML = '<option value="">Todos los años</option>';
+  años.forEach(a => {
+    const o = document.createElement('option');
+    o.value = o.textContent = a;
+    selA.appendChild(o);
+  });
+}
+
+// ── Filtros ───────────────────────────────────────────────
+function applyFilters() {
+  const nombre  = document.getElementById('fNombre').value.toLowerCase();
+  const carrera = document.getElementById('fCarrera').value;
+  const sector  = document.getElementById('fSector').value;
+  const anio    = document.getElementById('fAnio').value;
+
+  filtered = allRecords.filter(r => {
+    const fullName = `${r.APELLIDOS||''} ${r.NOMBRES||''}`.toLowerCase();
+    const rCarrera = r.CARRERA || r.LICENCIATURA || r.PROFESORADO || '';
+    const rSector  = r.SECTOR || r.TRABAJA || '';
+
+    return (!nombre  || fullName.includes(nombre))
+        && (!carrera || rCarrera === carrera)
+        && (!sector  || rSector.toLowerCase().includes(sector.toLowerCase()))
+        && (!anio    || (r.AÑO||'') === anio);
+  });
+
+  currentPage = 1;
+  updateStats();
+  renderTable();
+}
+
+function clearFilters() {
+  ['fNombre','fCarrera','fSector','fAnio'].forEach(id => {
+    const el = document.getElementById(id);
+    el.tagName === 'SELECT' ? (el.selectedIndex = 0) : (el.value = '');
+  });
+  applyFilters();
+}
+
+// ── Stats ─────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('statTotal').textContent    = allRecords.length;
+  document.getElementById('statFiltrado').textContent = filtered.length;
+  document.getElementById('statPublico').textContent  =
+    filtered.filter(r => (r.SECTOR||r.TRABAJA||'').toLowerCase().includes('público')).length;
+  document.getElementById('statPrivado').textContent  =
+    filtered.filter(r => (r.SECTOR||r.TRABAJA||'').toLowerCase().includes('privado')).length;
+}
+
+// ── Render tabla ──────────────────────────────────────────
+function renderTable() {
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page  = filtered.slice(start, start + PAGE_SIZE);
+  const cont  = document.getElementById('tableContainer');
+
+  if (!filtered.length) {
+    cont.innerHTML = '<div class="no-results">😕 No se encontraron resultados con los filtros aplicados.</div>';
+    document.getElementById('paginationBar').style.display = 'none';
+    return;
+  }
+
+  const cols = [
+    { key: ['APELLIDOS'],                    label: 'Apellidos' },
+    { key: ['NOMBRES'],                      label: 'Nombres' },
+    { key: ['CARRERA','LICENCIATURA'],       label: 'Carrera / Licenciatura' },
+    { key: ['PROFESORADO'],                  label: 'Profesorado' },
+    { key: ['MAESTRIA'],                     label: 'Maestría' },
+    { key: ['AÑO'],                          label: 'Año' },
+    { key: ['SECTOR','TRABAJA'],             label: 'Sector' },
+    { key: ['LUGAR_TRABAJO','LUGAR DE TRABAJO','TRABAJO'], label: 'Lugar de Trabajo' },
+    { key: ['CELULAR','CELULAR 2'],          label: 'Celular' },
+    { key: ['CORREO'],                       label: 'Correo' },
+  ];
+
+  const thead = `<thead><tr>${cols.map(c=>`<th>${c.label}</th>`).join('')}</tr></thead>`;
+  const rows  = page.map(r => {
+    const cells = cols.map(c => {
+      const val = c.key.map(k => r[k]).find(v => v) || '';
+      if (c.label === 'Sector') return `<td>${sectorBadge(val)}</td>`;
+      if (c.label === 'Carrera / Licenciatura') return `<td>${carreraBadge(val)}</td>`;
+      if (c.label === 'Correo' && val)
+        return `<td><a href="mailto:${val}" style="color:#2d6a9f">${val}</a></td>`;
+      return `<td>${val}</td>`;
+    }).join('');
+    return `<tr>${cells}</tr>`;
+  }).join('');
+
+  cont.innerHTML = `<table>${thead}<tbody>${rows}</tbody></table>`;
+  renderPagination();
+}
+
+function sectorBadge(s) {
+  if (!s) return '';
+  const sl = s.toLowerCase();
+  if (sl.includes('público'))  return `<span class="badge badge-pub">${s}</span>`;
+  if (sl.includes('privado'))  return `<span class="badge badge-priv">${s}</span>`;
+  if (sl.includes('independ')) return `<span class="badge badge-ind">${s}</span>`;
+  return `<span class="badge badge-otro">${s}</span>`;
+}
+
+function carreraBadge(c) {
+  if (!c) return '';
+  const cl = c.toLowerCase();
+  let cls = 'tag-otras';
+  if (cl.includes('administr'))    cls = 'tag-adm';
+  else if (cl.includes('contad'))  cls = 'tag-cont';
+  else if (cl.includes('jurídic') || cl.includes('juridic')) cls = 'tag-jur';
+  else if (cl.includes('educac') || cl.includes('parvul') || cl.includes('estudio')) cls = 'tag-edu';
+  else if (cl.includes('psicol'))  cls = 'tag-psi';
+  else if (cl.includes('letra') || cl.includes('lenguaje')) cls = 'tag-let';
+  else if (cl.includes('inglés') || cl.includes('ingles'))  cls = 'tag-ing';
+  return `<span class="carrera-tag ${cls}">${c}</span>`;
+}
+
+function renderPagination() {
+  const total = Math.ceil(filtered.length / PAGE_SIZE);
+  const bar   = document.getElementById('paginationBar');
+  if (total <= 1) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+
+  let html = `<span class="info">Pág. ${currentPage} de ${total} (${filtered.length} registros)</span>`;
+  html += `<button onclick="goPage(1)" ${currentPage===1?'disabled':''}>«</button>`;
+  html += `<button onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+
+  const range = 2;
+  for (let i = Math.max(1, currentPage - range); i <= Math.min(total, currentPage + range); i++) {
+    html += `<button onclick="goPage(${i})" class="${i===currentPage?'active':''}">${i}</button>`;
+  }
+  html += `<button onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>›</button>`;
+  html += `<button onclick="goPage(${total})" ${currentPage===total?'disabled':''}>»</button>`;
+  bar.innerHTML = html;
+}
+
+function goPage(p) {
+  currentPage = p;
+  renderTable();
+  document.querySelector('.table-wrap').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── Exportar CSV ──────────────────────────────────────────
+function exportCSV() {
+  if (!filtered.length) { alert('No hay datos para exportar.'); return; }
+  const headers = ['APELLIDOS','NOMBRES','CARRERA','PROFESORADO','MAESTRIA','AÑO','SECTOR','LUGAR_TRABAJO','TEL_FIJO','TEL_PARTICULAR','CELULAR','CELULAR2','CORREO'];
+  const rows = filtered.map(r =>
+    headers.map(h => {
+      const v = r[h] || r[h.replace('_',' ')] || '';
+      return `"${String(v).replace(/"/g,'""')}"`;
+    }).join(',')
+  );
+  const csv = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'graduados_filtrado.csv';
+  a.click();
+}
+
+// ── Helpers UI ────────────────────────────────────────────
+function showLoading(msg = 'Cargando...') {
+  document.getElementById('tableContainer').innerHTML =
+    `<div class="loading"><div class="spinner"></div>${msg}</div>`;
+  document.getElementById('paginationBar').style.display = 'none';
+}
+function showError(msg) {
+  document.getElementById('tableContainer').innerHTML =
+    `<div class="error-box">⚠️ ${msg}</div>`;
+}
+</script>
+</body>
+</html>
