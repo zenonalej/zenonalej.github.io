@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Graduados - UMA Sonsonate</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; }
+
+  header {
+    background: linear-gradient(135deg, #1e3a5f, #2d6a9f);
+    color: white; padding: 20px 30px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  header .logo { font-size: 2rem; }
+  header h1 { font-size: 1.4rem; font-weight: 700; }
+  header p { font-size: 0.82rem; opacity: 0.8; }
+
+  .main { padding: 20px 24px; }
+
+  .filters {
+    background: white; border-radius: 12px; padding: 18px 20px;
+    margin-bottom: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .filters h2 { font-size: 0.95rem; color: #4a5568; margin-bottom: 12px; }
+  .filter-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px;
+  }
+  .filter-grid input, .filter-grid select {
+    border: 1px solid #e2e8f0; border-radius: 8px;
+    padding: 7px 11px; font-size: 0.85rem; width: 100%;
+    transition: border-color .2s;
+  }
+  .filter-grid input:focus, .filter-grid select:focus {
+    outline: none; border-color: #2d6a9f;
+  }
+  .filter-actions { margin-top: 12px; display: flex; gap: 10px; align-items: center; }
+  .btn-primary { background: #2d6a9f; color: white; border: none; border-radius: 8px; padding: 8px 18px; cursor: pointer; font-size: 0.88rem; font-weight: 600; }
+  .btn-secondary { background: #e2e8f0; color: #4a5568; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 0.85rem; }
+  .btn-primary:hover { background: #1e4f7a; }
+  .btn-secondary:hover { background: #cbd5e0; }
+
+  .stats-bar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .stat-card { background: white; border-radius: 10px; padding: 12px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); flex: 1; min-width: 130px; }
+  .stat-card .num { font-size: 1.6rem; font-weight: 700; color: #2d6a9f; }
+  .stat-card .lbl { font-size: 0.75rem; color: #718096; }
+
+  .table-wrap { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+  th { background: #1e3a5f; color: white; padding: 11px 12px; text-align: left; white-space: nowrap; position: sticky; top: 0; z-index: 2; }
+  td { padding: 9px 12px; border-bottom: 1px solid #f0f4f8; vertical-align: top; }
+  tr:hover td { background: #ebf4ff; }
+  tr:last-child td { border-bottom: none; }
+
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.73rem; font-weight: 600; white-space: nowrap; }
+  .badge-pub  { background: #bee3f8; color: #1a6fa3; }
+  .badge-priv { background: #c6f6d5; color: #276749; }
+  .badge-ind  { background: #fefcbf; color: #744210; }
+  .badge-otro { background: #e9d8fd; color: #553c9a; }
+
+  .carrera-tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+  .tag-adm  { background: #fed7e2; color: #97266d; }
+  .tag-cont { background: #feebc8; color: #c05621; }
+  .tag-jur  { background: #c3dafe; color: #2b4db0; }
+  .tag-edu  { background: #d1fae5; color: #065f46; }
+  .tag-psi  { background: #e9d8fd; color: #553c9a; }
+  .tag-let  { background: #fff3cd; color: #7c4a03; }
+  .tag-ing  { background: #bfdbfe; color: #1d4ed8; }
+  .tag-otras{ background: #f3f4f6; color: #374151; }
+
+  .loading { text-align: center; padding: 50px; color: #718096; font-size: 0.95rem; }
+  .loading .spinner { width: 36px; height: 36px; border: 4px solid #e2e8f0; border-top-color: #2d6a9f; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-box { background: #fff5f5; border: 1px solid #fc8181; border-radius: 10px; padding: 20px; color: #c53030; text-align: center; margin: 20px 0; }
+  .no-results { text-align: center; padding: 40px; color: #a0aec0; }
+
+  .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 16px; flex-wrap: wrap; }
+  .pagination button { border: 1px solid #e2e8f0; background: white; border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: 0.83rem; }
+  .pagination button.active { background: #2d6a9f; color: white; border-color: #2d6a9f; }
+  .pagination button:hover:not(.active) { background: #edf2f7; }
+  .pagination .info { color: #718096; font-size: 0.82rem; }
+
+  @media(max-width:768px) {
+    .filter-grid { grid-template-columns: 1fr 1fr; }
+    th, td { padding: 7px 8px; font-size: 0.78rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🎓</div>
+  <div>
+    <h1>Sistema de Graduados</h1>
+    <p>Universidad Modular Abierta · Sede Sonsonate</p>
+  </div>
+</header>
+
+<div class="main">
+  <div class="filters">
+    <h2>🔍 Filtros</h2>
+    <div class="filter-grid">
+      <input type="text" id="fNombre" placeholder="Buscar por nombre/apellido..." oninput="applyFilters()">
+      <select id="fCarrera" onchange="applyFilters()"><option value="">Todas las carreras</option></select>
+      <select id="fSector" onchange="applyFilters()">
+        <option value="">Todos los sectores</option>
+        <option>Sector Público</option>
+        <option>Sector Privado</option>
+        <option>Independiente</option>
+        <option>Otros</option>
+      </select>
+      <select id="fAnio" onchange="applyFilters()"><option value="">Todos los años</option></select>
+    </div>
+    <div class="filter-actions">
+      <button class="btn-primary" onclick="applyFilters()">Aplicar filtros</button>
+      <button class="btn-secondary" onclick="clearFilters()">Limpiar</button>
+      <button class="btn-secondary" onclick="exportCSV()">⬇ Exportar CSV</button>
+      <button class="btn-secondary" onclick="loadData()">🔄 Recargar</button>
+    </div>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-card"><div class="num" id="statTotal">—</div><div class="lbl">Total registros</div></div>
+    <div class="stat-card"><div class="num" id="statFiltrado">—</div><div class="lbl">Filtrados</div></div>
+    <div class="stat-card"><div class="num" id="statPublico">—</div><div class="lbl">Sector Público</div></div>
+    <div class="stat-card"><div class="num" id="statPrivado">—</div><div class="lbl">Sector Privado</div></div>
+  </div>
+
+  <div class="table-wrap">
+    <div id="tableContainer"><div class="loading"><div class="spinner"></div>Cargando datos...</div></div>
+    <div class="pagination" id="paginationBar" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+let allRecords = [], filtered = [], currentPage = 1;
+const PAGE_SIZE = 30;
+
+const WORKER_URL = 'https://zenonalej.zenon-lopez.workers.dev/';
+
+// ── Fetch directo a Airtable ──────────────────────────────
+async function fetchDirect() {
+  let records = [], offset = '';
+  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${encodeURIComponent(AIRTABLE_TABLE)}`;
+  do {
+    const r = await fetch(url + (offset ? `?offset=${offset}` : ''), {
+      headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` }
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    d.records.forEach(rec => records.push({ id: rec.id, ...rec.fields }));
+    offset = d.offset || '';
+  } while (offset);
+  return records;
+}
+
+// ── Fetch via Worker (fallback CORS) ─────────────────────
+async function fetchViaWorker() {
+  const res = await fetch(WORKER_URL);
+  if (!res.ok) throw new Error(`Worker HTTP ${res.status}`);
+  const data = await res.json();
+  if (data.error) throw new Error(JSON.stringify(data.error));
+  return data;
+}
+
+// ── Carga datos: intenta directo, si falla usa Worker ────
+async function loadData() {
+  showLoading('Conectando con Airtable...');
+  try {
+    // Primero intento directo
+    try {
+      const data = await fetchDirect();
+      allRecords = data;
+    } catch(e) {
+      console.log('Fetch directo bloqueado, usando Worker…');
+      const data = await fetchViaWorker();
+      allRecords = data;
+    }
+    populateSelects();
+    applyFilters();
+  } catch(e) {
+    showError(`Error al cargar datos: ${e.message}`);
+  }
+}
+
+function populateSelects() {
+  const carreras = [...new Set(allRecords.map(r => r.CARRERA || '').filter(Boolean))].sort();
+  const selC = document.getElementById('fCarrera');
+  selC.innerHTML = '<option value="">Todas las carreras</option>';
+  carreras.forEach(c => { const o = document.createElement('option'); o.value = o.textContent = c; selC.appendChild(o); });
+
+  const años = [...new Set(allRecords.map(r => r['AÑO'] || '').filter(Boolean))].sort((a,b) => b-a);
+  const selA = document.getElementById('fAnio');
+  selA.innerHTML = '<option value="">Todos los años</option>';
+  años.forEach(a => { const o = document.createElement('option'); o.value = o.textContent = a; selA.appendChild(o); });
+}
+
+function applyFilters() {
+  const nombre  = document.getElementById('fNombre').value.toLowerCase();
+  const carrera = document.getElementById('fCarrera').value;
+  const sector  = document.getElementById('fSector').value;
+  const anio    = document.getElementById('fAnio').value;
+
+  filtered = allRecords.filter(r => {
+    const full = `${r.APELLIDOS||''} ${r.NOMBRES||''}`.toLowerCase();
+    return (!nombre  || full.includes(nombre))
+        && (!carrera || (r.CARRERA||'') === carrera)
+        && (!sector  || (r.SECTOR||'').toLowerCase().includes(sector.toLowerCase()))
+        && (!anio    || (r['AÑO']||'') === anio);
+  });
+
+  currentPage = 1;
+  updateStats();
+  renderTable();
+}
+
+function clearFilters() {
+  ['fNombre','fCarrera','fSector','fAnio'].forEach(id => {
+    const el = document.getElementById(id);
+    el.tagName === 'SELECT' ? (el.selectedIndex = 0) : (el.value = '');
+  });
+  applyFilters();
+}
+
+function updateStats() {
+  document.getElementById('statTotal').textContent    = allRecords.length;
+  document.getElementById('statFiltrado').textContent = filtered.length;
+  document.getElementById('statPublico').textContent  = filtered.filter(r => (r.SECTOR||'').toLowerCase().includes('público')).length;
+  document.getElementById('statPrivado').textContent  = filtered.filter(r => (r.SECTOR||'').toLowerCase().includes('privado')).length;
+}
+
+function renderTable() {
+  const start = (currentPage-1)*PAGE_SIZE;
+  const page  = filtered.slice(start, start+PAGE_SIZE);
+  const cont  = document.getElementById('tableContainer');
+
+  if (!filtered.length) {
+    cont.innerHTML = '<div class="no-results">😕 No se encontraron resultados.</div>';
+    document.getElementById('paginationBar').style.display = 'none';
+    return;
+  }
+
+  const cols = [
+    { k:'APELLIDOS',     l:'Apellidos' },
+    { k:'NOMBRES',       l:'Nombres' },
+    { k:'CARRERA',       l:'Carrera' },
+    { k:'PROFESORADO',   l:'Profesorado' },
+    { k:'MAESTRIA',      l:'Maestría' },
+    { k:'AÑO',           l:'Año' },
+    { k:'SECTOR',        l:'Sector' },
+    { k:'LUGAR_TRABAJO', l:'Lugar de Trabajo' },
+    { k:'CELULAR',       l:'Celular' },
+    { k:'CORREO',        l:'Correo' },
+  ];
+
+  const thead = `<thead><tr>${cols.map(c=>`<th>${c.l}</th>`).join('')}</tr></thead>`;
+  const rows = page.map(r => {
+    const cells = cols.map(c => {
+      const v = r[c.k] || '';
+      if (c.l==='Sector')  return `<td>${sectorBadge(v)}</td>`;
+      if (c.l==='Carrera') return `<td>${carreraBadge(v)}</td>`;
+      if (c.l==='Correo' && v) return `<td><a href="mailto:${v}" style="color:#2d6a9f">${v}</a></td>`;
+      return `<td>${v}</td>`;
+    }).join('');
+    return `<tr>${cells}</tr>`;
+  }).join('');
+
+  cont.innerHTML = `<table>${thead}<tbody>${rows}</tbody></table>`;
+  renderPagination();
+}
+
+function sectorBadge(s) {
+  if (!s) return '';
+  const sl = s.toLowerCase();
+  if (sl.includes('público'))  return `<span class="badge badge-pub">${s}</span>`;
+  if (sl.includes('privado'))  return `<span class="badge badge-priv">${s}</span>`;
+  if (sl.includes('independ')) return `<span class="badge badge-ind">${s}</span>`;
+  return `<span class="badge badge-otro">${s}</span>`;
+}
+
+function carreraBadge(c) {
+  if (!c) return '';
+  const cl = c.toLowerCase();
+  let cls = 'tag-otras';
+  if (cl.includes('administr'))  cls = 'tag-adm';
+  else if (cl.includes('contad')) cls = 'tag-cont';
+  else if (cl.includes('jurídic')||cl.includes('juridic')) cls = 'tag-jur';
+  else if (cl.includes('educac')||cl.includes('parvul')||cl.includes('estudio')) cls = 'tag-edu';
+  else if (cl.includes('psicol')) cls = 'tag-psi';
+  else if (cl.includes('letra')||cl.includes('lenguaje')) cls = 'tag-let';
+  else if (cl.includes('inglés')||cl.includes('ingles')) cls = 'tag-ing';
+  return `<span class="carrera-tag ${cls}">${c}</span>`;
+}
+
+function renderPagination() {
+  const total = Math.ceil(filtered.length/PAGE_SIZE);
+  const bar = document.getElementById('paginationBar');
+  if (total<=1) { bar.style.display='none'; return; }
+  bar.style.display='flex';
+  let html = `<span class="info">Pág. ${currentPage} de ${total} (${filtered.length} registros)</span>`;
+  html += `<button onclick="goPage(1)" ${currentPage===1?'disabled':''}>«</button>`;
+  html += `<button onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
+  for (let i=Math.max(1,currentPage-2); i<=Math.min(total,currentPage+2); i++)
+    html += `<button onclick="goPage(${i})" class="${i===currentPage?'active':''}">${i}</button>`;
+  html += `<button onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>›</button>`;
+  html += `<button onclick="goPage(${total})" ${currentPage===total?'disabled':''}>»</button>`;
+  bar.innerHTML = html;
+}
+
+function goPage(p) {
+  currentPage = p;
+  renderTable();
+  document.querySelector('.table-wrap').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function exportCSV() {
+  if (!filtered.length) { alert('No hay datos para exportar.'); return; }
+  const headers = ['APELLIDOS','NOMBRES','CARRERA','PROFESORADO','MAESTRIA','AÑO','SECTOR','LUGAR_TRABAJO','TEL_FIJO','TEL_PARTICULAR','CELULAR','CELULAR2','CORREO'];
+  const rows = filtered.map(r => headers.map(h => `"${String(r[h]||'').replace(/"/g,'""')}"`).join(','));
+  const csv = '\uFEFF' + [headers.join(','),...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download = 'graduados.csv';
+  a.click();
+}
+
+function showLoading(msg='Cargando...') {
+  document.getElementById('tableContainer').innerHTML =
+    `<div class="loading"><div class="spinner"></div>${msg}</div>`;
+  document.getElementById('paginationBar').style.display='none';
+}
+
+function showError(msg) {
+  document.getElementById('tableContainer').innerHTML =
+    `<div class="error-box">⚠️ ${msg}</div>`;
+}
+
+// Iniciar al cargar
+loadData();
+</script>
+</body>
+</html>
