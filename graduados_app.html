@@ -5,87 +5,95 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Graduados - UMA Sonsonate</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; }
 
-  header {
-    background: linear-gradient(135deg, #1e3a5f, #2d6a9f);
-    color: white; padding: 20px 30px;
-    display: flex; align-items: center; gap: 14px;
-  }
-  header .logo { font-size: 2rem; }
-  header h1 { font-size: 1.4rem; font-weight: 700; }
-  header p { font-size: 0.82rem; opacity: 0.8; }
+header { background: linear-gradient(135deg, #1e3a5f, #2d6a9f); color: white; padding: 20px 30px; display: flex; align-items: center; gap: 14px; }
+header .logo { font-size: 2rem; }
+header h1 { font-size: 1.4rem; font-weight: 700; }
+header p { font-size: 0.82rem; opacity: 0.8; }
 
-  .main { padding: 20px 24px; }
+.main { padding: 20px 24px; }
 
-  .filters {
-    background: white; border-radius: 12px; padding: 18px 20px;
-    margin-bottom: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);
-  }
-  .filters h2 { font-size: 0.95rem; color: #4a5568; margin-bottom: 12px; }
-  .filter-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px;
-  }
-  .filter-grid input, .filter-grid select {
-    border: 1px solid #e2e8f0; border-radius: 8px;
-    padding: 7px 11px; font-size: 0.85rem; width: 100%;
-    transition: border-color .2s;
-  }
-  .filter-grid input:focus, .filter-grid select:focus {
-    outline: none; border-color: #2d6a9f;
-  }
-  .filter-actions { margin-top: 12px; display: flex; gap: 10px; align-items: center; }
-  .btn-primary { background: #2d6a9f; color: white; border: none; border-radius: 8px; padding: 8px 18px; cursor: pointer; font-size: 0.88rem; font-weight: 600; }
-  .btn-secondary { background: #e2e8f0; color: #4a5568; border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-size: 0.85rem; }
-  .btn-primary:hover { background: #1e4f7a; }
-  .btn-secondary:hover { background: #cbd5e0; }
+.filters { background: white; border-radius: 12px; padding: 18px 20px; margin-bottom: 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.filters h2 { font-size: 0.95rem; color: #4a5568; margin-bottom: 12px; }
+.filter-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.filter-grid input, .filter-grid select { border: 1px solid #e2e8f0; border-radius: 8px; padding: 7px 11px; font-size: 0.85rem; width: 100%; }
+.filter-grid input:focus, .filter-grid select:focus { outline: none; border-color: #2d6a9f; }
+.filter-actions { margin-top: 12px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-  .stats-bar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
-  .stat-card { background: white; border-radius: 10px; padding: 12px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); flex: 1; min-width: 130px; }
-  .stat-card .num { font-size: 1.6rem; font-weight: 700; color: #2d6a9f; }
-  .stat-card .lbl { font-size: 0.75rem; color: #718096; }
+.btn { border: none; border-radius: 8px; padding: 8px 16px; cursor: pointer; font-size: 0.85rem; font-weight: 600; }
+.btn-primary  { background: #2d6a9f; color: white; }
+.btn-secondary{ background: #e2e8f0; color: #4a5568; }
+.btn-success  { background: #38a169; color: white; }
+.btn-warning  { background: #d69e2e; color: white; }
+.btn-danger   { background: #e53e3e; color: white; }
+.btn:hover { opacity: 0.88; }
 
-  .table-wrap { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
-  th { background: #1e3a5f; color: white; padding: 11px 12px; text-align: left; white-space: nowrap; position: sticky; top: 0; z-index: 2; }
-  td { padding: 9px 12px; border-bottom: 1px solid #f0f4f8; vertical-align: top; }
-  tr:hover td { background: #ebf4ff; }
-  tr:last-child td { border-bottom: none; }
+.stats-bar { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.stat-card { background: white; border-radius: 10px; padding: 12px 18px; box-shadow: 0 1px 4px rgba(0,0,0,0.07); flex: 1; min-width: 130px; }
+.stat-card .num { font-size: 1.6rem; font-weight: 700; color: #2d6a9f; }
+.stat-card .lbl { font-size: 0.75rem; color: #718096; }
 
-  .badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.73rem; font-weight: 600; white-space: nowrap; }
-  .badge-pub  { background: #bee3f8; color: #1a6fa3; }
-  .badge-priv { background: #c6f6d5; color: #276749; }
-  .badge-ind  { background: #fefcbf; color: #744210; }
-  .badge-otro { background: #e9d8fd; color: #553c9a; }
+.table-wrap { background: white; border-radius: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.83rem; }
+th { background: #1e3a5f; color: white; padding: 11px 12px; text-align: left; white-space: nowrap; position: sticky; top: 0; z-index: 2; }
+td { padding: 9px 12px; border-bottom: 1px solid #f0f4f8; vertical-align: top; }
+tr:hover td { background: #ebf4ff; }
+tr:last-child td { border-bottom: none; }
+.td-actions { display: flex; gap: 6px; }
+.td-actions button { padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; }
+.btn-edit { background: #ebf8ff; color: #2b6cb0; }
+.btn-del  { background: #fff5f5; color: #c53030; }
 
-  .carrera-tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
-  .tag-adm  { background: #fed7e2; color: #97266d; }
-  .tag-cont { background: #feebc8; color: #c05621; }
-  .tag-jur  { background: #c3dafe; color: #2b4db0; }
-  .tag-edu  { background: #d1fae5; color: #065f46; }
-  .tag-psi  { background: #e9d8fd; color: #553c9a; }
-  .tag-let  { background: #fff3cd; color: #7c4a03; }
-  .tag-ing  { background: #bfdbfe; color: #1d4ed8; }
-  .tag-otras{ background: #f3f4f6; color: #374151; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.73rem; font-weight: 600; white-space: nowrap; }
+.badge-pub  { background: #bee3f8; color: #1a6fa3; }
+.badge-priv { background: #c6f6d5; color: #276749; }
+.badge-ind  { background: #fefcbf; color: #744210; }
+.badge-otro { background: #e9d8fd; color: #553c9a; }
 
-  .loading { text-align: center; padding: 50px; color: #718096; font-size: 0.95rem; }
-  .loading .spinner { width: 36px; height: 36px; border: 4px solid #e2e8f0; border-top-color: #2d6a9f; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 14px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+.carrera-tag { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; }
+.tag-adm  { background: #fed7e2; color: #97266d; }
+.tag-cont { background: #feebc8; color: #c05621; }
+.tag-jur  { background: #c3dafe; color: #2b4db0; }
+.tag-edu  { background: #d1fae5; color: #065f46; }
+.tag-psi  { background: #e9d8fd; color: #553c9a; }
+.tag-otras{ background: #f3f4f6; color: #374151; }
 
-  .error-box { background: #fff5f5; border: 1px solid #fc8181; border-radius: 10px; padding: 20px; color: #c53030; text-align: center; margin: 20px 0; }
-  .no-results { text-align: center; padding: 40px; color: #a0aec0; }
+.loading { text-align: center; padding: 50px; color: #718096; }
+.loading .spinner { width: 36px; height: 36px; border: 4px solid #e2e8f0; border-top-color: #2d6a9f; border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 14px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-box { background: #fff5f5; border: 1px solid #fc8181; border-radius: 10px; padding: 20px; color: #c53030; text-align: center; margin: 20px 0; }
+.no-results { text-align: center; padding: 40px; color: #a0aec0; }
 
-  .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 16px; flex-wrap: wrap; }
-  .pagination button { border: 1px solid #e2e8f0; background: white; border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: 0.83rem; }
-  .pagination button.active { background: #2d6a9f; color: white; border-color: #2d6a9f; }
-  .pagination button:hover:not(.active) { background: #edf2f7; }
-  .pagination .info { color: #718096; font-size: 0.82rem; }
+.pagination { display: flex; justify-content: center; align-items: center; gap: 8px; padding: 16px; flex-wrap: wrap; }
+.pagination button { border: 1px solid #e2e8f0; background: white; border-radius: 6px; padding: 5px 12px; cursor: pointer; font-size: 0.83rem; }
+.pagination button.active { background: #2d6a9f; color: white; border-color: #2d6a9f; }
+.pagination .info { color: #718096; font-size: 0.82rem; }
 
-  @media(max-width:768px) {
-    .filter-grid { grid-template-columns: 1fr 1fr; }
-    th, td { padding: 7px 8px; font-size: 0.78rem; }
-  }
+/* Modal */
+.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; align-items: center; justify-content: center; padding: 20px; }
+.overlay.open { display: flex; }
+.modal { background: white; border-radius: 14px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; padding: 28px; position: relative; }
+.modal h3 { font-size: 1.1rem; margin-bottom: 20px; color: #1e3a5f; }
+.modal-close { position: absolute; top: 14px; right: 18px; background: none; border: none; font-size: 22px; cursor: pointer; color: #aaa; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label { font-size: 0.78rem; font-weight: 600; color: #4a5568; }
+.form-group input, .form-group select { border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 11px; font-size: 0.85rem; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: #2d6a9f; }
+.form-actions { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; }
+
+/* Login modal */
+.login-modal { max-width: 360px; text-align: center; }
+.login-modal input { width: 100%; margin-top: 14px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; font-size: 0.9rem; text-align: center; letter-spacing: 3px; }
+.login-modal input:focus { outline: none; border-color: #2d6a9f; }
+.login-err { color: #e53e3e; font-size: 0.82rem; margin-top: 8px; display: none; }
+
+/* Confirm modal */
+.confirm-modal { max-width: 380px; text-align: center; }
+.confirm-modal p { color: #4a5568; margin-bottom: 20px; font-size: 0.9rem; }
 </style>
 </head>
 <body>
@@ -106,18 +114,17 @@
       <select id="fCarrera" onchange="applyFilters()"><option value="">Todas las carreras</option></select>
       <select id="fSector" onchange="applyFilters()">
         <option value="">Todos los sectores</option>
-        <option>Sector Público</option>
-        <option>Sector Privado</option>
-        <option>Independiente</option>
-        <option>Otros</option>
+        <option>Sector Público</option><option>Sector Privado</option>
+        <option>Independiente</option><option>Otros</option>
       </select>
       <select id="fAnio" onchange="applyFilters()"><option value="">Todos los años</option></select>
     </div>
     <div class="filter-actions">
-      <button class="btn-primary" onclick="applyFilters()">Aplicar filtros</button>
-      <button class="btn-secondary" onclick="clearFilters()">Limpiar</button>
-      <button class="btn-secondary" onclick="exportCSV()">⬇ Exportar CSV</button>
-      <button class="btn-secondary" onclick="loadData()">🔄 Recargar</button>
+      <button class="btn btn-primary" onclick="applyFilters()">Aplicar filtros</button>
+      <button class="btn btn-secondary" onclick="clearFilters()">Limpiar</button>
+      <button class="btn btn-secondary" onclick="exportCSV()">⬇ Exportar CSV</button>
+      <button class="btn btn-secondary" onclick="loadData()">🔄 Recargar</button>
+      <button class="btn btn-success"  onclick="requireAuth(() => openForm())">＋ Agregar graduado</button>
     </div>
   </div>
 
@@ -134,64 +141,210 @@
   </div>
 </div>
 
+<!-- Modal Formulario (agregar/editar) -->
+<div class="overlay" id="formOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeForm()">×</button>
+    <h3 id="formTitle">Agregar graduado</h3>
+    <div class="form-grid">
+      <div class="form-group"><label>Apellidos *</label><input id="fAPELLIDOS" placeholder="Apellidos"></div>
+      <div class="form-group"><label>Nombres *</label><input id="fNOMBRES" placeholder="Nombres"></div>
+      <div class="form-group"><label>Carrera</label>
+        <select id="fCARRERA">
+          <option value="">Seleccionar...</option>
+          <option>Administración de Empresas</option>
+          <option>Contaduría Pública</option>
+          <option>Ciencias Jurídicas</option>
+          <option>Psicología</option>
+          <option>Ciencias de la Educación - Ed. Parvularia</option>
+          <option>Ciencias de la Educación - CC Sociales</option>
+          <option>Ciencias de la Educación</option>
+          <option>Letras</option>
+          <option>Lic. Parvularia</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Profesorado</label><input id="fPROFESOR" placeholder="Profesorado"></div>
+      <div class="form-group"><label>Maestría</label><input id="fMAESTRIA" placeholder="Maestría"></div>
+      <div class="form-group"><label>Año</label><input id="fANIO" placeholder="2024" type="number"></div>
+      <div class="form-group"><label>Sector</label>
+        <select id="fSECTOR">
+          <option value="">Seleccionar...</option>
+          <option>Sector Público</option>
+          <option>Sector Privado</option>
+          <option>Independiente</option>
+          <option>Otros</option>
+        </select>
+      </div>
+      <div class="form-group"><label>Lugar de trabajo</label><input id="fLUGAR" placeholder="Institución"></div>
+      <div class="form-group"><label>Tel. Fijo</label><input id="fTELFIJO" placeholder="2451-0000"></div>
+      <div class="form-group"><label>Tel. Particular</label><input id="fTELPART" placeholder="2451-0000"></div>
+      <div class="form-group"><label>Celular</label><input id="fCELULAR" placeholder="7000-0000"></div>
+      <div class="form-group"><label>Celular 2</label><input id="fCELULAR2" placeholder="7000-0000"></div>
+      <div class="form-group full"><label>Correo</label><input id="fCORREO" placeholder="correo@ejemplo.com" type="email"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-secondary" onclick="closeForm()">Cancelar</button>
+      <button class="btn btn-success" onclick="saveRecord()" id="btnSave">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Login -->
+<div class="overlay" id="loginOverlay">
+  <div class="modal login-modal">
+    <button class="modal-close" onclick="closeLogin()">×</button>
+    <div style="font-size:2rem">🔐</div>
+    <h3 style="margin-top:10px">Acceso restringido</h3>
+    <p style="font-size:0.85rem;color:#718096;margin-top:6px">Ingresa la contraseña para continuar</p>
+    <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')checkLogin()">
+    <p class="login-err" id="loginErr">Contraseña incorrecta</p>
+    <div class="form-actions" style="justify-content:center;margin-top:16px">
+      <button class="btn btn-primary" onclick="checkLogin()">Ingresar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Confirmar eliminar -->
+<div class="overlay" id="confirmOverlay">
+  <div class="modal confirm-modal">
+    <h3>⚠️ Confirmar eliminación</h3>
+    <p id="confirmMsg" style="margin-top:12px"></p>
+    <div class="form-actions" style="justify-content:center">
+      <button class="btn btn-secondary" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Eliminar</button>
+    </div>
+  </div>
+</div>
+
 <script>
+const WORKER_URL = 'https://graduados-proxy.zenon-lopez.workers.dev/';
+const PASSWORD   = 'uma2024'; // ← cambia esta contraseña
+
 let allRecords = [], filtered = [], currentPage = 1;
 const PAGE_SIZE = 30;
+let isAuthenticated = false;
+let pendingAction   = null;
+let editingId       = null;
+let deletingId      = null;
 
-const WORKER_URL = 'https://graduados-proxy.zenon-lopez.workers.dev/';
+// ── Auth ──────────────────────────────────────────────────
+function requireAuth(action) {
+  if (isAuthenticated) { action(); return; }
+  pendingAction = action;
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('loginOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('loginPass').focus(), 100);
+}
+function checkLogin() {
+  const val = document.getElementById('loginPass').value;
+  if (val === PASSWORD) {
+    isAuthenticated = true;
+    closeLogin();
+    if (pendingAction) { pendingAction(); pendingAction = null; }
+  } else {
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+function closeLogin() { document.getElementById('loginOverlay').classList.remove('open'); }
 
-// ── Fetch directo a Airtable ──────────────────────────────
+// ── Fetch data ────────────────────────────────────────────
 async function fetchDirect() {
-  let records = [], offset = '';
-  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${encodeURIComponent(AIRTABLE_TABLE)}`;
-  do {
-    const r = await fetch(url + (offset ? `?offset=${offset}` : ''), {
-      headers: { Authorization: `Bearer ${AIRTABLE_TOKEN}` }
-    });
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    const d = await r.json();
-    d.records.forEach(rec => records.push({ id: rec.id, ...rec.fields }));
-    offset = d.offset || '';
-  } while (offset);
-  return records;
+  const r = await fetch(WORKER_URL);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return await r.json();
 }
 
-// ── Fetch via Worker (fallback CORS) ─────────────────────
-async function fetchViaWorker() {
-  const res = await fetch(WORKER_URL);
-  if (!res.ok) throw new Error(`Worker HTTP ${res.status}`);
-  const data = await res.json();
-  if (data.error) throw new Error(JSON.stringify(data.error));
-  return data;
-}
-
-// ── Carga datos: intenta directo, si falla usa Worker ────
 async function loadData() {
-  showLoading('Conectando con Airtable...');
+  showLoading('Cargando datos...');
   try {
-    // Primero intento directo
-    try {
-      const data = await fetchDirect();
-      allRecords = data;
-    } catch(e) {
-      console.log('Fetch directo bloqueado, usando Worker…');
-      const data = await fetchViaWorker();
-      allRecords = data;
-    }
+    allRecords = await fetchDirect();
     populateSelects();
     applyFilters();
+  } catch(e) { showError(`Error al cargar datos: ${e.message}`); }
+}
+
+// ── CRUD ──────────────────────────────────────────────────
+function openForm(record = null) {
+  editingId = record ? record.id : null;
+  document.getElementById('formTitle').textContent = record ? 'Editar graduado' : 'Agregar graduado';
+  const fields = ['APELLIDOS','NOMBRES','CARRERA','PROFESORADO','MAESTRIA','AÑO','SECTOR','LUGAR_TRABAJO','TEL_FIJO','TEL_PARTICULAR','CELULAR','CELULAR2','CORREO'];
+  const ids    = ['fAPELLIDOS','fNOMBRES','fCARRERA','fPROFESOR','fMAESTRIA','fANIO','fSECTOR','fLUGAR','fTELFIJO','fTELPART','fCELULAR','fCELULAR2','fCORREO'];
+  ids.forEach((id, i) => {
+    const el = document.getElementById(id);
+    el.value = record ? (record[fields[i]] || '') : '';
+  });
+  document.getElementById('formOverlay').classList.add('open');
+}
+function closeForm() { document.getElementById('formOverlay').classList.remove('open'); editingId = null; }
+
+async function saveRecord() {
+  const apellidos = document.getElementById('fAPELLIDOS').value.trim();
+  const nombres   = document.getElementById('fNOMBRES').value.trim();
+  if (!apellidos || !nombres) { alert('Apellidos y Nombres son obligatorios.'); return; }
+
+  const body = {
+    APELLIDOS:       apellidos,
+    NOMBRES:         nombres,
+    CARRERA:         document.getElementById('fCARRERA').value,
+    PROFESORADO:     document.getElementById('fPROFESOR').value,
+    MAESTRIA:        document.getElementById('fMAESTRIA').value,
+    'AÑO':           document.getElementById('fANIO').value,
+    SECTOR:          document.getElementById('fSECTOR').value,
+    LUGAR_TRABAJO:   document.getElementById('fLUGAR').value,
+    TEL_FIJO:        document.getElementById('fTELFIJO').value,
+    TEL_PARTICULAR:  document.getElementById('fTELPART').value,
+    CELULAR:         document.getElementById('fCELULAR').value,
+    CELULAR2:        document.getElementById('fCELULAR2').value,
+    CORREO:          document.getElementById('fCORREO').value,
+  };
+  // Limpiar campos vacíos
+  Object.keys(body).forEach(k => { if (!body[k]) delete body[k]; });
+
+  const btn = document.getElementById('btnSave');
+  btn.textContent = 'Guardando...'; btn.disabled = true;
+
+  try {
+    const url    = editingId ? `${WORKER_URL}?id=${editingId}` : WORKER_URL;
+    const method = editingId ? 'PATCH' : 'POST';
+    const res    = await fetch(url, {
+      method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error(`Error ${res.status}`);
+    closeForm();
+    await loadData();
   } catch(e) {
-    showError(`Error al cargar datos: ${e.message}`);
+    alert('Error al guardar: ' + e.message);
+  } finally {
+    btn.textContent = 'Guardar'; btn.disabled = false;
   }
 }
 
+function askDelete(id, nombre) {
+  deletingId = id;
+  document.getElementById('confirmMsg').textContent = `¿Eliminar a "${nombre}" permanentemente?`;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirmOverlay').classList.remove('open'); deletingId = null; }
+
+async function confirmDelete() {
+  if (!deletingId) return;
+  try {
+    const res = await fetch(`${WORKER_URL}?id=${deletingId}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error(`Error ${res.status}`);
+    closeConfirm();
+    await loadData();
+  } catch(e) { alert('Error al eliminar: ' + e.message); }
+}
+
+// ── Filtros ───────────────────────────────────────────────
 function populateSelects() {
-  const carreras = [...new Set(allRecords.map(r => r.CARRERA || '').filter(Boolean))].sort();
+  const carreras = [...new Set(allRecords.map(r => r.CARRERA||'').filter(Boolean))].sort();
   const selC = document.getElementById('fCarrera');
   selC.innerHTML = '<option value="">Todas las carreras</option>';
   carreras.forEach(c => { const o = document.createElement('option'); o.value = o.textContent = c; selC.appendChild(o); });
 
-  const años = [...new Set(allRecords.map(r => r['AÑO'] || '').filter(Boolean))].sort((a,b) => b-a);
+  const años = [...new Set(allRecords.map(r => r['AÑO']||'').filter(Boolean))].sort((a,b)=>b-a);
   const selA = document.getElementById('fAnio');
   selA.innerHTML = '<option value="">Todos los años</option>';
   años.forEach(a => { const o = document.createElement('option'); o.value = o.textContent = a; selA.appendChild(o); });
@@ -202,15 +355,12 @@ function applyFilters() {
   const carrera = document.getElementById('fCarrera').value;
   const sector  = document.getElementById('fSector').value;
   const anio    = document.getElementById('fAnio').value;
-
-  filtered = allRecords.filter(r => {
-    const full = `${r.APELLIDOS||''} ${r.NOMBRES||''}`.toLowerCase();
-    return (!nombre  || full.includes(nombre))
-        && (!carrera || (r.CARRERA||'') === carrera)
-        && (!sector  || (r.SECTOR||'').toLowerCase().includes(sector.toLowerCase()))
-        && (!anio    || (r['AÑO']||'') === anio);
-  });
-
+  filtered = allRecords.filter(r =>
+    (!nombre  || `${r.APELLIDOS||''} ${r.NOMBRES||''}`.toLowerCase().includes(nombre))
+ && (!carrera || (r.CARRERA||'') === carrera)
+ && (!sector  || (r.SECTOR||'').toLowerCase().includes(sector.toLowerCase()))
+ && (!anio    || (r['AÑO']||'') === anio)
+  );
   currentPage = 1;
   updateStats();
   renderTable();
@@ -219,7 +369,7 @@ function applyFilters() {
 function clearFilters() {
   ['fNombre','fCarrera','fSector','fAnio'].forEach(id => {
     const el = document.getElementById(id);
-    el.tagName === 'SELECT' ? (el.selectedIndex = 0) : (el.value = '');
+    el.tagName==='SELECT' ? (el.selectedIndex=0) : (el.value='');
   });
   applyFilters();
 }
@@ -227,10 +377,11 @@ function clearFilters() {
 function updateStats() {
   document.getElementById('statTotal').textContent    = allRecords.length;
   document.getElementById('statFiltrado').textContent = filtered.length;
-  document.getElementById('statPublico').textContent  = filtered.filter(r => (r.SECTOR||'').toLowerCase().includes('público')).length;
-  document.getElementById('statPrivado').textContent  = filtered.filter(r => (r.SECTOR||'').toLowerCase().includes('privado')).length;
+  document.getElementById('statPublico').textContent  = filtered.filter(r=>(r.SECTOR||'').toLowerCase().includes('público')).length;
+  document.getElementById('statPrivado').textContent  = filtered.filter(r=>(r.SECTOR||'').toLowerCase().includes('privado')).length;
 }
 
+// ── Tabla ─────────────────────────────────────────────────
 function renderTable() {
   const start = (currentPage-1)*PAGE_SIZE;
   const page  = filtered.slice(start, start+PAGE_SIZE);
@@ -238,33 +389,32 @@ function renderTable() {
 
   if (!filtered.length) {
     cont.innerHTML = '<div class="no-results">😕 No se encontraron resultados.</div>';
-    document.getElementById('paginationBar').style.display = 'none';
+    document.getElementById('paginationBar').style.display='none';
     return;
   }
 
   const cols = [
-    { k:'APELLIDOS',     l:'Apellidos' },
-    { k:'NOMBRES',       l:'Nombres' },
-    { k:'CARRERA',       l:'Carrera' },
-    { k:'PROFESORADO',   l:'Profesorado' },
-    { k:'MAESTRIA',      l:'Maestría' },
-    { k:'AÑO',           l:'Año' },
-    { k:'SECTOR',        l:'Sector' },
-    { k:'LUGAR_TRABAJO', l:'Lugar de Trabajo' },
-    { k:'CELULAR',       l:'Celular' },
-    { k:'CORREO',        l:'Correo' },
+    {k:'APELLIDOS',l:'Apellidos'},{k:'NOMBRES',l:'Nombres'},
+    {k:'CARRERA',l:'Carrera'},{k:'AÑO',l:'Año'},
+    {k:'SECTOR',l:'Sector'},{k:'LUGAR_TRABAJO',l:'Lugar de Trabajo'},
+    {k:'CELULAR',l:'Celular'},{k:'CORREO',l:'Correo'},
   ];
 
-  const thead = `<thead><tr>${cols.map(c=>`<th>${c.l}</th>`).join('')}</tr></thead>`;
-  const rows = page.map(r => {
+  const thead = `<thead><tr>${cols.map(c=>`<th>${c.l}</th>`).join('')}<th>Acciones</th></tr></thead>`;
+  const rows  = page.map(r => {
     const cells = cols.map(c => {
-      const v = r[c.k] || '';
+      const v = r[c.k]||'';
       if (c.l==='Sector')  return `<td>${sectorBadge(v)}</td>`;
       if (c.l==='Carrera') return `<td>${carreraBadge(v)}</td>`;
-      if (c.l==='Correo' && v) return `<td><a href="mailto:${v}" style="color:#2d6a9f">${v}</a></td>`;
+      if (c.l==='Correo'&&v) return `<td><a href="mailto:${v}" style="color:#2d6a9f">${v}</a></td>`;
       return `<td>${v}</td>`;
     }).join('');
-    return `<tr>${cells}</tr>`;
+    const nombre = `${r.APELLIDOS||''} ${r.NOMBRES||''}`.trim();
+    const actions = `<td><div class="td-actions">
+      <button class="btn-edit" onclick="requireAuth(()=>openForm(allRecords.find(x=>x.id==='${r.id}')))">✏ Editar</button>
+      <button class="btn-del"  onclick="requireAuth(()=>askDelete('${r.id}','${nombre.replace(/'/g,"\\'")}'))">🗑 Eliminar</button>
+    </div></td>`;
+    return `<tr>${cells}${actions}</tr>`;
   }).join('');
 
   cont.innerHTML = `<table>${thead}<tbody>${rows}</tbody></table>`;
@@ -279,65 +429,50 @@ function sectorBadge(s) {
   if (sl.includes('independ')) return `<span class="badge badge-ind">${s}</span>`;
   return `<span class="badge badge-otro">${s}</span>`;
 }
-
 function carreraBadge(c) {
   if (!c) return '';
   const cl = c.toLowerCase();
   let cls = 'tag-otras';
-  if (cl.includes('administr'))  cls = 'tag-adm';
-  else if (cl.includes('contad')) cls = 'tag-cont';
-  else if (cl.includes('jurídic')||cl.includes('juridic')) cls = 'tag-jur';
-  else if (cl.includes('educac')||cl.includes('parvul')||cl.includes('estudio')) cls = 'tag-edu';
-  else if (cl.includes('psicol')) cls = 'tag-psi';
-  else if (cl.includes('letra')||cl.includes('lenguaje')) cls = 'tag-let';
-  else if (cl.includes('inglés')||cl.includes('ingles')) cls = 'tag-ing';
+  if (cl.includes('administr'))  cls='tag-adm';
+  else if (cl.includes('contad')) cls='tag-cont';
+  else if (cl.includes('jurídic')||cl.includes('juridic')) cls='tag-jur';
+  else if (cl.includes('educac')||cl.includes('parvul')) cls='tag-edu';
+  else if (cl.includes('psicol')) cls='tag-psi';
   return `<span class="carrera-tag ${cls}">${c}</span>`;
 }
 
 function renderPagination() {
   const total = Math.ceil(filtered.length/PAGE_SIZE);
-  const bar = document.getElementById('paginationBar');
+  const bar   = document.getElementById('paginationBar');
   if (total<=1) { bar.style.display='none'; return; }
   bar.style.display='flex';
   let html = `<span class="info">Pág. ${currentPage} de ${total} (${filtered.length} registros)</span>`;
   html += `<button onclick="goPage(1)" ${currentPage===1?'disabled':''}>«</button>`;
   html += `<button onclick="goPage(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>`;
-  for (let i=Math.max(1,currentPage-2); i<=Math.min(total,currentPage+2); i++)
-    html += `<button onclick="goPage(${i})" class="${i===currentPage?'active':''}">${i}</button>`;
+  for (let i=Math.max(1,currentPage-2);i<=Math.min(total,currentPage+2);i++)
+    html+=`<button onclick="goPage(${i})" class="${i===currentPage?'active':''}">${i}</button>`;
   html += `<button onclick="goPage(${currentPage+1})" ${currentPage===total?'disabled':''}>›</button>`;
   html += `<button onclick="goPage(${total})" ${currentPage===total?'disabled':''}>»</button>`;
   bar.innerHTML = html;
 }
-
-function goPage(p) {
-  currentPage = p;
-  renderTable();
-  document.querySelector('.table-wrap').scrollIntoView({behavior:'smooth',block:'start'});
-}
+function goPage(p) { currentPage=p; renderTable(); document.querySelector('.table-wrap').scrollIntoView({behavior:'smooth',block:'start'}); }
 
 function exportCSV() {
   if (!filtered.length) { alert('No hay datos para exportar.'); return; }
   const headers = ['APELLIDOS','NOMBRES','CARRERA','PROFESORADO','MAESTRIA','AÑO','SECTOR','LUGAR_TRABAJO','TEL_FIJO','TEL_PARTICULAR','CELULAR','CELULAR2','CORREO'];
-  const rows = filtered.map(r => headers.map(h => `"${String(r[h]||'').replace(/"/g,'""')}"`).join(','));
-  const csv = '\uFEFF' + [headers.join(','),...rows].join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download = 'graduados.csv';
-  a.click();
+  const rows = filtered.map(r => headers.map(h=>`"${String(r[h]||'').replace(/"/g,'""')}"`).join(','));
+  const csv = '\uFEFF'+[headers.join(','),...rows].join('\n');
+  const a = document.createElement('a'); a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv); a.download='graduados.csv'; a.click();
 }
 
 function showLoading(msg='Cargando...') {
-  document.getElementById('tableContainer').innerHTML =
-    `<div class="loading"><div class="spinner"></div>${msg}</div>`;
+  document.getElementById('tableContainer').innerHTML=`<div class="loading"><div class="spinner"></div>${msg}</div>`;
   document.getElementById('paginationBar').style.display='none';
 }
-
 function showError(msg) {
-  document.getElementById('tableContainer').innerHTML =
-    `<div class="error-box">⚠️ ${msg}</div>`;
+  document.getElementById('tableContainer').innerHTML=`<div class="error-box">⚠️ ${msg}</div>`;
 }
 
-// Iniciar al cargar
 loadData();
 </script>
 </body>
