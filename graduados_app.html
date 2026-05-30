@@ -138,50 +138,21 @@
 let allRecords = [], filtered = [], currentPage = 1;
 const PAGE_SIZE = 30;
 
-const AT_TOKEN = 'patFpXtk3ndC94huP.9acf2104b711636b3aef4a7d7875f62028dff6084bcc8d2c2f0cdf05c765f226';
-const AT_BASE  = 'appmLEatZG3pjsQZK';
-const AT_TABLE = 'GRADUADOS';
+const WORKER_URL = 'https://zenonalej.zenon-lopez.workers.dev/';
 
 // ── Carga datos via Claude API (evita CORS con Airtable) ──
 async function loadData() {
   showLoading('Conectando con Airtable...');
   try {
-    const prompt = `Fetch all records from Airtable using this HTTP request and return ONLY a raw JSON array of field objects, no explanation, no markdown:
-
-GET https://api.airtable.com/v0/${AT_BASE}/${encodeURIComponent(AT_TABLE)}
-Authorization: Bearer ${AT_TOKEN}
-
-If there are multiple pages (offset), fetch all pages and merge all records into one array.
-Return ONLY valid JSON like: [{"APELLIDOS":"...","NOMBRES":"...",...}, ...]`;
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 8000,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-
+    const res = await fetch(WORKER_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    const text = data.content
-      .filter(b => b.type === 'text')
-      .map(b => b.text)
-      .join('');
+    if (data.error) throw new Error(JSON.stringify(data.error));
+    if (!Array.isArray(data)) throw new Error('Formato inesperado');
 
-    // Extraer JSON del texto
-    const jsonMatch = text.match(/\[[\s\S]*\]/);
-    if (!jsonMatch) throw new Error('No se recibió JSON válido de la API');
-
-    const records = JSON.parse(jsonMatch[0]);
-    if (!Array.isArray(records)) throw new Error('Formato inesperado');
-
-    allRecords = records;
+    allRecords = data;
     populateSelects();
     applyFilters();
-
   } catch(e) {
     showError(`Error al cargar datos: ${e.message}`);
   }
