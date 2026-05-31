@@ -120,7 +120,7 @@ tr:last-child td { border-bottom: none; }
     <div class="filter-actions">
       <button class="btn btn-primary" onclick="applyFilters()">Aplicar filtros</button>
       <button class="btn btn-secondary" onclick="clearFilters()">Limpiar</button>
-      <button class="btn btn-secondary" onclick="exportCSV()">⬇ Exportar CSV</button>
+      <button class="btn btn-secondary" onclick="requireAuth(() => exportCSV())">⬇ Exportar CSV</button>
       <button class="btn btn-secondary" onclick="loadData()">🔄 Recargar</button>
       <button class="btn btn-success"  onclick="requireAuth(() => openForm())">＋ Agregar graduado</button>
     </div>
