@@ -154,11 +154,14 @@ tr:last-child td { border-bottom: none; }
           <option>Contaduría Pública</option>
           <option>Ciencias Jurídicas</option>
           <option>Psicología</option>
-          <option>Ciencias de la Educación - Ed. Parvularia</option>
-          <option>Ciencias de la Educación - CC Sociales</option>
+          <option>Ciencias de la Educación con Especialidad en Educación Parvularia</option>
+          <option>Ciencias de la Educación con Especialidad en Ciencias Sociales</option>
           <option>Ciencias de la Educación</option>
           <option>Letras</option>
-          <option>Lic. Parvularia</option>
+          <option>Técnico en Contaduría Pública</option>
+          <option>Técnico en Software</option>
+          <option>Ciencias de la Educación con Especialidad en Idioma Inglés</option>
+          <option>Mercadotecnia</option>
         </select>
       </div>
       <div class="form-group"><label>Profesorado</label><input id="fPROFESOR" placeholder="Profesorado"></div>
@@ -166,7 +169,7 @@ tr:last-child td { border-bottom: none; }
       <div class="form-group"><label>Año</label><input id="fANIO" placeholder="2024" type="number"></div>
       <div class="form-group"><label>Sector</label>
         <select id="fSECTOR">
-          <option value="">Seleccionar...</option>
+          <option value="">Trabaja en</option>
           <option>Sector Público</option>
           <option>Sector Privado</option>
           <option>Independiente</option>
@@ -216,7 +219,7 @@ tr:last-child td { border-bottom: none; }
 
 <script>
 const WORKER_URL = 'https://graduados-proxy.zenon-lopez.workers.dev/';
-const PASSWORD   = 'uma2024'; // ← cambia esta contraseña
+const PASSWORD   = 'UMA2026*';
 
 let allRecords = [], filtered = [], currentPage = 1;
 const PAGE_SIZE = 30;
