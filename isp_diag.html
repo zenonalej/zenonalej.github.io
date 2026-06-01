@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISP Diagnostic — Evidence Collector</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c10;
+  --surface: #111318;
+  --surface2: #181c24;
+  --surface3: #1e2330;
+  --border: rgba(99,120,180,0.18);
+  --border2: rgba(99,120,180,0.32);
+  --accent: #3b82f6;
+  --accent2: #60a5fa;
+  --accent-dim: rgba(59,130,246,0.12);
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.12);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245,158,11,0.12);
+  --red: #ef4444;
+  --red-dim: rgba(239,68,68,0.12);
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Syne', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.app { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+/* Header */
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.header-left {}
+.header-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent2);
+  background: var(--accent-dim);
+  border: 1px solid rgba(59,130,246,0.25);
+  padding: 3px 10px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-bottom: 10px;
+}
+.header h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.header h1 span { color: var(--accent2); }
+.header-sub {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 6px;
+}
+.header-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+.status-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text2);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* Progress bar */
+.progress-section { margin-bottom: 2rem; }
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text3);
+  margin-bottom: 8px;
+}
+.progress-track {
+  height: 3px;
+  background: var(--surface3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 2px;
+  transition: width 0.5s ease;
+}
+.phase-dots {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.phase-dot {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--surface3);
+  transition: background 0.3s;
+  cursor: pointer;
+  position: relative;
+}
+.phase-dot::after {
+  content: attr(data-label);
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  white-space: nowrap;
+}
+.phase-dot.active { background: var(--accent); }
+.phase-dot.done { background: var(--green); }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0;
+}
+.tab {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  padding: 8px 14px;
+  color: var(--text3);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--text2); }
+.tab.active { color: var(--accent2); border-bottom-color: var(--accent); }
+
+/* View sections */
+.view { display: none; }
+.view.active { display: block; }
+
+/* Phase cards */
+.phases-grid { display: flex; flex-direction: column; gap: 1rem; }
+
+.phase-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+.phase-card:hover { border-color: var(--border2); }
+.phase-card.has-files { border-color: rgba(34,197,94,0.3); }
+
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  cursor: pointer;
+  user-select: none;
+}
+.phase-header:hover { background: rgba(255,255,255,0.02); }
+
+.phase-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--accent2);
+  background: var(--accent-dim);
+  border: 1px solid rgba(59,130,246,0.3);
+  width: 28px; height: 28px;
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+.phase-num.done-num {
+  background: var(--green-dim);
+  border-color: rgba(34,197,94,0.3);
+  color: var(--green);
+}
+
+.phase-info { flex: 1; min-width: 0; }
+.phase-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.01em;
+}
+.phase-desc {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+
+.phase-badges { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.badge-count {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--green-dim);
+  color: var(--green);
+  border: 1px solid rgba(34,197,94,0.2);
+}
+.badge-empty {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: var(--surface3);
+  color: var(--text3);
+  border: 1px solid var(--border);
+}
+.chevron-icon {
+  color: var(--text3);
+  font-size: 12px;
+  transition: transform 0.2s;
+}
+.chevron-icon.open { transform: rotate(180deg); }
+
+.phase-body {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--border);
+}
+.phase-body.open { display: block; }
+
+/* Notes field */
+.notes-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 12px 0 6px;
+}
+.notes-input {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  resize: vertical;
+  min-height: 64px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.notes-input:focus { border-color: var(--accent); }
+.notes-input::placeholder { color: var(--text3); }
+
+/* Metric fields */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+.metric-input-wrap { display: flex; flex-direction: column; gap: 4px; }
+.metric-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.metric-input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 7px 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+.metric-input:focus { border-color: var(--accent); }
+.metric-input::placeholder { color: var(--text3); }
+
+/* Drop zone */
+.drop-zone {
+  margin-top: 12px;
+  border: 1.5px dashed var(--border2);
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: transparent;
+  position: relative;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.drop-icon { font-size: 24px; margin-bottom: 8px; }
+.drop-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text2);
+  margin-bottom: 4px;
+}
+.drop-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+}
+.drop-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+/* File list */
+.file-list { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+.file-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+.file-thumb {
+  width: 36px; height: 36px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--surface3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  overflow: hidden;
+}
+.file-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+.file-info { flex: 1; min-width: 0; }
+.file-name {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.file-size {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 1px;
+}
+.file-remove {
+  background: transparent;
+  border: none;
+  color: var(--text3);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+.file-remove:hover { color: var(--red); background: var(--red-dim); }
+
+/* Dashboard */
+.dashboard { display: none; }
+.dashboard.active { display: block; }
+
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.dash-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+.dash-ts {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 4px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+}
+.stat-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.stat-val {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+.stat-val.good { color: var(--green); }
+.stat-val.warn { color: var(--amber); }
+.stat-val.bad { color: var(--red); }
+.stat-val.neutral { color: var(--accent2); }
+.stat-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 4px;
+}
+
+/* Phase summary rows */
+.phase-rows { display: flex; flex-direction: column; gap: 8px; margin-bottom: 1.5rem; }
+.phase-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 16px;
+}
+.pr-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  width: 20px;
+  flex-shrink: 0;
+}
+.pr-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+.pr-files {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text2);
+}
+.pr-status {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pr-status.ok { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.pr-status.miss { background: var(--amber); }
+.pr-status.none { background: var(--surface3); }
+
+/* Metrics display */
+.metrics-display {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 1.5rem;
+}
+.metrics-display-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 12px;
+}
+.metric-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.metric-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+}
+.chip-key { color: var(--text3); }
+.chip-val { color: var(--text); font-weight: 500; }
+.chip-val.good { color: var(--green); }
+.chip-val.warn { color: var(--amber); }
+.chip-val.bad { color: var(--red); }
+
+/* Verdict */
+.verdict-box {
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 1.5rem;
+  border: 1px solid;
+}
+.verdict-box.good { background: var(--green-dim); border-color: rgba(34,197,94,0.3); }
+.verdict-box.warn { background: var(--amber-dim); border-color: rgba(245,158,11,0.3); }
+.verdict-box.bad { background: var(--red-dim); border-color: rgba(239,68,68,0.3); }
+.verdict-title {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.verdict-box.good .verdict-title { color: var(--green); }
+.verdict-box.warn .verdict-title { color: var(--amber); }
+.verdict-box.bad .verdict-title { color: var(--red); }
+.verdict-text {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+/* Actions */
+.actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+  letter-spacing: 0.03em;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.btn-primary:hover { background: var(--accent2); border-color: var(--accent2); }
+.btn-secondary {
+  background: transparent;
+  color: var(--text2);
+  border-color: var(--border2);
+}
+.btn-secondary:hover { background: var(--surface2); color: var(--text); }
+.btn-green {
+  background: var(--green-dim);
+  color: var(--green);
+  border-color: rgba(34,197,94,0.3);
+}
+.btn-green:hover { background: rgba(34,197,94,0.2); }
+
+/* Scan line animation on download */
+@keyframes scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(400%); }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text3);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.empty-icon { font-size: 32px; margin-bottom: 12px; opacity: 0.4; }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background: var(--surface2);
+  border: 1px solid var(--green);
+  border-radius: 8px;
+  padding: 12px 18px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--green);
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+@media (max-width: 600px) {
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+  .header { flex-direction: column; gap: 12px; }
+  .header-status { align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="header-left">
+      <div class="header-tag">ISP DIAGNOSTIC SUITE v1.0</div>
+      <h1>Evidence <span>Collector</span></h1>
+      <div class="header-sub">// Recopilación de evidencia por fase → dashboard → export JSON</div>
+    </div>
+    <div class="header-status">
+      <div class="status-pill"><div class="status-dot"></div> SISTEMA ACTIVO</div>
+      <div class="status-pill" id="file-count-pill">0 archivos capturados</div>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="progress-label">
+      <span>PROGRESO DEL DIAGNÓSTICO</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="phase-dots" id="phase-dots"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('collect')">① Recopilar evidencia</button>
+    <button class="tab" onclick="switchTab('dashboard')">② Dashboard</button>
+    <button class="tab" onclick="switchTab('export')">③ Exportar JSON</button>
+  </div>
+
+  <!-- COLLECT VIEW -->
+  <div class="view active" id="view-collect">
+    <div class="phases-grid" id="phases-container"></div>
+    <div style="margin-top:1.5rem; display:flex; gap:10px; flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="switchTab('dashboard'); buildDashboard()">Ver dashboard →</button>
+      <button class="btn btn-secondary" onclick="clearAll()">Limpiar todo</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD VIEW -->
+  <div class="view" id="view-dashboard">
+    <div id="dashboard-content">
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <div>Carga archivos en la fase de recopilación primero</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPORT VIEW -->
+  <div class="view" id="view-export">
+    <div id="export-content">
+      <div class="empty-state">
+        <div class="empty-icon">📦</div>
+        <div>Genera el dashboard primero para habilitar la exportación</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DATA MODEL ───────────────────────────────────────────────────────────────
+const PHASES = [
+  {
+    id: 'prep',
+    num: 'F1',
+    name: 'Preparación del entorno',
+    desc: 'Captura de pantalla de red conectada + Administrador de Tareas',
+    accepts: 'image/*,.png,.jpg,.jpeg,.bmp,.gif,.webp,.txt',
+    metrics: [
+      { key: 'conexion', label: 'Tipo conexión', placeholder: 'Ethernet / Wi-Fi' },
+      { key: 'isp', label: 'ISP contratado', placeholder: 'ej. Claro, Tigo, Movistar' },
+      { key: 'velocidad_contratada', label: 'Velocidad contratada', placeholder: 'ej. 100 Mbps' },
+    ],
+    hint: 'Captura de pantalla del Administrador de Tareas mostrando columna Red en 0'
+  },
+  {
+    id: 'ping',
+    num: 'F2',
+    name: 'Prueba de latencia (ping)',
+    desc: 'Resultados del comando ping -n 100 1.1.1.1 y 8.8.8.8',
+    accepts: 'image/*,.txt,.log',
+    metrics: [
+      { key: 'ping_min', label: 'Latencia mínima (ms)', placeholder: 'ej. 8' },
+      { key: 'ping_avg', label: 'Latencia promedio (ms)', placeholder: 'ej. 12' },
+      { key: 'ping_max', label: 'Latencia máxima (ms)', placeholder: 'ej. 45' },
+      { key: 'packet_loss', label: 'Pérdida de paquetes (%)', placeholder: 'ej. 0' },
+      { key: 'jitter', label: 'Jitter estimado (ms)', placeholder: 'máx - mín' },
+    ],
+    hint: 'Captura completa del resumen final del ping (las últimas líneas con Mínimo / Máximo / Promedio)'
+  },
+  {
+    id: 'tracert',
+    num: 'F3',
+    name: 'Trazado de ruta (tracert)',
+    desc: 'Resultado completo del tracert -d 1.1.1.1',
+    accepts: 'image/*,.txt,.log',
+    metrics: [
+      { key: 'total_hops', label: 'Total de saltos', placeholder: 'ej. 14' },
+      { key: 'bottleneck_hop', label: 'Salto problemático', placeholder: 'ej. Hop 3 → 180ms' },
+      { key: 'isp_latency', label: 'Latencia en red ISP (ms)', placeholder: 'latencia en salto 2-3' },
+    ],
+    hint: 'Captura completa de la terminal con todos los hops visibles'
+  },
+  {
+    id: 'speedtest',
+    num: 'F4',
+    name: 'Prueba de velocidad CLI',
+    desc: 'Resultado de speedtest.exe o fast-cli',
+    accepts: 'image/*,.txt,.log,.json',
+    metrics: [
+      { key: 'download_mbps', label: 'Descarga (Mbps)', placeholder: 'ej. 95.4' },
+      { key: 'upload_mbps', label: 'Subida (Mbps)', placeholder: 'ej. 48.2' },
+      { key: 'idle_latency', label: 'Latencia idle (ms)', placeholder: 'ej. 10' },
+      { key: 'server_used', label: 'Servidor de prueba', placeholder: 'ciudad / proveedor' },
+    ],
+    hint: 'Captura del resultado final con Download / Upload / Latency'
+  },
+  {
+    id: 'bufferbloat',
+    num: 'F5',
+    name: 'Análisis de bufferbloat',
+    desc: 'Resultado de waveform.com/tools/bufferbloat',
+    accepts: 'image/*,.png,.jpg',
+    metrics: [
+      { key: 'grade', label: 'Calificación (A-F)', placeholder: 'ej. B' },
+      { key: 'idle_latency_buf', label: 'Latencia idle (ms)', placeholder: 'ej. 9' },
+      { key: 'loaded_latency', label: 'Latencia bajo carga (ms)', placeholder: 'ej. 38' },
+      { key: 'bloat_ms', label: 'Incremento de latencia (ms)', placeholder: 'carga - idle' },
+    ],
+    hint: 'Captura de pantalla completa del resultado de waveform incluyendo la calificación'
+  },
+];
+
+const state = {
+  phases: {},
+  timestamps: { start: new Date().toISOString() }
+};
+
+PHASES.forEach(p => {
+  state.phases[p.id] = { files: [], notes: '', metrics: {} };
+});
+
+// ─── INIT ──────────────────────────────────────────────────────────────────────
+function init() {
+  const container = document.getElementById('phases-container');
+  const dotsContainer = document.getElementById('phase-dots');
+
+  PHASES.forEach((phase, idx) => {
+    // Phase dot
+    const dot = document.createElement('div');
+    dot.className = 'phase-dot';
+    dot.dataset.label = phase.num;
+    dot.id = `dot-${phase.id}`;
+    dotsContainer.appendChild(dot);
+
+    // Phase card
+    const card = document.createElement('div');
+    card.className = 'phase-card';
+    card.id = `card-${phase.id}`;
+
+    const metricsHTML = phase.metrics.map(m => `
+      <div class="metric-input-wrap">
+        <div class="metric-label">${m.label}</div>
+        <input class="metric-input" type="text" placeholder="${m.placeholder}"
+          data-phase="${phase.id}" data-key="${m.key}"
+          oninput="saveMetric('${phase.id}','${m.key}',this.value)">
+      </div>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="phase-header" onclick="togglePhase('${phase.id}')">
+        <div class="phase-num" id="num-${phase.id}">${phase.num}</div>
+        <div class="phase-info">
+          <div class="phase-name">${phase.name}</div>
+          <div class="phase-desc">${phase.desc}</div>
+        </div>
+        <div class="phase-badges">
+          <span class="badge-empty" id="badge-${phase.id}">sin archivos</span>
+          <span class="chevron-icon" id="chev-${phase.id}">▼</span>
+        </div>
+      </div>
+      <div class="phase-body" id="body-${phase.id}">
+        <div class="notes-label">Métricas registradas</div>
+        <div class="metrics-row">${metricsHTML}</div>
+        <div class="notes-label" style="margin-top:14px">Notas y observaciones</div>
+        <textarea class="notes-input" placeholder="Describe lo que observaste en esta fase..."
+          oninput="saveNotes('${phase.id}',this.value)"></textarea>
+        <div class="notes-label" style="margin-top:14px">
+          📎 Adjuntar evidencia
+          <span style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-left:8px">${phase.hint}</span>
+        </div>
+        <div class="drop-zone" id="drop-${phase.id}"
+          ondragover="dragOver(event,'${phase.id}')"
+          ondragleave="dragLeave('${phase.id}')"
+          ondrop="dropFiles(event,'${phase.id}')">
+          <input type="file" class="drop-input" multiple accept="${phase.accepts}"
+            onchange="handleFiles(event,'${phase.id}')">
+          <div class="drop-icon">⬆</div>
+          <div class="drop-title">Arrastra archivos aquí o haz clic</div>
+          <div class="drop-sub">Imágenes, .txt, .log, .json · sin límite de archivos</div>
+        </div>
+        <div class="file-list" id="files-${phase.id}"></div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+
+  updateProgress();
+}
+
+// ─── PHASE TOGGLE ──────────────────────────────────────────────────────────────
+function togglePhase(id) {
+  const body = document.getElementById(`body-${id}`);
+  const chev = document.getElementById(`chev-${id}`);
+  const isOpen = body.classList.contains('open');
+  // Close all
+  PHASES.forEach(p => {
+    document.getElementById(`body-${p.id}`).classList.remove('open');
+    document.getElementById(`chev-${p.id}`).classList.remove('open');
+  });
+  if (!isOpen) {
+    body.classList.add('open');
+    chev.classList.add('open');
+  }
+}
+
+// ─── METRICS & NOTES ──────────────────────────────────────────────────────────
+function saveMetric(phaseId, key, value) {
+  state.phases[phaseId].metrics[key] = value;
+  updateProgress();
+}
+function saveNotes(phaseId, value) {
+  state.phases[phaseId].notes = value;
+}
+
+// ─── FILE HANDLING ─────────────────────────────────────────────────────────────
+function handleFiles(evt, phaseId) {
+  const files = Array.from(evt.target.files);
+  files.forEach(f => addFile(f, phaseId));
+}
+function dropFiles(evt, phaseId) {
+  evt.preventDefault();
+  dragLeave(phaseId);
+  const files = Array.from(evt.dataTransfer.files);
+  files.forEach(f => addFile(f, phaseId));
+}
+function dragOver(evt, phaseId) {
+  evt.preventDefault();
+  document.getElementById(`drop-${phaseId}`).classList.add('drag-over');
+}
+function dragLeave(phaseId) {
+  document.getElementById(`drop-${phaseId}`).classList.remove('drag-over');
+}
+
+function addFile(file, phaseId) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const entry = {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      data: e.target.result, // base64
+      addedAt: new Date().toISOString()
+    };
+    state.phases[phaseId].files.push(entry);
+    renderFileList(phaseId);
+    updateProgress();
+    updateCard(phaseId);
+  };
+  reader.readAsDataURL(file);
+}
+
+function removeFile(phaseId, idx) {
+  state.phases[phaseId].files.splice(idx, 1);
+  renderFileList(phaseId);
+  updateProgress();
+  updateCard(phaseId);
+}
+
+function renderFileList(phaseId) {
+  const list = document.getElementById(`files-${phaseId}`);
+  const files = state.phases[phaseId].files;
+  list.innerHTML = '';
+  files.forEach((f, i) => {
+    const isImg = f.type.startsWith('image/');
+    const thumbHTML = isImg
+      ? `<img src="${f.data}" alt="${f.name}">`
+      : getFileIcon(f.name);
+    const div = document.createElement('div');
+    div.className = 'file-item';
+    div.innerHTML = `
+      <div class="file-thumb">${thumbHTML}</div>
+      <div class="file-info">
+        <div class="file-name">${f.name}</div>
+        <div class="file-size">${formatSize(f.size)} · ${f.type || 'archivo'}</div>
+      </div>
+      <button class="file-remove" onclick="removeFile('${phaseId}',${i})" title="Eliminar">✕</button>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function updateCard(phaseId) {
+  const count = state.phases[phaseId].files.length;
+  const badge = document.getElementById(`badge-${phaseId}`);
+  const card = document.getElementById(`card-${phaseId}`);
+  const num = document.getElementById(`num-${phaseId}`);
+  if (count > 0) {
+    badge.className = 'badge-count';
+    badge.textContent = `${count} archivo${count>1?'s':''}`;
+    card.classList.add('has-files');
+    num.classList.add('done-num');
+  } else {
+    badge.className = 'badge-empty';
+    badge.textContent = 'sin archivos';
+    card.classList.remove('has-files');
+    num.classList.remove('done-num');
+  }
+}
+
+// ─── PROGRESS ─────────────────────────────────────────────────────────────────
+function updateProgress() {
+  const total = PHASES.length;
+  let done = 0;
+  let totalFiles = 0;
+
+  PHASES.forEach((p, i) => {
+    const ph = state.phases[p.id];
+    const hasFiles = ph.files.length > 0;
+    const hasMetrics = Object.values(ph.metrics).some(v => v.trim?.() !== '' && v !== '');
+    totalFiles += ph.files.length;
+
+    const dot = document.getElementById(`dot-${p.id}`);
+    if (hasFiles || hasMetrics) {
+      done++;
+      dot.classList.add('done');
+      dot.classList.remove('active');
+    } else {
+      dot.classList.remove('done');
+    }
+  });
+
+  const pct = Math.round((done / total) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.getElementById('file-count-pill').textContent = `${totalFiles} archivo${totalFiles!==1?'s':''} capturado${totalFiles!==1?'s':''}`;
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+function buildDashboard() {
+  const content = document.getElementById('dashboard-content');
+  const pingPhase = state.phases.ping;
+  const speedPhase = state.phases.speedtest;
+  const bufPhase = state.phases.bufferbloat;
+  const prepPhase = state.phases.prep;
+
+  // Helper: get metric safely
+  const m = (phase, key) => state.phases[phase]?.metrics?.[key] || '—';
+
+  // Compute total files
+  let totalFiles = 0;
+  let phasesWithData = 0;
+  PHASES.forEach(p => {
+    const ph = state.phases[p.id];
+    totalFiles += ph.files.length;
+    if (ph.files.length > 0 || Object.values(ph.metrics).some(v=>v)) phasesWithData++;
+  });
+
+  // Verdict logic
+  const pingAvg = parseFloat(m('ping','ping_avg'));
+  const loss = parseFloat(m('ping','packet_loss'));
+  const grade = m('bufferbloat','grade');
+  const dl = parseFloat(m('speedtest','download_mbps'));
+
+  let verdictClass = 'warn', verdictTitle = '⚠ Diagnóstico incompleto', verdictText = 'Completa las métricas en las fases para obtener un diagnóstico preciso.';
+
+  if (!isNaN(pingAvg) && !isNaN(loss)) {
+    const issues = [];
+    if (pingAvg > 150) issues.push('latencia crítica (' + pingAvg + 'ms)');
+    else if (pingAvg > 60) issues.push('latencia elevada (' + pingAvg + 'ms)');
+    if (loss > 5) issues.push('pérdida de paquetes alta (' + loss + '%)');
+    else if (loss > 1) issues.push('pérdida de paquetes leve (' + loss + '%)');
+    if (['D','F'].includes(grade.toUpperCase())) issues.push('bufferbloat severo (calificación ' + grade + ')');
+    else if (grade === 'C') issues.push('bufferbloat moderado');
+
+    if (issues.length === 0) {
+      verdictClass = 'good';
+      verdictTitle = '✓ Conexión en buen estado';
+      verdictText = 'Los parámetros medidos están dentro de rangos aceptables. Si persiste la lentitud, el problema puede ser del equipo o software.';
+    } else if (issues.length === 1) {
+      verdictClass = 'warn';
+      verdictTitle = '⚠ Se detectaron anomalías';
+      verdictText = 'Problemas encontrados: ' + issues.join(', ') + '. Se recomienda contactar al ISP con esta evidencia.';
+    } else {
+      verdictClass = 'bad';
+      verdictTitle = '✗ Conexión con problemas graves';
+      verdictText = 'Múltiples indicadores fuera de rango: ' + issues.join(' · ') + '. Escalar inmediatamente al ISP con el reporte JSON.';
+    }
+  }
+
+  // Metric chips
+  const allMetrics = [];
+  PHASES.forEach(p => {
+    Object.entries(state.phases[p.id].metrics).forEach(([k, v]) => {
+      if (v && v.trim()) {
+        const def = PHASES.find(ph=>ph.id===p.id)?.metrics.find(mm=>mm.key===k);
+        allMetrics.push({ label: def?.label || k, value: v, phase: p.num });
+      }
+    });
+  });
+
+  const chipsHTML = allMetrics.length > 0 ? allMetrics.map(mc => {
+    let cls = '';
+    const num = parseFloat(mc.value);
+    if (mc.label.includes('pérdida') || mc.label.includes('Pérdida')) cls = num===0?'good':num<2?'warn':'bad';
+    if (mc.label.includes('promedio') || mc.label.includes('Latencia promedio')) cls = num<60?'good':num<150?'warn':'bad';
+    if (mc.label.includes('Calificación')) cls = ['A','B'].includes(mc.value.toUpperCase())?'good':mc.value.toUpperCase()==='C'?'warn':'bad';
+    return `<div class="metric-chip"><span class="chip-key">${mc.phase} ${mc.label}:</span><span class="chip-val ${cls}">${mc.value}</span></div>`;
+  }).join('') : '<div style="font-family:var(--mono);font-size:11px;color:var(--text3)">Sin métricas registradas aún</div>';
+
+  // Phase rows
+  const phaseRowsHTML = PHASES.map(p => {
+    const ph = state.phases[p.id];
+    const hasData = ph.files.length > 0 || Object.values(ph.metrics).some(v=>v);
+    const statusClass = ph.files.length > 0 ? 'ok' : hasData ? 'miss' : 'none';
+    const statusTxt = ph.files.length > 0 ? `${ph.files.length} archivo${ph.files.length>1?'s':''}` : hasData ? 'métricas solo' : 'sin datos';
+    return `
+      <div class="phase-row">
+        <div class="pr-num">${p.num}</div>
+        <div class="pr-name">${p.name}</div>
+        <div class="pr-files">${statusTxt}</div>
+        <div class="pr-status ${statusClass}"></div>
+      </div>
+    `;
+  }).join('');
+
+  content.innerHTML = `
+    <div class="dash-header">
+      <div>
+        <div class="dash-title">Resumen de diagnóstico ISP</div>
+        <div class="dash-ts">Generado: ${new Date().toLocaleString('es-SV')} · ${m('prep','isp') !== '—' ? m('prep','isp') : 'ISP no especificado'}</div>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Fases con datos</div>
+        <div class="stat-val ${phasesWithData===PHASES.length?'good':phasesWithData>2?'warn':'bad'}">${phasesWithData}/${PHASES.length}</div>
+        <div class="stat-sub">completadas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Archivos adjuntos</div>
+        <div class="stat-val neutral">${totalFiles}</div>
+        <div class="stat-sub">evidencias</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Latencia promedio</div>
+        <div class="stat-val ${!isNaN(pingAvg)?(pingAvg<60?'good':pingAvg<150?'warn':'bad'):'neutral'}">${isNaN(pingAvg)?'—':pingAvg+'ms'}</div>
+        <div class="stat-sub">ping a 1.1.1.1</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Packet loss</div>
+        <div class="stat-val ${!isNaN(loss)?(loss===0?'good':loss<2?'warn':'bad'):'neutral'}">${isNaN(loss)?'—':loss+'%'}</div>
+        <div class="stat-sub">pérdida de paquetes</div>
+      </div>
+    </div>
+
+    <div class="verdict-box ${verdictClass}">
+      <div class="verdict-title">${verdictTitle}</div>
+      <div class="verdict-text">${verdictText}</div>
+    </div>
+
+    <div class="metrics-display">
+      <div class="metrics-display-title">Todas las métricas registradas</div>
+      <div class="metric-chips">${chipsHTML}</div>
+    </div>
+
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Estado por fase</div>
+    <div class="phase-rows">${phaseRowsHTML}</div>
+
+    <div class="actions-row">
+      <button class="btn btn-green" onclick="switchTab('export'); buildExport()">Preparar exportación JSON →</button>
+      <button class="btn btn-secondary" onclick="switchTab('collect')">← Volver a recopilar</button>
+    </div>
+  `;
+}
+
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
+function buildExport() {
+  const content = document.getElementById('export-content');
+
+  let totalFiles = 0;
+  PHASES.forEach(p => { totalFiles += state.phases[p.id].files.length; });
+
+  // Build JSON payload
+  const payload = buildPayload();
+  const jsonStr = JSON.stringify(payload, null, 2);
+  const sizeKB = (new Blob([jsonStr]).size / 1024).toFixed(1);
+
+  content.innerHTML = `
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:1rem">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">Contenido del archivo JSON</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px">
+        <div style="background:var(--surface2);border-radius:6px;padding:10px;text-align:center">
+          <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--accent2)">${PHASES.length}</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px">fases</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:6px;padding:10px;text-align:center">
+          <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--green)">${totalFiles}</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px">archivos adjuntos</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:6px;padding:10px;text-align:center">
+          <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--amber)">${sizeKB} KB</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:4px">tamaño del archivo</div>
+        </div>
+      </div>
+
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px">Prompt incluido para IA</div>
+      <div style="background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.7;max-height:160px;overflow-y:auto">
+        ${payload.ai_prompt.replace(/\n/g,'<br>')}
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:1.5rem">
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px">Cómo usar este archivo con una IA</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${['Descarga el archivo JSON usando el botón de abajo.',
+          'Abre ChatGPT, Claude, Gemini u otra IA que acepte archivos.',
+          'Sube el archivo JSON y escribe: "Analiza este diagnóstico de red y genera un informe técnico con recomendaciones."',
+          'La IA leerá las métricas, las evidencias en base64 y el prompt incluido para generar el informe automáticamente.'].map((t,i)=>`
+          <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;color:var(--text2)">
+            <div style="width:22px;height:22px;border-radius:50%;background:var(--accent-dim);border:1px solid rgba(59,130,246,.3);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent2);flex-shrink:0;margin-top:1px">${i+1}</div>
+            <span style="line-height:1.6">${t}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button class="btn btn-primary" onclick="downloadJSON()">⬇ Descargar isp_diagnostic.json</button>
+      <button class="btn btn-secondary" onclick="switchTab('dashboard');buildDashboard()">← Ver dashboard</button>
+    </div>
+  `;
+}
+
+function buildPayload() {
+  const phasesData = {};
+  PHASES.forEach(p => {
+    const ph = state.phases[p.id];
+    phasesData[p.id] = {
+      phase_name: p.name,
+      phase_number: p.num,
+      metrics: ph.metrics,
+      notes: ph.notes,
+      files: ph.files.map(f => ({
+        filename: f.name,
+        type: f.type,
+        size_bytes: f.size,
+        added_at: f.addedAt,
+        data_base64: f.data
+      }))
+    };
+  });
+
+  const prompt = `Eres un ingeniero de redes senior. Analiza el siguiente diagnóstico de conexión a internet y genera un informe técnico estructurado.
+
+El informe debe incluir:
+1. RESUMEN EJECUTIVO: estado general de la conexión en 2-3 oraciones.
+2. ANÁLISIS POR MÉTRICA: evalúa latencia, jitter, pérdida de paquetes, velocidad de descarga/subida y bufferbloat comparando contra estándares internacionales.
+3. DIAGNÓSTICO DE CAUSA RAÍZ: identifica si el problema está en la red local, en el equipo del cliente, en la última milla del ISP, o en el backbone de tránsito.
+4. EVIDENCIAS CLAVE: menciona los archivos adjuntos más relevantes (capturas de ping, tracert, speedtest, bufferbloat).
+5. RECOMENDACIONES PRIORIZADAS: lista de acciones ordenadas de mayor a menor impacto, distinguiendo entre lo que puede hacer el usuario y lo que debe gestionar el ISP.
+6. PLANTILLA DE RECLAMO AL ISP: redacta un mensaje formal que el usuario puede enviar a soporte técnico del ISP con las métricas relevantes como evidencia.
+
+Los datos están en el campo "phases" de este JSON. Las imágenes adjuntas están codificadas en base64 dentro del campo "data_base64" de cada archivo.`;
+
+  return {
+    report_type: 'ISP_DIAGNOSTIC_REPORT',
+    generated_at: new Date().toISOString(),
+    tool_version: '1.0.0',
+    ai_prompt: prompt,
+    phases: phasesData,
+    summary: {
+      total_phases: PHASES.length,
+      phases_with_data: PHASES.filter(p => {
+        const ph = state.phases[p.id];
+        return ph.files.length > 0 || Object.values(ph.metrics).some(v=>v);
+      }).length,
+      total_files: Object.values(state.phases).reduce((acc, ph) => acc + ph.files.length, 0),
+    }
+  };
+}
+
+function downloadJSON() {
+  const payload = buildPayload();
+  const jsonStr = JSON.stringify(payload, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `isp_diagnostic_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ Archivo descargado correctamente');
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`view-${tab}`).classList.add('active');
+  document.querySelectorAll('.tab').forEach(t => {
+    if (t.textContent.toLowerCase().includes(tab === 'collect' ? 'recopilar' : tab === 'dashboard' ? 'dashboard' : 'exportar')) {
+      t.classList.add('active');
+    }
+  });
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function clearAll() {
+  if (!confirm('¿Eliminar todos los datos y archivos? Esta acción no se puede deshacer.')) return;
+  PHASES.forEach(p => { state.phases[p.id] = { files: [], notes: '', metrics: {} }; });
+  init();
+  showToast('Datos eliminados');
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/1048576).toFixed(1) + ' MB';
+}
+
+function getFileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  const map = { txt:'📄', log:'📋', json:'{ }', csv:'📊', pdf:'📕' };
+  return `<span style="font-size:14px">${map[ext] || '📎'}</span>`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── START ─────────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
