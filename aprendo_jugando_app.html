@@ -355,11 +355,11 @@ function go(id){
 
 /* ── CUENTOS ── */
 var pages=[
-  {ic:'&#127807;',txt:'En el jardín de las palabras viv&#237;a una mariposa llamada Lila que quer&#237;a aprender a hablar con las flores.'},
-  {ic:'&#127800;',txt:'Un d&#237;a, Lila encontr&#243; una rosa roja. "Buenos d&#237;as, rosa", dijo con voz suave. "&#161;Buenos d&#237;as!" respondi&#243; la rosa.'},
-  {ic:'&#127803;',txt:'Lila aprendi&#243; que cada flor ten&#237;a un nombre especial: margarita, girasol, violeta... &#161;Las palabras son como flores!'},
-  {ic:'&#127881;',txt:'Al final del d&#237;a, Lila hab&#237;a aprendido diez palabras nuevas y las repiti&#243; una por una antes de dormir.'},
-  {ic:'&#11088;',txt:'&#161;FIN! Lila descubri&#243; que hablar y escuchar es la mejor manera de hacer amigos en el jard&#237;n de la vida.'},
+  {ic:'&#127807;',txt:'En el jardín de las palabras vivía una mariposa llamada Lila que quería aprender a hablar con las flores.'},
+  {ic:'&#127800;',txt:'Un día, Lila encontró una rosa roja. "Buenos días, rosa", dijo con voz suave. "¡Buenos días!" respondió la rosa.'},
+  {ic:'&#127803;',txt:'Lila aprendió que cada flor tenía un nombre especial: margarita, girasol, violeta... ¡Las palabras son como flores!'},
+  {ic:'&#127881;',txt:'Al final del día, Lila había aprendido diez palabras nuevas y las repitió una por una antes de dormir.'},
+  {ic:'&#11088;',txt:'¡FIN! Lila descubrió que hablar y escuchar es la mejor manera de hacer amigos en el jardín de la vida.'},
   {ic:'&#9997;&#65039;',txt:null,question:true}
 ];
 var sp=0;
@@ -376,14 +376,14 @@ function renderStory(){
   for(var i=0;i<pages.length;i++){var d=document.createElement('div');d.className='dot'+(i===sp?' on':'');dots.appendChild(d);}
   var qb=document.getElementById('q-box');
   if(pg.question){
-    document.getElementById('s-text').textContent='&#161;Respond&#233; las preguntas!';
+    document.getElementById('s-text').textContent='¡Responde las preguntas!';
     qb.classList.add('show');
     if(!qAnswered) renderQuestion();
   } else { qb.classList.remove('show'); }
 }
 
 function renderQuestion(){
-  document.getElementById('q-title').textContent='&#129300; &#191;C&#243;mo se llamaba la mariposa del cuento?';
+  document.getElementById('q-title').textContent='&#129300; ¿Cómo se llamaba la mariposa del cuento?';
   var opts=['Lila','Rosa','Luna','Violeta'];
   var correct=0;
   var c=document.getElementById('q-opts');
@@ -398,7 +398,7 @@ function renderQuestion(){
         if(j===correct)btn.classList.add('correct');
         else if(j===i&&i!==correct)btn.classList.add('wrong');
       });
-      document.getElementById('q-feedback').textContent=i===correct?'&#127881; &#161;Muy bien! &#161;Correcto!':'&#128532; Casi... era Lila. &#161;Sigue practicando!';
+      document.getElementById('q-feedback').textContent=i===correct?'&#127881; ¡Muy bien! ¡Correcto!':'Casi... era Lila. ¡Sigue practicando!';
     };
     c.appendChild(b);
   });
