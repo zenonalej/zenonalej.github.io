@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiniela FIFA 2026</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Bebas Neue (display) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    // Extender Tailwind con tokens de diseño propios
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            // Verde FIFA — tono único, no el verde estándar
+            fifa: {
+              green:  '#00A550',
+              bright: '#00CC63',
+              dim:    '#007A3C',
+            },
+            // Dorado para acentos de copa/trofeo
+            gold: {
+              400: '#E4B84A',
+              300: '#F0CF72',
+            },
+            // Fondo oscuro con tinte azul-pizarra (no negro puro)
+            pitch: {
+              900: '#0D1117',
+              800: '#161B22',
+              700: '#1F2937',
+              600: '#2D3748',
+            }
+          },
+          fontFamily: {
+            display: ['Bebas Neue', 'Impact', 'sans-serif'],
+            body:    ['Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* ── Estilos globales y micro-detalles ───────────────────── */
+    body { font-family: 'Inter', system-ui, sans-serif; }
+
+    /* Línea diagonal de grama en el hero */
+    .grass-pattern {
+      background-image: repeating-linear-gradient(
+        135deg,
+        rgba(0, 165, 80, 0.04) 0px,
+        rgba(0, 165, 80, 0.04) 2px,
+        transparent 2px,
+        transparent 12px
+      );
+    }
+
+    /* Marcador de puntuación: inputs tipo número sin flechas */
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    /* Animación de entrada para las tarjetas */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-slide-up {
+      animation: slideUp 0.4s ease-out forwards;
+    }
+
+    /* Efecto de pulso en el botón de carga */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    /* Avatar preview */
+    #avatarPreview {
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    /* Tarjeta de partido — borde izquierdo animado */
+    .match-card {
+      border-left: 3px solid transparent;
+      transition: border-color 0.2s ease, transform 0.15s ease;
+    }
+    .match-card:hover { border-left-color: #00A550; transform: translateX(3px); }
+    .match-card.blocked { border-left-color: #EF4444; opacity: 0.6; }
+
+    /* Score input focus glow */
+    .score-input:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px #00A550;
+    }
+  </style>
+</head>
+
+<body class="bg-pitch-900 text-gray-100 min-h-screen dark">
+
+  <!-- ══════════════════════════════════════════════════════════
+       PANTALLA PRINCIPAL (se oculta tras el éxito)
+  ══════════════════════════════════════════════════════════ -->
+  <div id="mainScreen">
+
+    <!-- ── HERO ──────────────────────────────────────────────── -->
+    <header class="relative overflow-hidden bg-pitch-800 grass-pattern border-b border-pitch-700">
+      <div class="max-w-2xl mx-auto px-6 py-10 text-center">
+        <!-- Badge de jornada -->
+        <span class="inline-block text-xs font-semibold tracking-widest uppercase
+                     text-fifa-bright bg-fifa-green/10 border border-fifa-green/30
+                     rounded-full px-4 py-1 mb-4">
+          ⚽ Fase de Grupos · Jornadas 2 & 3
+        </span>
+
+        <!-- Título principal -->
+        <h1 class="font-display text-5xl sm:text-7xl text-white leading-none tracking-wide">
+          QUINIELA
+        </h1>
+        <p class="font-display text-2xl sm:text-3xl text-gold-400 tracking-widest mt-1">
+          MUNDIAL FIFA 2026
+        </p>
+
+        <!-- Fecha / hora en tiempo real (inyectada desde el backend) -->
+        <p id="fechaInfo" class="mt-4 text-sm text-gray-400">
+          Cargando horarios…
+        </p>
+      </div>
+    </header>
+
+    <!-- ── CONTENIDO PRINCIPAL ────────────────────────────────── -->
+    <main class="max-w-2xl mx-auto px-4 py-8 space-y-8">
+
+      <!-- ── SECCIÓN 1: REGISTRO ────────────────────────────── -->
+      <section class="bg-pitch-800 rounded-2xl border border-pitch-700 overflow-hidden">
+        <div class="px-6 pt-6 pb-2">
+          <h2 class="font-display text-2xl text-white tracking-wide">TUS DATOS</h2>
+          <p class="text-sm text-gray-400 mt-1">Completa tu información antes de pronosticar.</p>
+        </div>
+
+        <div class="px-6 pb-6 space-y-4 mt-4">
+
+          <!-- Avatar + Upload -->
+          <div class="flex items-center gap-5">
+            <div class="relative shrink-0">
+              <!-- Círculo de avatar -->
+              <div id="avatarRing" class="w-16 h-16 rounded-full bg-pitch-700 border-2
+                                          border-pitch-600 flex items-center justify-center
+                                          overflow-hidden cursor-pointer hover:border-fifa-green
+                                          transition-colors"
+                   onclick="document.getElementById('fotoInput').click()">
+                <img id="avatarPreview" src="" alt="" class="w-full h-full object-cover hidden" />
+                <span id="avatarPlaceholder" class="text-2xl select-none">📷</span>
+              </div>
+            </div>
+            <div class="flex-1">
+              <label class="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1">
+                Foto de perfil
+              </label>
+              <button type="button"
+                      onclick="document.getElementById('fotoInput').click()"
+                      class="text-sm text-fifa-bright hover:text-fifa-green transition-colors font-medium">
+                Subir foto (JPG / PNG · máx. 5 MB)
+              </button>
+              <input type="file" id="fotoInput" accept="image/jpeg,image/png"
+                     class="hidden" onchange="previewFoto(event)" />
+              <p id="fotoNombre" class="text-xs text-gray-500 mt-1">Ningún archivo seleccionado</p>
+            </div>
+          </div>
+
+          <!-- Nombre -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1"
+                   for="nombre">Nombre completo</label>
+            <input id="nombre" type="text" placeholder="Ej. Carlos Mendoza"
+                   class="w-full bg-pitch-700 border border-pitch-600 rounded-xl px-4 py-3
+                          text-white placeholder-gray-500 focus:border-fifa-green focus:ring-0
+                          transition-colors text-sm" />
+          </div>
+
+          <!-- Correo -->
+          <div>
+            <label class="block text-xs font-semibold text-gray-400 uppercase tracking-widest mb-1"
+                   for="correo">Correo electrónico</label>
+            <input id="correo" type="email" placeholder="correo@ejemplo.com"
+                   class="w-full bg-pitch-700 border border-pitch-600 rounded-xl px-4 py-3
+                          text-white placeholder-gray-500 focus:border-fifa-green focus:ring-0
+                          transition-colors text-sm" />
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ── SECCIÓN 2: PARTIDOS DEL DÍA ───────────────────── -->
+      <section>
+        <div class="flex items-baseline justify-between mb-4">
+          <h2 class="font-display text-2xl text-white tracking-wide">PARTIDOS DE HOY</h2>
+          <span id="contadorActivos" class="text-xs text-gray-500"></span>
+        </div>
+
+        <!-- Estado de carga inicial -->
+        <div id="loadingPartidos" class="text-center py-12">
+          <div class="spinner mx-auto mb-3" style="width:28px;height:28px;border-width:3px;"></div>
+          <p class="text-gray-400 text-sm">Consultando el calendario…</p>
+        </div>
+
+        <!-- Mensaje de "sin partidos" (oculto por defecto) -->
+        <div id="sinPartidos" class="hidden text-center py-12 bg-pitch-800 rounded-2xl
+                                     border border-pitch-700">
+          <p class="text-4xl mb-3">🏟️</p>
+          <p class="text-white font-semibold text-lg">Sin partidos disponibles hoy</p>
+          <p class="text-gray-400 text-sm mt-1">¡Vuelve mañana para registrar tus pronósticos!</p>
+        </div>
+
+        <!-- Contenedor donde se inyectan las tarjetas dinámicamente -->
+        <div id="listaPartidos" class="space-y-4"></div>
+      </section>
+
+      <!-- ── BANNER DE ADVERTENCIA (todos bloqueados) ─────── -->
+      <div id="bannerBloqueados" class="hidden bg-red-900/30 border border-red-700/50
+                                        rounded-xl px-5 py-4 text-sm text-red-300">
+        ⚠️ Todos los partidos de hoy ya han comenzado o están a punto de iniciar.
+        No es posible registrar más pronósticos.
+      </div>
+
+      <!-- ── ERROR DE CARGA ─────────────────────────────────── -->
+      <div id="errorCarga" class="hidden bg-yellow-900/20 border border-yellow-700/40
+                                   rounded-xl px-5 py-4 text-sm text-yellow-300"></div>
+
+      <!-- ── BOTÓN ENVIAR ───────────────────────────────────── -->
+      <div id="wrapperBoton" class="hidden">
+        <button id="btnEnviar" onclick="enviarQuiniela()"
+                class="w-full bg-fifa-green hover:bg-fifa-bright active:scale-95
+                       text-white font-bold text-lg py-4 rounded-2xl tracking-wide
+                       transition-all duration-150 shadow-lg shadow-fifa-green/20">
+          <span id="btnTexto">⚽ ENVIAR PRONÓSTICOS</span>
+          <span id="btnLoader" class="hidden items-center justify-center gap-2">
+            <span class="spinner"></span> Enviando…
+          </span>
+        </button>
+        <p class="text-center text-xs text-gray-500 mt-3">
+          Solo puedes enviar tus pronósticos una vez por día.
+        </p>
+      </div>
+
+    </main>
+  </div><!-- /mainScreen -->
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       PANTALLA DE ÉXITO (oculta hasta completar el envío)
+  ══════════════════════════════════════════════════════════ -->
+  <div id="successScreen" class="hidden min-h-screen flex flex-col items-center
+                                  justify-center text-center px-6 py-16 bg-pitch-900
+                                  grass-pattern">
+    <!-- Trofeo animado -->
+    <div class="text-7xl mb-6 animate-bounce">🏆</div>
+
+    <h2 class="font-display text-5xl text-white tracking-wide">¡PRONÓSTICOS</h2>
+    <h2 class="font-display text-5xl text-fifa-bright tracking-wide">ENVIADOS!</h2>
+
+    <p class="mt-4 text-gray-400 max-w-sm text-sm leading-relaxed">
+      Tus predicciones quedaron registradas. Que la bola ruede a tu favor.
+      Los resultados se actualizan al final de cada jornada.
+    </p>
+
+    <!-- Resumen del usuario -->
+    <div id="resumenExito" class="mt-8 bg-pitch-800 border border-pitch-700
+                                   rounded-2xl px-8 py-5 w-full max-w-sm text-left">
+      <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Tu registro</p>
+      <p id="resumenNombre" class="text-white font-semibold text-lg"></p>
+      <p id="resumenCorreo"  class="text-gray-400 text-sm"></p>
+      <p id="resumenTotal"   class="text-fifa-bright text-sm font-medium mt-2"></p>
+    </div>
+
+    <!-- Línea de créditos -->
+    <p class="mt-10 text-xs text-gray-600">
+      Quiniela FIFA 2026 · Hecha con ❤️ y Google Apps Script
+    </p>
+  </div>
+
+
+  <!-- ══════════════════════════════════════════════════════════
+       JAVASCRIPT
+  ══════════════════════════════════════════════════════════ -->
+  <script>
+    // ── Estado global de la app ────────────────────────────────
+    const state = {
+      partidos:   [],   // Array de partidos activos recibidos del backend
+      urlFoto:    "",   // URL de la foto subida a Drive
+      fotoBase64: "",   // Base64 de la imagen seleccionada
+      fotoMime:   "",   // MIME type de la imagen
+      fotoNombre: "",   // Nombre del archivo
+    };
+
+    // ══════════════════════════════════════════════════════════
+    // Al cargar la página: pedir partidos al backend
+    // ══════════════════════════════════════════════════════════
+    window.addEventListener("load", () => {
+      // google.script.run solo existe cuando el HTML corre dentro
+      // de Apps Script. Para pruebas locales puedes mock-ear esto.
+      google.script.run
+        .withSuccessHandler(recibirPartidos)
+        .withFailureHandler(manejarErrorCarga)
+        .obtenerPartidosDeHoy();
+    });
+
+    // ══════════════════════════════════════════════════════════
+    // recibirPartidos — Callback de éxito del backend
+    // ══════════════════════════════════════════════════════════
+    function recibirPartidos(respuesta) {
+      // Ocultar spinner de carga
+      document.getElementById("loadingPartidos").classList.add("hidden");
+
+      if (!respuesta.exito) {
+        mostrarError("No se pudo cargar el calendario: " + respuesta.error);
+        return;
+      }
+
+      // Actualizar info de fecha en el header
+      document.getElementById("fechaInfo").textContent =
+        `📅 Hoy: ${formatearFechaLegible(respuesta.fechaHoy)}  ·  🕐 ${respuesta.horaActual} (hora local)`;
+
+      const partidos = respuesta.partidos || [];
+
+      if (partidos.length === 0) {
+        // No hay partidos programados para hoy
+        document.getElementById("sinPartidos").classList.remove("hidden");
+        return;
+      }
+
+      // Separar activos y bloqueados
+      const activos   = partidos.filter(p => p.estado === "ACTIVO");
+      const bloqueados = partidos.filter(p => p.estado === "BLOQUEADO");
+
+      // Renderizar TODOS los partidos (bloqueados se muestran como referencia)
+      state.partidos = activos; // Solo los activos se incluirán en el envío
+      renderizarPartidos(partidos);
+
+      // Actualizar contador
+      document.getElementById("contadorActivos").textContent =
+        `${activos.length} disponible${activos.length !== 1 ? "s" : ""}`;
+
+      // Si no hay ningún activo, mostrar banner
+      if (activos.length === 0) {
+        document.getElementById("bannerBloqueados").classList.remove("hidden");
+      } else {
+        // Mostrar botón de enviar
+        document.getElementById("wrapperBoton").classList.remove("hidden");
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // renderizarPartidos — Pinta las tarjetas en el DOM
+    // ══════════════════════════════════════════════════════════
+    function renderizarPartidos(partidos) {
+      const contenedor = document.getElementById("listaPartidos");
+      contenedor.innerHTML = "";
+
+      partidos.forEach((partido, index) => {
+        const bloqueado = partido.estado === "BLOQUEADO";
+
+        // Construir la tarjeta de partido
+        const card = document.createElement("div");
+        card.className = `match-card bg-pitch-800 border border-pitch-700 rounded-2xl
+                          overflow-hidden animate-slide-up ${bloqueado ? "blocked" : ""}`;
+        card.style.animationDelay = `${index * 60}ms`;
+
+        card.innerHTML = `
+          <!-- Encabezado de la tarjeta -->
+          <div class="flex items-center justify-between px-5 pt-4 pb-2">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-widest">
+              Jornada ${partido.jornada}
+            </span>
+            <span class="flex items-center gap-1.5 text-xs font-medium
+                         ${bloqueado
+                           ? 'text-red-400 bg-red-900/30 border border-red-800/40'
+                           : 'text-fifa-bright bg-fifa-green/10 border border-fifa-green/20'}
+                         rounded-full px-3 py-0.5">
+              ${bloqueado ? '🔒 BLOQUEADO' : '🟢 ABIERTO'}
+              &nbsp;·&nbsp; ${partido.horaInicio}
+            </span>
+          </div>
+
+          <!-- Cuerpo: Equipos + Inputs de marcador -->
+          <div class="flex items-center gap-3 px-5 pb-5 pt-2">
+
+            <!-- Equipo Local -->
+            <div class="flex-1 text-right">
+              <p class="text-white font-semibold text-base leading-tight">
+                ${partido.equipoLocal}
+              </p>
+              <p class="text-xs text-gray-500 mt-0.5">Local</p>
+            </div>
+
+            <!-- Marcador -->
+            <div class="flex items-center gap-2 shrink-0">
+              <input
+                type="number" min="0" max="20"
+                id="local_${partido.id}"
+                placeholder="0"
+                ${bloqueado ? "disabled" : ""}
+                class="score-input w-12 h-12 text-center text-xl font-bold
+                       rounded-xl border transition-colors
+                       ${bloqueado
+                         ? 'bg-pitch-700 border-pitch-600 text-gray-600 cursor-not-allowed'
+                         : 'bg-pitch-700 border-pitch-600 text-white cursor-text'}" />
+
+              <span class="text-gray-500 font-bold text-lg">–</span>
+
+              <input
+                type="number" min="0" max="20"
+                id="visitante_${partido.id}"
+                placeholder="0"
+                ${bloqueado ? "disabled" : ""}
+                class="score-input w-12 h-12 text-center text-xl font-bold
+                       rounded-xl border transition-colors
+                       ${bloqueado
+                         ? 'bg-pitch-700 border-pitch-600 text-gray-600 cursor-not-allowed'
+                         : 'bg-pitch-700 border-pitch-600 text-white cursor-text'}" />
+            </div>
+
+            <!-- Equipo Visitante -->
+            <div class="flex-1 text-left">
+              <p class="text-white font-semibold text-base leading-tight">
+                ${partido.equipoVisitante}
+              </p>
+              <p class="text-xs text-gray-500 mt-0.5">Visitante</p>
+            </div>
+          </div>
+
+          ${bloqueado ? `
+          <div class="px-5 pb-4 -mt-1">
+            <p class="text-xs text-red-400 text-center">
+              Este partido ya comenzó o está a menos de 5 min. de iniciar.
+            </p>
+          </div>` : ""}
+        `;
+
+        contenedor.appendChild(card);
+      });
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // previewFoto — Muestra el avatar antes de subir
+    // ══════════════════════════════════════════════════════════
+    function previewFoto(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // Validar tamaño (5 MB máximo)
+      if (file.size > 5 * 1024 * 1024) {
+        mostrarError("La foto no puede superar 5 MB. Por favor elige otra imagen.");
+        return;
+      }
+
+      // Preview en el avatar
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = document.getElementById("avatarPreview");
+        img.src = e.target.result;
+        img.classList.remove("hidden");
+        document.getElementById("avatarPlaceholder").classList.add("hidden");
+
+        // Guardar base64 (sin el prefijo "data:...;base64,")
+        const base64Full = e.target.result;
+        state.fotoBase64 = base64Full.split(",")[1];
+        state.fotoMime   = file.type;
+        state.fotoNombre = file.name;
+      };
+      reader.readAsDataURL(file);
+
+      // Mostrar nombre del archivo
+      document.getElementById("fotoNombre").textContent = file.name;
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // enviarQuiniela — Orquesta el envío completo
+    // ══════════════════════════════════════════════════════════
+    async function enviarQuiniela() {
+      // ── 1. Validar datos del usuario ──────────────────────
+      const nombre = document.getElementById("nombre").value.trim();
+      const correo = document.getElementById("correo").value.trim();
+
+      if (!nombre) {
+        alert("Por favor, ingresa tu nombre completo.");
+        document.getElementById("nombre").focus();
+        return;
+      }
+      if (!correo || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(correo)) {
+        alert("Por favor, ingresa un correo electrónico válido.");
+        document.getElementById("correo").focus();
+        return;
+      }
+
+      // ── 2. Recopilar predicciones de partidos ACTIVOS ─────
+      const predicciones = [];
+      let campoVacio = false;
+
+      for (const partido of state.partidos) {
+        const localVal     = document.getElementById(`local_${partido.id}`).value;
+        const visitanteVal = document.getElementById(`visitante_${partido.id}`).value;
+
+        if (localVal === "" || visitanteVal === "") {
+          campoVacio = true;
+          // Marcar visualmente el campo vacío
+          if (localVal === "") {
+            document.getElementById(`local_${partido.id}`).style.boxShadow = "0 0 0 2px #EF4444";
+          }
+          if (visitanteVal === "") {
+            document.getElementById(`visitante_${partido.id}`).style.boxShadow = "0 0 0 2px #EF4444";
+          }
+        } else {
+          predicciones.push({
+            idPartido:  partido.id,
+            local:      parseInt(localVal, 10),
+            visitante:  parseInt(visitanteVal, 10)
+          });
+        }
+      }
+
+      if (campoVacio) {
+        alert("Debes completar el marcador de todos los partidos disponibles.");
+        return;
+      }
+
+      // ── 3. Activar estado de carga en el botón ────────────
+      const btnEnviar = document.getElementById("btnEnviar");
+      btnEnviar.disabled = true;
+      document.getElementById("btnTexto").classList.add("hidden");
+      document.getElementById("btnLoader").classList.remove("hidden");
+      document.getElementById("btnLoader").classList.add("flex");
+
+      // ── 4. Subir foto a Drive (si se seleccionó una) ──────
+      let urlFoto = "";
+      if (state.fotoBase64) {
+        urlFoto = await subirFotoPromise(state.fotoBase64, state.fotoNombre, state.fotoMime);
+      }
+
+      // ── 5. Enviar datos al backend ────────────────────────
+      const payload = {
+        nombre:       nombre,
+        correo:       correo,
+        urlFoto:      urlFoto,
+        predicciones: predicciones
+      };
+
+      google.script.run
+        .withSuccessHandler((resultado) => {
+          if (resultado.exito) {
+            mostrarExito(nombre, correo, predicciones.length);
+          } else {
+            restaurarBoton();
+            mostrarError("Error al guardar: " + resultado.error);
+          }
+        })
+        .withFailureHandler((err) => {
+          restaurarBoton();
+          mostrarError("Error de conexión: " + err.message);
+        })
+        .guardarRespuestas(payload);
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // subirFotoPromise — Wrapper Promise para subir imagen
+    // ══════════════════════════════════════════════════════════
+    function subirFotoPromise(base64, nombre, mime) {
+      return new Promise((resolve) => {
+        google.script.run
+          .withSuccessHandler((res) => resolve(res.exito ? res.url : ""))
+          .withFailureHandler(() => resolve(""))
+          .subirFoto(base64, nombre, mime);
+      });
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // mostrarExito — Transición a la pantalla de éxito
+    // ══════════════════════════════════════════════════════════
+    function mostrarExito(nombre, correo, totalPartidos) {
+      document.getElementById("mainScreen").classList.add("hidden");
+      const screen = document.getElementById("successScreen");
+      screen.classList.remove("hidden");
+
+      document.getElementById("resumenNombre").textContent = nombre;
+      document.getElementById("resumenCorreo").textContent  = correo;
+      document.getElementById("resumenTotal").textContent  =
+        `✅ ${totalPartidos} pronóstico${totalPartidos !== 1 ? "s" : ""} registrado${totalPartidos !== 1 ? "s" : ""}`;
+
+      // Scroll al top
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // restaurarBoton — Vuelve el botón a estado normal
+    // ══════════════════════════════════════════════════════════
+    function restaurarBoton() {
+      const btn = document.getElementById("btnEnviar");
+      btn.disabled = false;
+      document.getElementById("btnTexto").classList.remove("hidden");
+      document.getElementById("btnLoader").classList.add("hidden");
+      document.getElementById("btnLoader").classList.remove("flex");
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // Helpers
+    // ══════════════════════════════════════════════════════════
+    function manejarErrorCarga(err) {
+      document.getElementById("loadingPartidos").classList.add("hidden");
+      mostrarError("No se pudo conectar con el servidor: " + err.message);
+    }
+
+    function mostrarError(msg) {
+      const el = document.getElementById("errorCarga");
+      el.textContent = "⚠️ " + msg;
+      el.classList.remove("hidden");
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function formatearFechaLegible(fechaStr) {
+      // "2026-06-17" → "miércoles, 17 de junio de 2026"
+      try {
+        const [año, mes, dia] = fechaStr.split("-").map(Number);
+        const fecha = new Date(año, mes - 1, dia);
+        return fecha.toLocaleDateString("es-MX", {
+          weekday: "long", year: "numeric", month: "long", day: "numeric"
+        });
+      } catch {
+        return fechaStr;
+      }
+    }
+  </script>
+</body>
+</html>
