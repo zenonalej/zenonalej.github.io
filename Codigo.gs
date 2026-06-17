@@ -19,12 +19,12 @@ const TIMEZONE = "America/Mexico_City";
 // ── IDs DE GOOGLE SHEETS Y DRIVE ─────────────────────────────
 // Abre tu Google Sheets → copia el ID de la URL:
 // https://docs.google.com/spreadsheets/d/<<SPREADSHEET_ID>>/edit
-const SPREADSHEET_ID = "PEGA_AQUI_EL_ID_DE_TU_SPREADSHEET";
+const SPREADSHEET_ID = "1JeNFc39iva8PUgYHu3yDPmzCqtD94V0wUvoD89oswHY";
 
 // Carpeta de Drive donde se guardarán las fotos de los usuarios.
 // Crea una carpeta en Drive, ábrela y copia el ID de la URL:
 // https://drive.google.com/drive/folders/<<FOLDER_ID>>
-const FOTO_FOLDER_ID = "PEGA_AQUI_EL_ID_DE_TU_CARPETA_EN_DRIVE";
+const FOTO_FOLDER_ID = "1aLvfci987woEI3jGOEtzhJeN6CEmRK5C";
 
 // ── NOMBRES DE LAS HOJAS ──────────────────────────────────────
 const HOJA_PARTIDOS   = "Partidos";
