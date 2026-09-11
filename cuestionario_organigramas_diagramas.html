@@ -314,7 +314,7 @@ submitBtn.addEventListener('click', function() {
 
   resCodigo.textContent = codigo;
   resNota.textContent = nota + ' / ' + TOTAL_POINTS.toFixed(2);
-  resCorrectas.textContent = correctCount + ' de ' + autoMax + ' respuestas de selección múltiple correctas';
+  resCorrectas.textContent = correctCount + ' de ' + autoMax + ' respuestas de selección múltiple revisadas';
   resPendiente.textContent = pendingCount + ' pregunta(s) de desarrollo pendiente(s) de revisión por el docente (hasta ' + (pendingCount * PER_Q).toFixed(2) + ' pts adicionales).';
 
   submitBtn.disabled = true;
