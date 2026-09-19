@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Juego: ¿qué tipo de logo es?</title>
+<style>
+:root{--bg:#fbf9f6;--fg:#1f1b16;--mu:#6b645b;--card:#f0ebe3;--ln:#ddd5c9;--ac:#c2410c;--ok:#15803d;--okb:#dcfce7;--bad:#b91c1c;--badb:#fee2e2;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16130f;--fg:#f3eee6;--mu:#a79f92;--card:#221e18;--ln:#3a342b;--ac:#fb923c;--ok:#4ade80;--okb:#14351f;--bad:#f87171;--badb:#3d1717}}
+:root[data-theme="dark"]{--bg:#16130f;--fg:#f3eee6;--mu:#a79f92;--card:#221e18;--ln:#3a342b;--ac:#fb923c;--ok:#4ade80;--okb:#14351f;--bad:#f87171;--badb:#3d1717}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+main{max-width:640px;margin:0 auto;padding:24px 18px 56px}
+h1,h2{font-family:Georgia,"Times New Roman",serif;line-height:1.2;margin:0 0 10px}
+h1{font-size:clamp(1.9rem,7vw,2.6rem)}h2{font-size:1.25rem;margin-top:22px}
+p{margin:0 0 10px}.mu{color:var(--mu);font-size:.92rem}
+.hud{display:flex;justify-content:space-between;font-weight:600;font-size:.95rem;margin-bottom:8px}
+.bar{height:6px;background:var(--ln);border-radius:9px;overflow:hidden;margin-bottom:16px}.bar i{display:block;height:100%;background:var(--ac)}
+.stage{background:#f0ebe3;border-radius:16px;padding:14px}
+.stage svg,.thumb svg{display:block;width:100%;height:auto}
+.se{font-family:Georgia,"Times New Roman",serif}.sa{font-family:system-ui,-apple-system,"Segoe UI",Arial,sans-serif}.sc{font-family:"Brush Script MT","Segoe Script","Snell Roundhand","Apple Chancery",cursive}
+.f{fill:#1f1b16}.a{fill:#c2410c}.w{fill:#fff}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+button{font:inherit;font-weight:600;min-height:48px;padding:10px 14px;border-radius:12px;border:2px solid var(--ln);background:var(--card);color:var(--fg);cursor:pointer}
+button:hover:not(:disabled){border-color:var(--ac)}button:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+button:disabled{cursor:default}button.ok{border-color:var(--ok);background:var(--okb)}button.bad{border-color:var(--bad);background:var(--badb)}
+button.go{background:var(--ac);border-color:var(--ac);color:#fff;width:100%;margin-top:16px}
+.fb{padding:10px 14px;border-radius:12px;margin:12px 0 0;font-size:.95rem}.g{background:var(--okb)}.r{background:var(--badb)}
+.big{font:700 3rem/1 Georgia,serif;color:var(--ac)}
+.row{display:flex;gap:12px;align-items:center;border-top:1px solid var(--ln);padding:10px 0;font-size:.92rem}.thumb{flex:0 0 96px;background:#f0ebe3;border-radius:8px;padding:4px}
+ul{padding-left:20px;margin:0 0 14px}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+const T={logotipo:['Logotipo','Solo tipografía: el nombre es el logo.','Google, FedEx, Visa'],
+isotipo:['Isotipo','Solo símbolo, sin texto.','Apple, Nike, Mercedes-Benz'],
+imagotipo:['Imagotipo','Símbolo y texto separables: cada parte funciona sola.','Adidas, Lacoste, Puma'],
+isologo:['Isologo','Símbolo y texto fusionados en una sola pieza.','Burger King, Harley-Davidson']};
+const F={serif:['Serif','los trazos terminan en remates.','Rolex, Tiffany &amp; Co., Vogue'],
+sans:['Sans serif','los trazos terminan limpios, sin remates.','Google, FedEx, IKEA'],
+script:['Manuscrita','imita la escritura a mano; no es serif ni sans serif.','Coca-Cola'],
+none:['Sin texto']};
+const ring=(t,r,fs,c)=>[...t].map((h,i,a)=>h==' '?'':`<text x="120" y="${60-r}" text-anchor="middle" font-size="${fs}" class="${c} w" font-weight="700" transform="rotate(${(-90+(i+.5)*360/a.length).toFixed(1)} 120 60)">${h}</text>`).join('');
+const LOGOS=[
+{t:'logotipo',f:'serif',w:'Solo hay letras. Los remates de la n, u, b y e delatan una serif.',s:'<text x="120" y="80" class="se f" font-size="58" font-weight="700" font-style="italic" text-anchor="middle">nube<tspan class="a">.</tspan></text>'},
+{t:'logotipo',f:'sans',w:'Solo hay texto y sus trazos terminan limpios.',s:'<text x="120" y="76" class="sa f" font-size="50" font-weight="800" letter-spacing="6" text-anchor="middle">ZETA</text><rect class="a" x="72" y="90" width="96" height="6" rx="3"/>'},
+{t:'logotipo',f:'script',w:'El nombre imita la escritura a mano. Es un logotipo con letra manuscrita.',s:'<text x="120" y="74" class="sc a" font-size="44" text-anchor="middle">Dulce Vida</text>'},
+{t:'isotipo',f:'none',w:'Es una imagen sola, sin nombre. Depende de que la marca ya sea conocida.',s:'<path class="a" d="M120 10C160 22 172 68 120 110C68 68 80 22 120 10Z"/><path d="M120 30V100M120 60L104 48M120 76L138 60M120 90L106 80" stroke="#fff" stroke-width="4" stroke-linecap="round" fill="none"/>'},
+{t:'isotipo',f:'none',w:'Solo formas: un sol y dos olas. No hay una sola letra.',s:'<circle class="f" cx="120" cy="30" r="16"/><g fill="none" stroke="#c2410c" stroke-width="9" stroke-linecap="round"><path d="M76 70Q98 36 120 70T164 70"/><path d="M76 96Q98 62 120 96T164 96"/></g>'},
+{t:'imagotipo',f:'sans',w:'Símbolo a la izquierda y texto a la derecha. Cada parte puede usarse sola.',s:'<circle class="a" cx="44" cy="60" r="30"/><path fill="#fff" d="M22 78L40 46L52 64L60 54L72 78Z"/><text x="84" y="69" class="sa f" font-size="25" font-weight="700" letter-spacing="2">CUMBRE</text>'},
+{t:'imagotipo',f:'serif',w:'El hexágono y la palabra están juntos pero no fusionados. Las letras llevan remates.',s:'<polygon class="a" points="50,28 78,44 78,76 50,92 22,76 22,44"/><circle class="w" cx="50" cy="60" r="9"/><text x="94" y="72" class="se f" font-size="36" font-weight="700">Atlas</text>'},
+{t:'imagotipo',f:'sans',w:'El símbolo va arriba y el texto abajo. Se pueden separar sin perder sentido.',s:'<circle class="a" cx="120" cy="34" r="22"/><circle class="w" cx="128" cy="28" r="5"/><text x="120" y="102" class="sa f" font-size="34" font-weight="700" text-anchor="middle">kiwi</text>'},
+{t:'isologo',f:'serif',w:'El nombre rodea al símbolo y forman un sello. Las letras tienen remates.',s:'<circle class="a" cx="120" cy="60" r="54"/><circle cx="120" cy="60" r="38" fill="none" stroke="#fff" stroke-width="1.5"/>'+ring('CAFÉ LUNA • TOSTADO •',43,11,'se')+'<circle class="w" cx="120" cy="60" r="16"/><circle class="a" cx="126" cy="55" r="14"/>'},
+{t:'isologo',f:'sans',w:'El texto está dentro del símbolo: sin él, los panes pierden sentido.',s:'<path class="a" d="M48 48Q48 10 120 10Q192 10 192 48Z"/><path class="a" d="M48 72H192Q192 110 120 110Q48 110 48 72Z"/><text x="120" y="66" class="sa f" font-size="22" font-weight="800" letter-spacing="3" text-anchor="middle">BURGO</text>'}
+];
+const $=id=>document.getElementById(id);
+const svg=s=>`<svg viewBox="0 0 240 120" role="img" aria-label="Logo ficticio">${s}</svg>`;
+let S;
+function home(){$('app').innerHTML=`<h1>¿Qué tipo de logo es?</h1>
+<p>Observa cada logo y clasifícalo: primero por su <b>tipo</b> y luego por su <b>tipografía</b>. Ganas 10 puntos por el tipo, 5 por la tipografía y 5 extra si llevas una racha de 3 aciertos.</p>
+<ul><li><b>Logotipo:</b> solo texto.</li><li><b>Isotipo:</b> solo símbolo.</li><li><b>Imagotipo:</b> símbolo y texto separables.</li><li><b>Isologo:</b> símbolo y texto fusionados.</li></ul>
+<p><b>Serif</b> lleva remates en los trazos; <b>sans serif</b> no.</p>
+<button class="go" id="play">Jugar</button>
+<p class="mu" style="margin-top:22px">Los logos del juego son ficticios; las marcas reales aparecen como ejemplos en las explicaciones.</p>`;}
+function play(){S={o:LOGOS.map((_,i)=>i).sort(()=>Math.random()-.5),i:0,sc:0,st:0,ok:0,tot:0,miss:[]};round();}
+function round(){const L=S.L=LOGOS[S.o[S.i]];S.res=[1,1];
+ $('app').innerHTML=`<div class="hud"><span>Logo ${S.i+1} de ${LOGOS.length}</span><span>🔥 <b id="st">${S.st}</b></span><span><b id="sc">${S.sc}</b> pts</span></div>
+<div class="bar"><i style="width:${S.i/LOGOS.length*100}%"></i></div><div class="stage">${svg(L.s)}</div><div id="q0"></div><div id="q1"></div><div id="nx"></div>`;ask(0);}
+function ask(k){const o=k?F:T,ks=Object.keys(o).filter(x=>x!='none');
+ $('q'+k).innerHTML=`<h2>${k?'¿Qué tipografía usa?':'¿Qué tipo de logo es?'}</h2><div class="opts">${ks.map(x=>`<button data-k="${k}" data-v="${x}">${o[x][0]}</button>`).join('')}</div>`;
+ if(k)$('q1').scrollIntoView({block:'nearest'});}
+function answer(b){const k=+b.dataset.k,v=b.dataset.v,L=S.L,c=k?L.f:L.t,ok=v==c;
+ document.querySelectorAll('#q'+k+' button').forEach(x=>{x.disabled=true;if(x.dataset.v==c)x.classList.add('ok');else if(x==b)x.classList.add('bad')});
+ S.tot++;S.res[k]=ok?1:0;
+ if(ok){S.ok++;if(!k)S.st++;S.sc+=k?5:10+(S.st>=3?5:0)}else if(!k)S.st=0;
+ $('st').textContent=S.st;$('sc').textContent=S.sc;
+ const d=k?F[c]:T[c];
+ $('q'+k).insertAdjacentHTML('beforeend',`<p class="fb ${ok?'g':'r'}">${ok?'¡Correcto! ':'Casi. '}Es ${k?c=='script'?'una tipografía':'una tipografía':'un'} <b>${d[0].toLowerCase()}</b>: ${d[1]} Ejemplos reales: ${d[2]}.</p>`);
+ if(!k&&L.f!='none')ask(1);else finish();}
+function finish(){const L=S.L,last=S.i==LOGOS.length-1;
+ if(L.f=='none')S.res[1]=1;if(!S.res[0]||!S.res[1])S.miss.push(L);
+ $('nx').innerHTML=`<p class="mu" style="margin-top:14px"><b>Por qué:</b> ${L.w}</p><button class="go" id="next">${last?'Ver resultados':'Siguiente'}</button>`;$('next').focus();}
+function end(){const r=S.ok/S.tot,m=S.miss;
+ $('app').innerHTML=`<h1>Resultado</h1><p class="big">${S.sc} pts</p><p>${S.ok} de ${S.tot} aciertos · <b>${r>=.9?'Diseñador/a de marca':r>=.7?'Ojo entrenado':r>=.5?'En camino':'A seguir practicando'}</b></p>`+
+ (m.length?`<h2>Repasa estos logos</h2>`+m.map(L=>`<div class="row"><div class="thumb">${svg(L.s)}</div><div><b>${T[L.t][0]}</b> · ${F[L.f][0]}<br><span class="mu">${L.w}</span></div></div>`).join(''):'<p>¡Sin errores! Todos tus aciertos fueron perfectos.</p>')+
+ `<button class="go" id="play">Jugar otra vez</button>`;}
+$('app').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.id=='play')play();else if(b.id=='next'){S.i++;S.i<LOGOS.length?round():end();window.scrollTo(0,0)}else if(b.dataset.v)answer(b);});
+home();
+</script>
+</body>
+</html>
