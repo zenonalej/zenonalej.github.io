@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Dashboard Evaluación del Desempeño Docente Ciclo 01-2026</title>
+<title>Dashboard Evaluación del Desempeño Docente Ciclo 02-2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
@@ -136,7 +136,7 @@ tbody td{padding:10px 16px;color:#4a5568}
 <body>
 <header>
   <img src="logo-uma.png" alt="Logo UMA" style="height:48px;width:auto;object-fit:contain"/>
-  <h1>Evaluación del Desempeño Docente Ciclo 01-2026 <span>/ Facultades</span></h1>
+  <h1>Evaluación del Desempeño Docente Ciclo 02-2026 <span>/ Facultades</span></h1>
 </header>
 
 <div class="container">
@@ -323,12 +323,12 @@ tbody td{padding:10px 16px;color:#4a5568}
 </div>
 
 <script>
-const _a=['1u-n_z','r6AIWX','XtJiAG','7oX-ib','-_LvdD','QHP89k','uD-OJ1','Ro'];
+const _a=['1towh-','fczPOQ','7TTWgp','qNn1eF','930SFU','SK5Mdg','y_ABD8','4o'];
 const _b=[[104,116,116,112,115],[58,47,47],[100,111,99,115,46,103,111,111,103,108,101],[46,99,111,109,47],[115,112,114,101,97,100,115,104,101,101,116,115,47,100,47]];
 const _sid=()=>_a.join('');
 const _base=()=>_b.map(g=>g.map(c=>String.fromCharCode(c)).join('')).join('');
 function csvUrl(s){return`${_base()}${_sid()}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(s)}&range=A:F`}
-
+  
 const SHEETS=['Juridicas','Economicas','Humanidades'];
 const NAMES=['Jurídicas','Económicas','Humanidades'];
 const COLORS=['#1a56db','#2f855a','#6b46c1'];
@@ -768,7 +768,7 @@ async function exportPDF(idx){
   doc.setFontSize(14);doc.setFont('helvetica','bold');
   doc.text('Universidad Modular Abierta',pw/2,10,{align:'center'});
   doc.setFontSize(9);doc.setFont('helvetica','normal');
-  doc.text('Evaluación del Desempeño Docente — Ciclo 01-2026',pw/2,17,{align:'center'});
+  doc.text('Evaluación del Desempeño Docente — Ciclo 02-2026',pw/2,17,{align:'center'});
   const titulo=idx===-1?'Reporte General':['Facultad de CC.JJ.','Facultad de CC.EE.','Facultad de Humanidades'][idx];
   doc.setFontSize(11);doc.setFont('helvetica','bold');
   doc.text(titulo,pw/2,25,{align:'center'});
