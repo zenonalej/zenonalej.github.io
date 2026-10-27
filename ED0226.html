@@ -572,9 +572,21 @@ function renderRankings(){
 function renderCharts(){
   const avgs=allData.map(d=>{
     if(!d)return 0;
-    const v=d.body.map(r=>parsePct(r[4])).filter(x=>x!==null);
-    return v.length?(v.reduce((a,b)=>a+b,0)/v.length):0;
+    let totalAlumnos = 0;
+    let totalHechos = 0;
+
+    d.body.forEach(r => {
+      // Limpia comas o formatos de texto a números enteros
+      const alumnos = parseInt(String(r[2] || '0').replace(/\D/g, ''), 10) || 0;
+      const hechos = parseInt(String(r[3] || '0').replace(/\D/g, ''), 10) || 0;
+
+      totalAlumnos += alumnos;
+      totalHechos += hechos;
+    });
+
+    return totalAlumnos > 0 ? (totalHechos / totalAlumnos) * 100 : 0;
   });
+
   const counts=allData.map(d=>d?d.body.length:0);
   if(chartAvance)chartAvance.destroy();
   chartAvance=new Chart(document.getElementById('chartAvance').getContext('2d'),{
