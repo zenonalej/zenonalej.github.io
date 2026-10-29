@@ -729,7 +729,7 @@ function renderAutoev(){
 function switchTab(idx){
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
   document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===idx));
-  if(idx===0)[0,1,2,3].forEach(loadSheet);
+  if(idx===0)[0,1,2].forEach(loadSheet);
   else loadSheet(idx-1);
 }
 
@@ -970,7 +970,7 @@ setInterval(()=>{
   allData.fill(null);
   loaded.fill(false);
   const activeIdx=[...document.querySelectorAll('.tab-btn')].findIndex(b=>b.classList.contains('active'));
-  if(activeIdx===0)[0,1,2,3].forEach(loadSheet);
+  if(activeIdx===0)[0,1,2].forEach(loadSheet);
   else loadSheet(activeIdx-1);
 },180000);
   
