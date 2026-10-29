@@ -329,7 +329,9 @@ const _sid=()=>_a.join('');
 const _base=()=>_b.map(g=>g.map(c=>String.fromCharCode(c)).join('')).join('');
 function csvUrl(s){return`${_base()}${_sid()}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(s)}&range=A:F`}
   
-const SHEETS=['Juridicas','Economicas','Humanidades'];
+const SHEETS=['Juridicas','Economicas','Humanidades','DATA'];
+const allData=[null,null,null,null];
+const loaded=[false,false,false,false];
 const NAMES=['Jurídicas','Económicas','Humanidades'];
 const COLORS=['#1a56db','#2f855a','#6b46c1'];
 const allData=[null,null,null];
@@ -572,6 +574,7 @@ function renderRankings(){
 function renderCharts(){
   let globalAlumnos = 0;
   let globalHechos = 0;
+  let globalAvg = 0;
 
   // 1. Calcula el avance por cada facultad (Hechos totales / Alumnos totales)
   const avgs = allData.map(d => {
@@ -616,8 +619,16 @@ function renderCharts(){
   });
 
   // 2. Cálculo exacto del Avance General: SUMA(M206:M208) / SUMA(L206:L208)
-  const rawGlobal = globalAlumnos > 0 ? (globalHechos / globalAlumnos) * 100 : 0;
-  const globalAvg = Math.round(rawGlobal * 100) / 100;
+if (allData[3] && allData[3].body.length > 0) {
+    // Asumiendo que el dato % de avance general está en la primera fila, columna E o F de DATA
+    // Ajusta el índice del arreglo r[...] según la columna exacta en tu pestaña DATA:
+    const rowData = allData[3].body[0]; 
+    globalAvg = parsePct(rowData[4] || rowData[0]) || 0; 
+  } else {
+    // Respaldo en caso de que aún no cargue DATA
+    const rawGlobal = globalAlumnos > 0 ? (globalHechos / globalAlumnos) * 100 : 0;
+    globalAvg = Math.round(rawGlobal * 100) / 100;
+  }
   
   const el = document.getElementById('pct-general');
   el.textContent = `${globalAvg.toFixed(2)}%`;
@@ -729,7 +740,7 @@ function renderAutoev(){
 function switchTab(idx){
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
   document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===idx));
-  if(idx===0)[0,1,2].forEach(loadSheet);
+  if(idx===0)[0,1,2,3].forEach(loadSheet); // Se agrega el índice 3 para cargar DATA
   else loadSheet(idx-1);
 }
 
@@ -964,7 +975,7 @@ const globalAvgP = globalAlumnosPDF > 0 ? (globalHechosPDF / globalAlumnosPDF) *
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal(null);});
-[0,1,2].forEach(loadSheet);
+[0,1,2,3].forEach(loadSheet);
 
 setInterval(()=>{
   allData.fill(null);
