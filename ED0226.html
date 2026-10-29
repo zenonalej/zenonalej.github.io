@@ -573,14 +573,18 @@ function renderCharts(){
   let globalAlumnos = 0;
   let globalHechos = 0;
 
-  const avgs=allData.map(d=>{
-    if(!d)return 0;
+  const avgs = allData.map(d => {
+    if(!d) return 0;
     let totalAlumnos = 0;
     let totalHechos = 0;
 
     d.body.forEach(r => {
-      const alumnos = parseInt(String(r[2] || '0').replace(/\D/g, ''), 10) || 0;
-      const hechos = parseInt(String(r[3] || '0').replace(/\D/g, ''), 10) || 0;
+      // Limpia formatos de texto dejando solo números, puntos y comas decimales
+      const strAlumnos = String(r[2] || '0').replace(/\s/g, '').replace(',', '.');
+      const strHechos = String(r[3] || '0').replace(/\s/g, '').replace(',', '.');
+
+      const alumnos = parseFloat(strAlumnos) || 0;
+      const hechos = parseFloat(strHechos) || 0;
 
       totalAlumnos += alumnos;
       totalHechos += hechos;
@@ -592,63 +596,51 @@ function renderCharts(){
     return totalAlumnos > 0 ? (totalHechos / totalAlumnos) * 100 : 0;
   });
 
-  const counts=allData.map(d=>d?d.body.length:0);
-  if(chartAvance)chartAvance.destroy();
-  chartAvance=new Chart(document.getElementById('chartAvance').getContext('2d'),{
-    type:'bar',
-    data:{labels:NAMES,datasets:[{label:'% Promedio',data:avgs,backgroundColor:COLORS.map(c=>c+'cc'),borderColor:COLORS,borderWidth:2,borderRadius:8}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.parsed.y.toFixed(1)}%`}},
-      datalabels:{
-        anchor:'end',align:'end',
-        formatter:v=>v>0?`${v.toFixed(1)}%`:'',
-        font:{family:'Montserrat',size:11,weight:'600'},
-        color:'#2d3748'
-      }},
-      scales:{y:{beginAtZero:true,max:100,ticks:{callback:v=>v+'%',font:{family:'Montserrat',size:10}},grid:{color:'#f0f0f0'}},
-              x:{ticks:{font:{family:'Montserrat',size:11,weight:'600'}},grid:{display:false}}}},
-      plugins:[ChartDataLabels]
+  const counts = allData.map(d => d ? d.body.length : 0);
+  if(chartAvance) chartAvance.destroy();
+  chartAvance = new Chart(document.getElementById('chartAvance').getContext('2d'), {
+    type: 'bar',
+    data: { labels: NAMES, datasets: [{ label: '% Promedio', data: avgs, backgroundColor: COLORS.map(c => c + 'cc'), borderColor: COLORS, borderWidth: 2, borderRadius: 8 }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.parsed.y.toFixed(1)}%` } }, datalabels: { anchor: 'end', align: 'end', formatter: v => v > 0 ? `${v.toFixed(1)}%` : '', font: { family: 'Montserrat', size: 11, weight: '600' }, color: '#2d3748' } },
+      scales: { y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%', font: { family: 'Montserrat', size: 10 } }, grid: { color: '#f0f0f0' } }, x: { ticks: { font: { family: 'Montserrat', size: 11, weight: '600' } }, grid: { display: false } } }
+    },
+    plugins: [ChartDataLabels]
   });
-  if(chartDist)chartDist.destroy();
-  chartDist=new Chart(document.getElementById('chartDist').getContext('2d'),{
-    type:'doughnut',
-    data:{labels:NAMES,datasets:[{data:counts,backgroundColor:COLORS.map(c=>c+'cc'),borderColor:COLORS,borderWidth:2,hoverOffset:6}]},
-    options:{responsive:true,maintainAspectRatio:false,cutout:'65%',
-      plugins:{legend:{position:'bottom',labels:{font:{family:'Montserrat',size:11},padding:12}},
-               tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed} materias`}}}}
-      });
 
-  // % avance general ponderado (Total Hechos / Total Alumnos)
+  if(chartDist) chartDist.destroy();
+  chartDist = new Chart(document.getElementById('chartDist').getContext('2d'), {
+    type: 'doughnut',
+    data: { labels: NAMES, datasets: [{ data: counts, backgroundColor: COLORS.map(c => c + 'cc'), borderColor: COLORS, borderWidth: 2, hoverOffset: 6 }] },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { font: { family: 'Montserrat', size: 11 }, padding: 12 } }, tooltip: { callbacks: { label: c => `${c.label}: ${c.parsed} materias` } } } }
+  });
+
+  // Avance General exacto (Suma total Hechos / Suma total Alumnos)
   const globalAvg = globalAlumnos > 0 ? (globalHechos / globalAlumnos) * 100 : 0;
-  const el=document.getElementById('pct-general');
-  el.textContent=`${globalAvg.toFixed(1)}%`;
+  const el = document.getElementById('pct-general');
+  el.textContent = `${globalAvg.toFixed(1)}%`;
 
-  // Degradado rojo → amarillo → verde según valor
-  let bg,txt;
-  if(globalAvg<=33.33){
-    const t=globalAvg/33.33;
-    const r=220;
-    const g=Math.round(t*180);
-    bg=`rgb(${r},${g},0)`;
-    txt='#fff';
-  }else if(globalAvg<=66.66){
-    const t=(globalAvg-33.33)/33.33;
-    const r=Math.round(220*(1-t*0.5));
-    const g=Math.round(180+t*55);
-    bg=`rgb(${r},${g},0)`;
-    txt='#1a202c';
-  }else{
-    const t=(globalAvg-66.66)/33.34;
-    const r=Math.round(110*(1-t));
-    const g=Math.round(160+t*50);
-    bg=`rgb(${r},${g},${Math.round(50*(1-t))})`;
-    txt='#fff';
+  let bg, txt;
+  if(globalAvg <= 33.33){
+    const t = globalAvg / 33.33;
+    bg = `rgb(220,${Math.round(t * 180)},0)`;
+    txt = '#fff';
+  } else if(globalAvg <= 66.66){
+    const t = (globalAvg - 33.33) / 33.33;
+    bg = `rgb(${Math.round(220 * (1 - t * 0.5))},${Math.round(180 + t * 55)},0)`;
+    txt = '#1a202c';
+  } else {
+    const t = (globalAvg - 66.66) / 33.34;
+    bg = `rgb(${Math.round(110 * (1 - t))},${Math.round(160 + t * 50)},${Math.round(50 * (1 - t))})`;
+    txt = '#fff';
   }
-  el.style.background=bg;
-  el.style.color=txt;
-  el.style.padding='6px 18px';
-  el.style.borderRadius='8px';
-  el.style.display='inline-block';
-  el.style.transition='background .6s ease, color .3s ease';
+  el.style.background = bg;
+  el.style.color = txt;
+  el.style.padding = '6px 18px';
+  el.style.borderRadius = '8px';
+  el.style.display = 'inline-block';
+  el.style.transition = 'background .6s ease, color .3s ease';
 }
   
 function updateKPIs(){
