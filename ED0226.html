@@ -327,7 +327,7 @@ const _a=['1towh-','fczPOQ','7TTWgp','qNn1eF','930SFU','SK5Mdg','y_ABD8','4o'];
 const _b=[[104,116,116,112,115],[58,47,47],[100,111,99,115,46,103,111,111,103,108,101],[46,99,111,109,47],[115,112,114,101,97,100,115,104,101,101,116,115,47,100,47]];
 const _sid=()=>_a.join('');
 const _base=()=>_b.map(g=>g.map(c=>String.fromCharCode(c)).join('')).join('');
-function csvUrl(s){return`${_base()}${_sid()}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(s)}&range=A:N`}
+function csvUrl(s){return`${_base()}${_sid()}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(s)}&range=A:F`}
   
 const SHEETS=['Juridicas','Economicas','Humanidades'];
 const NAMES=['Jurídicas','Económicas','Humanidades'];
@@ -335,6 +335,19 @@ const COLORS=['#1a56db','#2f855a','#6b46c1'];
 const allData=[null,null,null];
 const loaded=[false,false,false];
 let chartAvance=null,chartDist=null,gaugeChartInst=null;
+
+async function fetchAvanceGeneralDATA() {
+  try {
+    const url = `${_base()}${_sid()}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('DATA')}&range=N209:N209`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const txt = await res.text();
+    const cleanTxt = txt.replace(/"/g, '').trim();
+    return parsePct(cleanTxt);
+  } catch (e) {
+    return null;
+  }
+}
 
 function toggleAutoev(){
   const body=document.getElementById('autoev-body');
@@ -619,10 +632,10 @@ async function renderCharts(){
     options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { font: { family: 'Montserrat', size: 11 }, padding: 12 } }, tooltip: { callbacks: { label: c => `${c.label}: ${c.parsed} materias` } } } }
   });
 
-  // Obtener el valor directo de N209 desde la pestaña DATA
+  // Leer N209 desde la hoja DATA
   let globalAvg = await fetchAvanceGeneralDATA();
 
-  // Si por alguna razón falla la carga de N209, calcula el total como respaldo
+  // Respaldo en caso de fallo
   if (globalAvg === null) {
     let globalAlumnos = 0, globalHechos = 0;
     allData.forEach(d => {
