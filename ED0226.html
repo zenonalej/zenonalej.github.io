@@ -573,27 +573,26 @@ function renderCharts(){
   let globalAlumnos = 0;
   let globalHechos = 0;
 
+  // 1. Calcula el avance por cada facultad (Hechos totales / Alumnos totales)
   const avgs = allData.map(d => {
     if(!d) return 0;
-    let totalAlumnos = 0;
-    let totalHechos = 0;
+    let totalAlumnosFac = 0;
+    let totalHechosFac = 0;
 
     d.body.forEach(r => {
-      // Extrae solo los dígitos numéricos para Alumnos y Hechos
-      const rawAlumnos = String(r[2] || '0').replace(/[^0-9]/g, '');
-      const rawHechos = String(r[3] || '0').replace(/[^0-9]/g, '');
+      // Convierte valores respetando formatos con puntos o comas
+      const alumnos = parseFloat(String(r[2] || '0').replace(/\s/g, '').replace(',', '.')) || 0;
+      const hechos = parseFloat(String(r[3] || '0').replace(/\s/g, '').replace(',', '.')) || 0;
 
-      const alumnos = parseFloat(rawAlumnos) || 0;
-      const hechos = parseFloat(rawHechos) || 0;
-
-      totalAlumnos += alumnos;
-      totalHechos += hechos;
+      totalAlumnosFac += alumnos;
+      totalHechosFac += hechos;
     });
 
-    globalAlumnos += totalAlumnos;
-    globalHechos += totalHechos;
+    // Acumula para el gran total general (L206:L208 y M206:M208)
+    globalAlumnos += totalAlumnosFac;
+    globalHechos += totalHechosFac;
 
-    return totalAlumnos > 0 ? (totalHechos / totalAlumnos) * 100 : 0;
+    return totalAlumnosFac > 0 ? (totalHechosFac / totalAlumnosFac) * 100 : 0;
   });
 
   const counts = allData.map(d => d ? d.body.length : 0);
@@ -616,9 +615,8 @@ function renderCharts(){
     options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { font: { family: 'Montserrat', size: 11 }, padding: 12 } }, tooltip: { callbacks: { label: c => `${c.label}: ${c.parsed} materias` } } } }
   });
 
-  // Cálculo del avance global con redondeo aritmético idéntico al de Sheets
+  // 2. Cálculo exacto del Avance General: SUMA(M206:M208) / SUMA(L206:L208)
   const rawGlobal = globalAlumnos > 0 ? (globalHechos / globalAlumnos) * 100 : 0;
-  // Aplica redondeo estándar a 1 decimal
   const globalAvg = Math.round(rawGlobal * 100) / 100;
   
   const el = document.getElementById('pct-general');
