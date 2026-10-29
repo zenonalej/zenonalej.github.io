@@ -327,13 +327,13 @@ const _a=['1towh-','fczPOQ','7TTWgp','qNn1eF','930SFU','SK5Mdg','y_ABD8','4o'];
 const _b=[[104,116,116,112,115],[58,47,47],[100,111,99,115,46,103,111,111,103,108,101],[46,99,111,109,47],[115,112,114,101,97,100,115,104,101,101,116,115,47,100,47]];
 const _sid=()=>_a.join('');
 const _base=()=>_b.map(g=>g.map(c=>String.fromCharCode(c)).join('')).join('');
-function csvUrl(s){return`${_base()}${_sid()}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(s)}&range=A:F`}
+function csvUrl(s){return`${_base()}${_sid()}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(s)}&range=A:N`}
   
-const SHEETS=['Juridicas','Economicas','Humanidades'];
-const NAMES=['Jurídicas','Económicas','Humanidades'];
-const COLORS=['#1a56db','#2f855a','#6b46c1'];
-const allData=[null,null,null];
-const loaded=[false,false,false];
+const SHEETS=['Juridicas','Economicas','Humanidades','DATA'];
+const NAMES=['Jurídicas','Económicas','Humanidades','DATA'];
+const COLORS=['#1a56db','#2f855a','#6b46c1','#718096'];
+const allData=[null,null,null,null];
+const loaded=[false,false,false,false];
 let chartAvance=null,chartDist=null,gaugeChartInst=null;
 
 function toggleAutoev(){
@@ -570,36 +570,28 @@ function renderRankings(){
 }
 
 function renderCharts(){
-  let globalAlumnos = 0;
-  let globalHechos = 0;
-
-  // 1. Calcula el avance por cada facultad (Hechos totales / Alumnos totales)
-  const avgs = allData.map(d => {
+  // 1. Avances individuales por facultad
+  const avgs = allData.slice(0, 3).map(d => {
     if(!d) return 0;
-    let totalAlumnosFac = 0;
-    let totalHechosFac = 0;
+    let totalAlumnos = 0;
+    let totalHechos = 0;
 
     d.body.forEach(r => {
-      // Convierte valores respetando formatos con puntos o comas
-      const alumnos = parseFloat(String(r[2] || '0').replace(/\s/g, '').replace(',', '.')) || 0;
-      const hechos = parseFloat(String(r[3] || '0').replace(/\s/g, '').replace(',', '.')) || 0;
+      const rawAlumnos = String(r[2] || '0').replace(/[^0-9]/g, '');
+      const rawHechos = String(r[3] || '0').replace(/[^0-9]/g, '');
 
-      totalAlumnosFac += alumnos;
-      totalHechosFac += hechos;
+      totalAlumnos += parseFloat(rawAlumnos) || 0;
+      totalHechos += parseFloat(rawHechos) || 0;
     });
 
-    // Acumula para el gran total general (L206:L208 y M206:M208)
-    globalAlumnos += totalAlumnosFac;
-    globalHechos += totalHechosFac;
-
-    return totalAlumnosFac > 0 ? (totalHechosFac / totalAlumnosFac) * 100 : 0;
+    return totalAlumnos > 0 ? (totalHechos / totalAlumnos) * 100 : 0;
   });
 
-  const counts = allData.map(d => d ? d.body.length : 0);
+  const counts = allData.slice(0, 3).map(d => d ? d.body.length : 0);
   if(chartAvance) chartAvance.destroy();
   chartAvance = new Chart(document.getElementById('chartAvance').getContext('2d'), {
     type: 'bar',
-    data: { labels: NAMES, datasets: [{ label: '% Promedio', data: avgs, backgroundColor: COLORS.map(c => c + 'cc'), borderColor: COLORS, borderWidth: 2, borderRadius: 8 }] },
+    data: { labels: NAMES.slice(0, 3), datasets: [{ label: '% Promedio', data: avgs, backgroundColor: COLORS.slice(0, 3).map(c => c + 'cc'), borderColor: COLORS.slice(0, 3), borderWidth: 2, borderRadius: 8 }] },
     options: {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.parsed.y.toFixed(2)}%` } }, datalabels: { anchor: 'end', align: 'end', formatter: v => v > 0 ? `${v.toFixed(2)}%` : '', font: { family: 'Montserrat', size: 11, weight: '600' }, color: '#2d3748' } },
@@ -611,14 +603,22 @@ function renderCharts(){
   if(chartDist) chartDist.destroy();
   chartDist = new Chart(document.getElementById('chartDist').getContext('2d'), {
     type: 'doughnut',
-    data: { labels: NAMES, datasets: [{ data: counts, backgroundColor: COLORS.map(c => c + 'cc'), borderColor: COLORS, borderWidth: 2, hoverOffset: 6 }] },
+    data: { labels: NAMES.slice(0, 3), datasets: [{ data: counts, backgroundColor: COLORS.slice(0, 3).map(c => c + 'cc'), borderColor: COLORS.slice(0, 3), borderWidth: 2, hoverOffset: 6 }] },
     options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { font: { family: 'Montserrat', size: 11 }, padding: 12 } }, tooltip: { callbacks: { label: c => `${c.label}: ${c.parsed} materias` } } } }
   });
 
-  // 2. Cálculo exacto del Avance General: SUMA(M206:M208) / SUMA(L206:L208)
-  const rawGlobal = globalAlumnos > 0 ? (globalHechos / globalAlumnos) * 100 : 0;
-  const globalAvg = Math.round(rawGlobal * 100) / 100;
-  
+  // 2. Extraer el valor directo de la celda N209 en la pestaña DATA (allData[3])
+  let globalAvg = 0;
+  if (allData[3] && allData[3].body) {
+    // Fila 209 en Google Sheets corresponde al índice 206 del cuerpo extraído (descontando filas de encabezado)
+    // Columna N corresponde al índice 13 (A=0, B=1, ... N=13)
+    const targetRow = allData[3].body[206] || allData[3].body[allData[3].body.length - 1];
+    if (targetRow) {
+      const valN209 = targetRow[13] || targetRow[targetRow.length - 1];
+      globalAvg = parsePct(valN209) || 0;
+    }
+  }
+
   const el = document.getElementById('pct-general');
   el.textContent = `${globalAvg.toFixed(2)}%`;
 
@@ -729,7 +729,7 @@ function renderAutoev(){
 function switchTab(idx){
   document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
   document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===idx));
-  if(idx===0)[0,1,2].forEach(loadSheet);
+  if(idx===0)[0,1,2,3].forEach(loadSheet);
   else loadSheet(idx-1);
 }
 
@@ -964,13 +964,13 @@ const globalAvgP = globalAlumnosPDF > 0 ? (globalHechosPDF / globalAlumnosPDF) *
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal(null);});
-[0,1,2].forEach(loadSheet);
+[0,1,2,3].forEach(loadSheet);
 
 setInterval(()=>{
   allData.fill(null);
   loaded.fill(false);
   const activeIdx=[...document.querySelectorAll('.tab-btn')].findIndex(b=>b.classList.contains('active'));
-  if(activeIdx===0)[0,1,2].forEach(loadSheet);
+  if(activeIdx===0)[0,1,2,3].forEach(loadSheet);
   else loadSheet(activeIdx-1);
 },180000);
   
