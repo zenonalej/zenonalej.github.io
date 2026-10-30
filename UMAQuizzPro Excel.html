@@ -95,7 +95,7 @@ let quiz=null;
 try{quiz=JSON.parse(localStorage.getItem('uma-qz'))}catch(e){}
 quiz=quiz||DEF;
 const save=()=>{try{localStorage.setItem('uma-qz',JSON.stringify(quiz))}catch(e){}};
-
+ 
 /* ---------- INICIO ---------- */
 function home(){
  if(peer){try{peer.destroy()}catch(e){}peer=null}
@@ -107,12 +107,22 @@ function home(){
   <input id="jc" placeholder="Código de sala" maxlength="5" value="${esc(p)}" autocapitalize="characters" autocomplete="off">
   <input id="jn" placeholder="Tu nombre" maxlength="20" autocomplete="off">
   <button class="btn" onclick="join()">Entrar</button></section>
- <section class="card"><h2>Soy docente</h2><p>Revisa las preguntas de la guía Excel Intermedio, o crea las tuyas, y abre una sala.</p>
-  <button class="btn" onclick="edit()">Preparar preguntas</button></section></div>`);
+ <section class="card"><h2>Soy docente</h2><p>Acceso con clave. Revisa las preguntas de la guía Excel Intermedio, o crea las tuyas, y abre una sala.</p>
+  <button class="btn" onclick="login()">Entrar como profesor</button></section></div>`);
 }
-
+ 
+/* ---------- CLAVE DE PROFESOR ---------- */
+let auth=false;const HASH=361137172,hh=t=>{let x=5381;for(const c of t)x=((x*33)^c.charCodeAt(0))>>>0;return x};
+function login(){
+ if(auth)return edit();
+ show(`<h1>Modo Profesor</h1><p>Escribe la clave para continuar.</p><div class="card"><input id="pw" type="password" placeholder="Clave" autocomplete="off" onkeydown="if(event.key==='Enter')chk()"><p id="pe" style="color:var(--red)"></p><div class="row"><button class="btn" onclick="chk()">Entrar</button><button class="ghost" onclick="home()">Volver</button></div></div>`);
+ $('#pw').focus();
+}
+function chk(){if(hh($('#pw').value.trim())===HASH){auth=true;edit()}else{$('#pe').textContent='Clave incorrecta';$('#pw').value=''}}
+ 
 /* ---------- EDITOR ---------- */
 function edit(){
+ if(!auth)return login();
  show(`<h1>Tus preguntas</h1><p>En los quiz, marca con el círculo la respuesta correcta. Deja vacías las opciones que no uses.</p>`+
  quiz.map((x,i)=>{while(x.o.length<4)x.o.push('');
   return `<div class="card"><p class="meta">${esc(x.b||'')}</p><div class="row"><select onchange="quiz[${i}].y=this.value;edit()">${Object.entries(TY).map(([k,v])=>`<option value="${k}" ${k==x.y?'selected':''}>${v}</option>`).join('')}</select><button class="ghost" onclick="del(${i})">Borrar</button></div>
@@ -124,9 +134,10 @@ function edit(){
 }
 function add(){quiz.push(z('quiz','','',['','','',''],0));edit();scrollTo(0,document.body.scrollHeight)}
 function del(i){quiz.splice(i,1);edit()}
-
+ 
 /* ---------- ANFITRIÓN ---------- */
 function startHost(){
+ if(!auth)return login();
  Q=[];
  quiz.forEach(x=>{if(!x.q.trim())return;
   if(x.y=='quiz'||x.y=='poll'){const o=[];let c=-1;x.o.forEach((t,j)=>{if(t.trim()){if(j==x.c)c=o.length;o.push(t.trim())}});
@@ -209,7 +220,7 @@ function csv(){
  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([rows.join('\n')],{type:'text/csv'}));
  a.download='ranking-uma-quizpro.csv';a.click();
 }
-
+ 
 /* ---------- JUGADOR ---------- */
 function join(){
  const c=$('#jc').value.trim().toUpperCase(),n=$('#jn').value.trim();
@@ -237,7 +248,7 @@ function pd(d){
   <p>Podio: ${d.top.map(esc).join(', ')}</p><button class="btn" onclick="home()">Inicio</button></div>`);
 }
 function ans(v){if(S.a||v==='')return;S.a=true;conn.send({t:'ans',v});show(msg('Respuesta enviada. Esperando al resto…'))}
-
+ 
 home();
 </script>
 </body>
