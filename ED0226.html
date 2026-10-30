@@ -553,8 +553,11 @@ function openModal(idx,rowIdx){
   document.getElementById('m-sub').textContent=`Docente: ${r[1]||'—'} · ${NAMES[idx]}`;
   document.getElementById('m-pct').textContent=pct!==null?`${pctVal.toFixed(1)}%`:'Sin dato';
   document.getElementById('m-pct').style.color=estadoColor;
-  document.getElementById('m-alumnos').textContent=r[2]||'—';
-  document.getElementById('m-hechos').textContent=r[3]||'—';
+  const alumnosVal = parseFloat(String(r[2] || '0').replace(/[^0-9]/g, '')) || 0;
+  const hechosVal = parseFloat(String(r[3] || '0').replace(/[^0-9]/g, '')) || 0;
+
+animateValue(document.getElementById('m-alumnos'), 0, alumnosVal, 800);
+animateValue(document.getElementById('m-hechos'), 0, hechosVal, 800);
   const autoEvVal = (r[5]||'').toString().trim().toUpperCase();
   document.getElementById('m-autoev').textContent = (autoEvVal === 'TRUE' || autoEvVal === 'SI') ? 'Sí' : 'No';  const el=document.getElementById('m-estado');
   el.textContent=estado;el.style.color=estadoColor;el.style.fontWeight='700';
