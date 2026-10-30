@@ -556,8 +556,8 @@ function openModal(idx,rowIdx){
   const alumnosVal = parseFloat(String(r[2] || '0').replace(/[^0-9]/g, '')) || 0;
   const hechosVal = parseFloat(String(r[3] || '0').replace(/[^0-9]/g, '')) || 0;
 
-animateValue(document.getElementById('m-alumnos'), 0, alumnosVal, 2000);
-animateValue(document.getElementById('m-hechos'), 0, hechosVal, 2000);
+animateValue(document.getElementById('m-alumnos'), 0, alumnosVal, 1500);
+animateValue(document.getElementById('m-hechos'), 0, hechosVal, 1500);
   const autoEvVal = (r[5]||'').toString().trim().toUpperCase();
   document.getElementById('m-autoev').textContent = (autoEvVal === 'TRUE' || autoEvVal === 'SI') ? 'Sí' : 'No';  const el=document.getElementById('m-estado');
   el.textContent=estado;el.style.color=estadoColor;el.style.fontWeight='700';
@@ -706,10 +706,10 @@ function updateKPIs(){
   const c = allData.map(d => d ? d.body.length : 0);
   const total = c.reduce((a, b) => a + b, 0) || 0;
 
-  animateValue(document.getElementById('kpi-total'), 0, total, 3000);
-  animateValue(document.getElementById('kpi-j'), 0, c[0] || 0, 3000);
-  animateValue(document.getElementById('kpi-e'), 0, c[1] || 0, 3000);
-  animateValue(document.getElementById('kpi-h'), 0, c[2] || 0, 3000);
+  animateValue(document.getElementById('kpi-total'), 0, total, 1500);
+  animateValue(document.getElementById('kpi-j'), 0, c[0] || 0, 1500);
+  animateValue(document.getElementById('kpi-e'), 0, c[1] || 0, 1500);
+  animateValue(document.getElementById('kpi-h'), 0, c[2] || 0, 1500);
 }
 
 async function loadSheet(idx){
