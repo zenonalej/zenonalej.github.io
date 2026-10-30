@@ -703,10 +703,10 @@ function updateKPIs(){
   const c = allData.map(d => d ? d.body.length : 0);
   const total = c.reduce((a, b) => a + b, 0) || 0;
 
-  animateValue(document.getElementById('kpi-total'), 0, total, 1000);
-  animateValue(document.getElementById('kpi-j'), 0, c[0] || 0, 1000);
-  animateValue(document.getElementById('kpi-e'), 0, c[1] || 0, 1000);
-  animateValue(document.getElementById('kpi-h'), 0, c[2] || 0, 1000);
+  animateValue(document.getElementById('kpi-total'), 0, total, 3000);
+  animateValue(document.getElementById('kpi-j'), 0, c[0] || 0, 3000);
+  animateValue(document.getElementById('kpi-e'), 0, c[1] || 0, 3000);
+  animateValue(document.getElementById('kpi-h'), 0, c[2] || 0, 3000);
 }
 
 async function loadSheet(idx){
