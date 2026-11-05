@@ -353,33 +353,6 @@ tbody td{padding:10px 16px;color:#4a5568}
 </div>
 
 <script>
-
-async function fetchCompletadasDATA() {
-  try {
-    // Consulta exacta del rango O205:O209 (Columna O)
-    const url = `${_base()}${_sid()}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('DATA')}&range=O205:O209`;
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const txt = await res.text();
-    const rows = parseCSV(txt);
-    
-    // Extrae los valores numéricos limpios
-    const vals = rows.flatMap(r => r).map(c => parseInt(String(c || '0').replace(/\D/g, ''), 10) || 0);
-    
-    if (vals.length >= 3) {
-      return {
-        juridicas: vals[0] || 0,   // Celda O205
-        economicas: vals[1] || 0,  // Celda O206
-        humanidades: vals[2] || 0, // Celda O207
-        total: vals[4] || (vals[0] + vals[1] + vals[2]) // Celda O209
-      };
-    }
-    return null;
-  } catch (e) {
-    return null;
-  }
-}
-  
 const _a=['1towh-','fczPOQ','7TTWgp','qNn1eF','930SFU','SK5Mdg','y_ABD8','4o'];
 const _b=[[104,116,116,112,115],[58,47,47],[100,111,99,115,46,103,111,111,103,108,101],[46,99,111,109,47],[115,112,114,101,97,100,115,104,101,101,116,115,47,100,47]];
 const _sid=()=>_a.join('');
@@ -392,6 +365,33 @@ const COLORS=['#1a56db','#2f855a','#6b46c1'];
 const allData=[null,null,null];
 const loaded=[false,false,false];
 let chartAvance=null,chartDist=null,gaugeChartInst=null;
+
+async function fetchCompletadasDATA() {
+  try {
+    const url = `${_base()}${_sid()}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('DATA')}&range=O205:O209`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const txt = await res.text();
+    const cleanLines = txt.replace(/"/g, '').split('\n').map(l => l.trim()).filter(l => l !== '');
+    const vals = cleanLines.map(line => {
+      const parts = line.split(',');
+      const valStr = parts[parts.length - 1] || '0';
+      return parseInt(valStr.replace(/\D/g, ''), 10) || 0;
+    });
+    
+    if (vals.length >= 3) {
+      return {
+        juridicas: vals[0] || 0,
+        economicas: vals[1] || 0,
+        humanidades: vals[2] || 0,
+        total: vals[4] || (vals[0] + vals[1] + vals[2])
+      };
+    }
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
 
 async function fetchAvanceGeneralDATA() {
   try {
@@ -414,7 +414,7 @@ function toggleAutoev(){
   arrow.textContent=visible?'▶':'▼';
 }
 
-  function animateValue(element, start, end, duration, isPercentage = false) {
+function animateValue(element, start, end, duration, isPercentage = false) {
   if (!element) return;
   let startTimestamp = null;
   const step = (timestamp) => {
@@ -439,18 +439,6 @@ function toggleAutoev(){
     }
   };
   window.requestAnimationFrame(step);
-}
-async function fetchAvanceGeneralDATA() {
-  try {
-    const url = `${_base()}${_sid()}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('DATA')}&range=N209:N209`;
-    const res = await fetch(url);
-    if (!res.ok) return null;
-    const txt = await res.text();
-    const cleanTxt = txt.replace(/"/g, '').trim();
-    return parsePct(cleanTxt);
-  } catch (e) {
-    return null;
-  }
 }
   
 function parseCSV(txt){
@@ -492,10 +480,9 @@ function pctColor(p){
 function buildTable(headers, rows, idx) {
   const fallback = ['Materia','Docente','Alumnos','Hechos','%','AutoEv.'];
   const heads = headers.map((h,i) => h && h !== '—' ? h : fallback[i] || '—');
-  const sortable = [2,3,4,5]; // índices de Alumnos, Hechos, %
-  const center = [2,3,4,5]; // índices centrados
+  const sortable = [2,3,4,5];
+  const center = [2,3,4,5];
 
-  // Estado de ordenamiento por tabla
   if(!window._sortState) window._sortState = {};
   if(!window._sortState[idx]) window._sortState[idx] = {col:null, asc:true};
 
@@ -586,7 +573,7 @@ function clearSearch(idx){
   if(sr){sr.classList.remove('open');sr.innerHTML='';}
 }
 
-  let _activeTabBeforeModal = 0;
+let _activeTabBeforeModal = 0;
   
 function openModal(idx,rowIdx){
   _activeTabBeforeModal=[...document.querySelectorAll('.tab-btn')].findIndex(b=>b.classList.contains('active'));
@@ -594,9 +581,7 @@ function openModal(idx,rowIdx){
   const r=d.body[rowIdx];if(!r)return;
   const pct=parsePct(r[4]);
   const pctVal=pct!==null?pct:0;
-  const col=pctColor(pct);
 
-  // Estado PRIMERO para que estadoColor esté disponible
   let estado='',estadoColor='';
   if(pct===null)     {estado='Sin dato';        estadoColor='#a0aec0';}
   else if(pct===100) {estado='✅ Completado';    estadoColor='#38a169';}
@@ -613,10 +598,11 @@ function openModal(idx,rowIdx){
   const alumnosVal = parseFloat(String(r[2] || '0').replace(/[^0-9]/g, '')) || 0;
   const hechosVal = parseFloat(String(r[3] || '0').replace(/[^0-9]/g, '')) || 0;
 
-animateValue(document.getElementById('m-alumnos'), 0, alumnosVal, 1500);
-animateValue(document.getElementById('m-hechos'), 0, hechosVal, 1500);
+  animateValue(document.getElementById('m-alumnos'), 0, alumnosVal, 1000);
+  animateValue(document.getElementById('m-hechos'), 0, hechosVal, 1000);
   const autoEvVal = (r[5]||'').toString().trim().toUpperCase();
-  document.getElementById('m-autoev').textContent = (autoEvVal === 'TRUE' || autoEvVal === 'SI') ? 'Sí' : 'No';  const el=document.getElementById('m-estado');
+  document.getElementById('m-autoev').textContent = (autoEvVal === 'TRUE' || autoEvVal === 'SI') ? 'Sí' : 'No';
+  const el=document.getElementById('m-estado');
   el.textContent=estado;el.style.color=estadoColor;el.style.fontWeight='700';
 
   setTimeout(()=>{
@@ -652,24 +638,24 @@ function renderRankings(){
     const bot5=[...sorted].reverse().slice(0,10);
     const col=COLORS[idx];
     const renderList=(items,type)=>items.map((it,i)=>{
-  let estadoColor='';
-  if(it.pct===null)     estadoColor='#a0aec0';
-  else if(it.pct===100) estadoColor='#38a169';
-  else if(it.pct>=75)   estadoColor='#2f855a';
-  else if(it.pct>=60)   estadoColor='#e8a020';
-  else if(it.pct>=40)   estadoColor='#dd6b20';
-  else if(it.pct>=1)    estadoColor='#e55353';
-  else                  estadoColor='#c53030';
-  return`<div class="rank-item" onclick="openModal(${idx},${it.idx})">
-    <div class="rank-num ${type}">${i+1}</div>
-    <div class="rank-info">
-      <div class="rank-name">${it.pct===100?'🏆 ':''}${it.name}</div>
-      <div class="rank-sub">${it.doc}</div>
-      <div class="rank-bar-bg"><div class="rank-bar" style="width:${Math.min(it.pct,100)}%;background:${estadoColor}"></div></div>
-    </div>
-    <div class="rank-pct ${type}" style="color:${estadoColor}">${it.pct.toFixed(1)}%</div>
-  </div>`;
-}).join('');
+      let estadoColor='';
+      if(it.pct===null)     estadoColor='#a0aec0';
+      else if(it.pct===100) estadoColor='#38a169';
+      else if(it.pct>=75)   estadoColor='#2f855a';
+      else if(it.pct>=60)   estadoColor='#e8a020';
+      else if(it.pct>=40)   estadoColor='#dd6b20';
+      else if(it.pct>=1)    estadoColor='#e55353';
+      else                  estadoColor='#c53030';
+      return`<div class="rank-item" onclick="openModal(${idx},${it.idx})">
+        <div class="rank-num ${type}">${i+1}</div>
+        <div class="rank-info">
+          <div class="rank-name">${it.pct===100?'🏆 ':''}${it.name}</div>
+          <div class="rank-sub">${it.doc}</div>
+          <div class="rank-bar-bg"><div class="rank-bar" style="width:${Math.min(it.pct,100)}%;background:${estadoColor}"></div></div>
+        </div>
+        <div class="rank-pct ${type}" style="color:${estadoColor}">${it.pct.toFixed(1)}%</div>
+      </div>`;
+    }).join('');
     html+=`<div style="margin-bottom:22px">
       <div class="rank-section-title" style="color:${col};margin-bottom:10px">${['⚖️','📊','🎓'][idx]} ${NAMES[idx]}</div>
       <div class="rank-grid">
@@ -718,10 +704,8 @@ async function renderCharts(){
     options: { responsive: true, maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { font: { family: 'Montserrat', size: 11 }, padding: 12 } }, tooltip: { callbacks: { label: c => `${c.label}: ${c.parsed} materias` } } } }
   });
 
-  // Leer N209 desde la hoja DATA
   let globalAvg = await fetchAvanceGeneralDATA();
 
-  // Respaldo en caso de fallo
   if (globalAvg === null) {
     let globalAlumnos = 0, globalHechos = 0;
     allData.forEach(d => {
@@ -732,10 +716,8 @@ async function renderCharts(){
       });
     });
     globalAvg = globalAlumnos > 0 ? (globalHechos / globalAlumnos) * 100 : 0;
-    updateCompletadas();
   }
 
-  
   const el = document.getElementById('pct-general');
   animateValue(el, 0, globalAvg, 1200, true);
 
@@ -759,31 +741,32 @@ async function renderCharts(){
   el.style.borderRadius = '8px';
   el.style.display = 'inline-block';
   el.style.transition = 'background .6s ease, color .3s ease';
+
+  updateCompletadas();
 }
   
 function updateKPIs(){
   const c = allData.map(d => d ? d.body.length : 0);
   const total = c.reduce((a, b) => a + b, 0) || 0;
 
-  animateValue(document.getElementById('kpi-total'), 0, total, 1500);
-  animateValue(document.getElementById('kpi-j'), 0, c[0] || 0, 1500);
-  animateValue(document.getElementById('kpi-e'), 0, c[1] || 0, 1500);
-  animateValue(document.getElementById('kpi-h'), 0, c[2] || 0, 1500);
+  animateValue(document.getElementById('kpi-total'), 0, total, 1000);
+  animateValue(document.getElementById('kpi-j'), 0, c[0] || 0, 1000);
+  animateValue(document.getElementById('kpi-e'), 0, c[1] || 0, 1000);
+  animateValue(document.getElementById('kpi-h'), 0, c[2] || 0, 1000);
 }
 
 async function updateCompletadas() {
   const data = await fetchCompletadasDATA();
   
-  // Conteo local por si la celda no responde
   const cJ = allData[0] ? allData[0].body.filter(r => parsePct(r[4]) === 100).length : 0;
   const cE = allData[1] ? allData[1].body.filter(r => parsePct(r[4]) === 100).length : 0;
   const cH = allData[2] ? allData[2].body.filter(r => parsePct(r[4]) === 100).length : 0;
   const cTotal = cJ + cE + cH;
 
-  const valJ = (data && data.juridicas > 0) ? data.juridicas : cJ;
-  const valE = (data && data.economicas > 0) ? data.economicas : cE;
-  const valH = (data && data.humanidades > 0) ? data.humanidades : cH;
-  const valTotal = (data && data.total > 0) ? data.total : cTotal;
+  const valJ = (data && typeof data.juridicas === 'number') ? data.juridicas : cJ;
+  const valE = (data && typeof data.economicas === 'number') ? data.economicas : cE;
+  const valH = (data && typeof data.humanidades === 'number') ? data.humanidades : cH;
+  const valTotal = (data && typeof data.total === 'number') ? data.total : cTotal;
 
   animateValue(document.getElementById('comp-total'), 0, valTotal, 1000);
   animateValue(document.getElementById('comp-j'), 0, valJ, 1000);
@@ -800,7 +783,6 @@ async function loadSheet(idx){
     const txt=await res.text();
     const rows=parseCSV(txt);
     const headers=rows[2]||[];
-    // Filtra únicamente filas verdaderamente vacías
     const body=(rows.slice(3)||[]).filter(r => r[0] && r[0].trim() !== '' && r[2] && r[2].trim() !== '');
     allData[idx]={headers,body};
     const b2row=rows[1]||[];
@@ -819,7 +801,7 @@ async function loadSheet(idx){
   }
 }
 
-  function switchAutoevTab(idx){
+function switchAutoevTab(idx){
   [0,1,2].forEach(i=>{
     const tab=document.getElementById(`atab-${i}`);
     const panel=document.getElementById(`autoev-panel-${i}`);
@@ -836,7 +818,6 @@ function renderAutoev(){
   allData.forEach((d,idx)=>{
     if(!d)return;
     
-    // Evalúa si la casilla no está marcada (FALSE, vacía o 'no')
     const pendientes=d.body.filter(r=>{
       const val = (r[5]||'').toString().trim().toUpperCase();
       return val === 'FALSE' || val === '' || val === 'NO';
@@ -872,7 +853,6 @@ function switchTab(idx){
   else loadSheet(idx-1);
 }
 
-// PDF
 let _pendingPdfIdx=null;
 
 function requestPDF(idx){
@@ -913,7 +893,6 @@ async function exportPDF(idx){
   let y=margin;
   doc.setFont('helvetica');
 
-  // ENCABEZADO
   doc.setFillColor(26,86,219);
   doc.rect(0,0,pw,30,'F');
   doc.setTextColor(255,255,255);
@@ -931,19 +910,18 @@ async function exportPDF(idx){
   y+=8;
 
   if(idx===-1){
-    // KPIs generales
     doc.setTextColor(26,86,219);doc.setFontSize(10);doc.setFont('helvetica','bold');
     doc.text('RESUMEN GENERAL',margin,y);y+=6;
-let globalAlumnosPDF = 0;
-let globalHechosPDF = 0;
-allData.forEach(d => {
-  if (!d) return;
-  d.body.forEach(r => {
-    globalAlumnosPDF += parseInt(String(r[2] || '0').replace(/\D/g, ''), 10) || 0;
-    globalHechosPDF += parseInt(String(r[3] || '0').replace(/\D/g, ''), 10) || 0;
-  });
-});
-const globalAvgP = globalAlumnosPDF > 0 ? (globalHechosPDF / globalAlumnosPDF) * 100 : 0;
+    let globalAlumnosPDF = 0;
+    let globalHechosPDF = 0;
+    allData.forEach(d => {
+      if (!d) return;
+      d.body.forEach(r => {
+        globalAlumnosPDF += parseInt(String(r[2] || '0').replace(/\D/g, ''), 10) || 0;
+        globalHechosPDF += parseInt(String(r[3] || '0').replace(/\D/g, ''), 10) || 0;
+      });
+    });
+    const globalAvgP = globalAlumnosPDF > 0 ? (globalHechosPDF / globalAlumnosPDF) * 100 : 0;
     
     const kpis=[
       ['Total Materias',allData.map(d=>d?d.body.length:0).reduce((a,b)=>a+b,0)],
@@ -962,7 +940,6 @@ const globalAvgP = globalAlumnosPDF > 0 ? (globalHechosPDF / globalAlumnosPDF) *
     });
     y+=22;
 
-    // AVANCE GENERAL destacado
     doc.setFillColor(26,86,219);
     doc.roundedRect(margin,y,usable,18,3,3,'F');
     doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont('helvetica','normal');
@@ -970,7 +947,6 @@ const globalAvgP = globalAlumnosPDF > 0 ? (globalHechosPDF / globalAlumnosPDF) *
     doc.setFontSize(16);doc.setFont('helvetica','bold');
     doc.text(`${globalAvgP.toFixed(1)}%`,pw/2,y+14,{align:'center'});
     y+=24;
-    // Barras promedio
     doc.setTextColor(26,86,219);doc.setFontSize(10);doc.setFont('helvetica','bold');
     doc.text('PROMEDIO DE AVANCE POR FACULTAD',margin,y);y+=6;
     allData.forEach((d,i)=>{
@@ -987,7 +963,6 @@ const globalAvgP = globalAlumnosPDF > 0 ? (globalHechosPDF / globalAlumnosPDF) *
     });
     y+=4;
 
-    // Top/Bottom por facultad
     allData.forEach((d,idx2)=>{
       if(!d)return;
       if(y>ph-50){doc.addPage();y=margin;}
@@ -1033,7 +1008,6 @@ const globalAvgP = globalAlumnosPDF > 0 ? (globalHechosPDF / globalAlumnosPDF) *
     });
 
   }else{
-    // REPORTE POR FACULTAD
     const d=allData[idx];
     if(!d){doc.setTextColor(200,0,0);doc.text('Datos no cargados aun.',margin,y);doc.save(`reporte-${NAMES[idx]}.pdf`);return;}
     const vals=d.body.map(r=>parsePct(r[4])).filter(v=>v!==null);
@@ -1088,7 +1062,6 @@ const globalAvgP = globalAlumnosPDF > 0 ? (globalHechosPDF / globalAlumnosPDF) *
     });
   }
 
-  // PIE DE PÁGINA
   const total=doc.internal.getNumberOfPages();
   for(let p=1;p<=total;p++){
     doc.setPage(p);
