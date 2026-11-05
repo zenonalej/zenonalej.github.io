@@ -374,14 +374,23 @@ async function fetchCompletadasDATA() {
     const txt = await res.text();
     const rows = parseCSV(txt);
     
-    // Procesa fila por fila para mantener el orden exacto de celdas
-    const valJ = parseInt(String((rows[0] && rows[0][0]) || '0').replace(/\D/g, ''), 10) || 0; // O205
-    const valE = parseInt(String((rows[1] && rows[1][0]) || '0').replace(/\D/g, ''), 10) || 0; // O206
-    const valH = parseInt(String((rows[2] && rows[2][0]) || '0').replace(/\D/g, ''), 10) || 0; // O207
-    const valT = parseInt(String((rows[4] && rows[4][0]) || '0').replace(/\D/g, ''), 10) || (valJ + valE + valH); // O209
-    
+    // Extrae sólo valores puramente numéricos por fila
+    const getCleanInt = (row) => {
+      if (!row || !row[0]) return 0;
+      const str = String(row[0]).trim();
+      // Si el texto contiene la palabra "100%" o encabezados, ignorarlo para no extraer "100" accidentalmente
+      if (str.toLowerCase().includes('avance') || str.toLowerCase().includes('100%') || str.toLowerCase().includes('asignatura')) return 0;
+      const n = parseInt(str.replace(/[^0-9]/g, ''), 10);
+      return isNaN(n) ? 0 : n;
+    };
+
+    const valJ = getCleanInt(rows[0]);
+    const valE = getCleanInt(rows[1]);
+    const valH = getCleanInt(rows[2]);
+    const valT = getCleanInt(rows[4]) || (valJ + valE + valH);
+
     return {
-      juridicas: valJ,
+      juridicas: valJ > 33 ? 0 : valJ, // Si el valor extraído supera el total de materias (33), es un error de lectura y se fuerza 0
       economicas: valE,
       humanidades: valH,
       total: valT
@@ -756,22 +765,24 @@ function updateKPIs(){
 async function updateCompletadas() {
   const data = await fetchCompletadasDATA();
   
+  // Conteo local exacto sobre los datos cargados de cada pestaña
   const cJ = allData[0] ? allData[0].body.filter(r => parsePct(r[4]) === 100).length : 0;
   const cE = allData[1] ? allData[1].body.filter(r => parsePct(r[4]) === 100).length : 0;
   const cH = allData[2] ? allData[2].body.filter(r => parsePct(r[4]) === 100).length : 0;
   const cTotal = cJ + cE + cH;
 
-  const valJ = (data && typeof data.juridicas === 'number') ? data.juridicas : cJ;
-  const valE = (data && typeof data.economicas === 'number') ? data.economicas : cE;
-  const valH = (data && typeof data.humanidades === 'number') ? data.humanidades : cH;
-  const valTotal = (data && typeof data.total === 'number') ? data.total : cTotal;
+  // Si data.juridicas es 0 o proviene de la hoja, se valida contra las materias reales de Jurídicas (33)
+  const valJ = (data !== null && data.juridicas <= 33) ? data.juridicas : cJ;
+  const valE = (data !== null) ? data.economicas : cE;
+  const valH = (data !== null) ? data.humanidades : cH;
+  const valTotal = (data !== null && data.total > 0) ? data.total : cTotal;
 
   animateValue(document.getElementById('comp-total'), 0, valTotal, 1000);
   animateValue(document.getElementById('comp-j'), 0, valJ, 1000);
   animateValue(document.getElementById('comp-e'), 0, valE, 1000);
   animateValue(document.getElementById('comp-h'), 0, valH, 1000);
 }
-  
+
 async function loadSheet(idx){
   if(loaded[idx])return;
   loaded[idx]=true;
