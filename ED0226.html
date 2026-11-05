@@ -193,6 +193,35 @@ tbody td{padding:10px 16px;color:#4a5568}
       </div>
     </div>
 
+<!-- Asignaturas al 100% -->
+<div style="margin-bottom:22px">
+  <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#1a202c;margin-bottom:10px">
+    🎯 Asignaturas al 100% de Avance
+  </div>
+  <div class="kpi-grid">
+    <div class="kpi-card green">
+      <div class="kpi-label">Total Completadas</div>
+      <div class="kpi-value" id="comp-total">0</div>
+      <div class="kpi-sub">todas las facultades</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Jurídicas</div>
+      <div class="kpi-value" id="comp-j">0</div>
+      <div class="kpi-sub">asignaturas al 100%</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-label">Económicas</div>
+      <div class="kpi-value" id="comp-e">0</div>
+      <div class="kpi-sub">asignaturas al 100%</div>
+    </div>
+    <div class="kpi-card purple">
+      <div class="kpi-label">Humanidades</div>
+      <div class="kpi-value" id="comp-h">0</div>
+      <div class="kpi-sub">asignaturas al 100%</div>
+    </div>
+  </div>
+</div>
+    
     <div class="card" style="margin-bottom:22px">
   <div class="card-header" onclick="toggleAutoev()" style="cursor:pointer;user-select:none">
     <h2>📋 Pendientes de Autoevaluación <span id="autoev-arrow" style="font-size:.8rem;margin-left:6px">▼</span></h2>
@@ -323,6 +352,30 @@ tbody td{padding:10px 16px;color:#4a5568}
 </div>
 
 <script>
+
+async function fetchCompletadasDATA() {
+  try {
+    // Consulta las filas 205 a 209 de la columna O en la hoja DATA
+    const url = `${_base()}${_sid()}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('DATA')}&range=O205:O209`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const txt = await res.text();
+    const rows = parseCSV(txt);
+    
+    // Extrae los valores numéricos limpios de cada fila
+    const vals = rows.map(r => parseInt(String(r[0] || '0').replace(/\D/g, ''), 10) || 0);
+    
+    return {
+      juridicas: vals[0] || 0,   // O205
+      economicas: vals[1] || 0,  // O206
+      humanidades: vals[2] || 0, // O207
+      total: vals[4] || (vals[0] + vals[1] + vals[2]) // O209
+    };
+  } catch (e) {
+    return null;
+  }
+}
+  
 const _a=['1towh-','fczPOQ','7TTWgp','qNn1eF','930SFU','SK5Mdg','y_ABD8','4o'];
 const _b=[[104,116,116,112,115],[58,47,47],[100,111,99,115,46,103,111,111,103,108,101],[46,99,111,109,47],[115,112,114,101,97,100,115,104,101,101,116,115,47,100,47]];
 const _sid=()=>_a.join('');
