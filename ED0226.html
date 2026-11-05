@@ -170,30 +170,8 @@ tbody td{padding:10px 16px;color:#4a5568}
   </div>
   <div style="font-size:.8rem;opacity:.75">Promedio ponderado de las 3 facultades</div>
 </div>
-    
-    <div class="kpi-grid">
-      <div class="kpi-card orange"><div class="kpi-label">Total Materias</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub">todas las facultades</div></div>
-      <div class="kpi-card" style="cursor:pointer" onclick="switchTab(1)"><div class="kpi-label">Jurídicas</div><div class="kpi-value" id="kpi-j">—</div><div class="kpi-sub">materias →</div></div>
-      <div class="kpi-card green" style="cursor:pointer" onclick="switchTab(2)"><div class="kpi-label">Económicas</div><div class="kpi-value" id="kpi-e">—</div><div class="kpi-sub">materias →</div></div>
-      <div class="kpi-card purple" style="cursor:pointer" onclick="switchTab(3)"><div class="kpi-label">Humanidades</div><div class="kpi-value" id="kpi-h">—</div><div class="kpi-sub">materias →</div></div>
-    </div>
-    <div class="b2-grid">
-      <div class="b2-card" style="background:#1a56db;cursor:pointer" onclick="switchTab(1)"><div class="b2-faculty">⚖️ Jurídicas</div><div class="b2-name" id="b2-0">Cargando...</div><div class="b2-role">Dato actualizado minuto a minuto</div></div>
-      <div class="b2-card" style="background:#2f855a;cursor:pointer" onclick="switchTab(2)"><div class="b2-faculty">📊 Económicas</div><div class="b2-name" id="b2-1">Cargando...</div><div class="b2-role">Dato actualizado minuto a minuto</div></div>
-      <div class="b2-card" style="background:#6b46c1;cursor:pointer" onclick="switchTab(3)"><div class="b2-faculty">🎓 Humanidades</div><div class="b2-name" id="b2-2">Cargando...</div><div class="b2-role">Dato actualizado minuto a minuto</div></div>
-    </div>
-    <div class="charts-row">
-      <div class="card">
-        <div class="card-header"><h2>📈 Avance por facultad</h2></div>
-        <div class="chart-wrap"><canvas id="chartAvance"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="card-header"><h2>🍩 Distribución de materias</h2></div>
-        <div class="chart-wrap"><canvas id="chartDist"></canvas></div>
-      </div>
-    </div>
 
-<!-- Asignaturas al 100% -->
+    <!-- Asignaturas al 100% -->
 <div style="margin-bottom:22px">
   <div style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#1a202c;margin-bottom:10px">
     🎯 Asignaturas al 100% de Avance
@@ -222,6 +200,29 @@ tbody td{padding:10px 16px;color:#4a5568}
   </div>
 </div>
     
+    <div class="kpi-grid">
+      <div class="kpi-card orange"><div class="kpi-label">Total Materias</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub">todas las facultades</div></div>
+      <div class="kpi-card" style="cursor:pointer" onclick="switchTab(1)"><div class="kpi-label">Jurídicas</div><div class="kpi-value" id="kpi-j">—</div><div class="kpi-sub">materias →</div></div>
+      <div class="kpi-card green" style="cursor:pointer" onclick="switchTab(2)"><div class="kpi-label">Económicas</div><div class="kpi-value" id="kpi-e">—</div><div class="kpi-sub">materias →</div></div>
+      <div class="kpi-card purple" style="cursor:pointer" onclick="switchTab(3)"><div class="kpi-label">Humanidades</div><div class="kpi-value" id="kpi-h">—</div><div class="kpi-sub">materias →</div></div>
+    </div>
+    <div class="b2-grid">
+      <div class="b2-card" style="background:#1a56db;cursor:pointer" onclick="switchTab(1)"><div class="b2-faculty">⚖️ Jurídicas</div><div class="b2-name" id="b2-0">Cargando...</div><div class="b2-role">Dato actualizado minuto a minuto</div></div>
+      <div class="b2-card" style="background:#2f855a;cursor:pointer" onclick="switchTab(2)"><div class="b2-faculty">📊 Económicas</div><div class="b2-name" id="b2-1">Cargando...</div><div class="b2-role">Dato actualizado minuto a minuto</div></div>
+      <div class="b2-card" style="background:#6b46c1;cursor:pointer" onclick="switchTab(3)"><div class="b2-faculty">🎓 Humanidades</div><div class="b2-name" id="b2-2">Cargando...</div><div class="b2-role">Dato actualizado minuto a minuto</div></div>
+    </div>
+    <div class="charts-row">
+      <div class="card">
+        <div class="card-header"><h2>📈 Avance por facultad</h2></div>
+        <div class="chart-wrap"><canvas id="chartAvance"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><h2>🍩 Distribución de materias</h2></div>
+        <div class="chart-wrap"><canvas id="chartDist"></canvas></div>
+      </div>
+    </div>
+
+   
     <div class="card" style="margin-bottom:22px">
   <div class="card-header" onclick="toggleAutoev()" style="cursor:pointer;user-select:none">
     <h2>📋 Pendientes de Autoevaluación <span id="autoev-arrow" style="font-size:.8rem;margin-left:6px">▼</span></h2>
