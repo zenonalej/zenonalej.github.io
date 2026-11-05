@@ -732,7 +732,9 @@ async function renderCharts(){
       });
     });
     globalAvg = globalAlumnos > 0 ? (globalHechos / globalAlumnos) * 100 : 0;
+    updateCompletadas();
   }
+
   
   const el = document.getElementById('pct-general');
   animateValue(el, 0, globalAvg, 1200, true);
@@ -769,6 +771,26 @@ function updateKPIs(){
   animateValue(document.getElementById('kpi-h'), 0, c[2] || 0, 1500);
 }
 
+async function updateCompletadas() {
+  const data = await fetchCompletadasDATA();
+  
+  // Conteo local por si la celda no responde
+  const cJ = allData[0] ? allData[0].body.filter(r => parsePct(r[4]) === 100).length : 0;
+  const cE = allData[1] ? allData[1].body.filter(r => parsePct(r[4]) === 100).length : 0;
+  const cH = allData[2] ? allData[2].body.filter(r => parsePct(r[4]) === 100).length : 0;
+  const cTotal = cJ + cE + cH;
+
+  const valJ = (data && data.juridicas > 0) ? data.juridicas : cJ;
+  const valE = (data && data.economicas > 0) ? data.economicas : cE;
+  const valH = (data && data.humanidades > 0) ? data.humanidades : cH;
+  const valTotal = (data && data.total > 0) ? data.total : cTotal;
+
+  animateValue(document.getElementById('comp-total'), 0, valTotal, 1000);
+  animateValue(document.getElementById('comp-j'), 0, valJ, 1000);
+  animateValue(document.getElementById('comp-e'), 0, valE, 1000);
+  animateValue(document.getElementById('comp-h'), 0, valH, 1000);
+}
+  
 async function loadSheet(idx){
   if(loaded[idx])return;
   loaded[idx]=true;
