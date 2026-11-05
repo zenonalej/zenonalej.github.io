@@ -356,22 +356,25 @@ tbody td{padding:10px 16px;color:#4a5568}
 
 async function fetchCompletadasDATA() {
   try {
-    // Consulta las filas 205 a 209 de la columna O en la hoja DATA
+    // Consulta exacta del rango O205:O209 (Columna O)
     const url = `${_base()}${_sid()}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('DATA')}&range=O205:O209`;
     const res = await fetch(url);
     if (!res.ok) return null;
     const txt = await res.text();
     const rows = parseCSV(txt);
     
-    // Extrae los valores numéricos limpios de cada fila
-    const vals = rows.map(r => parseInt(String(r[0] || '0').replace(/\D/g, ''), 10) || 0);
+    // Extrae los valores numéricos limpios
+    const vals = rows.flatMap(r => r).map(c => parseInt(String(c || '0').replace(/\D/g, ''), 10) || 0);
     
-    return {
-      juridicas: vals[0] || 0,   // O205
-      economicas: vals[1] || 0,  // O206
-      humanidades: vals[2] || 0, // O207
-      total: vals[4] || (vals[0] + vals[1] + vals[2]) // O209
-    };
+    if (vals.length >= 3) {
+      return {
+        juridicas: vals[0] || 0,   // Celda O205
+        economicas: vals[1] || 0,  // Celda O206
+        humanidades: vals[2] || 0, // Celda O207
+        total: vals[4] || (vals[0] + vals[1] + vals[2]) // Celda O209
+      };
+    }
+    return null;
   } catch (e) {
     return null;
   }
