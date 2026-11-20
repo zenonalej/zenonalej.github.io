@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calificador · UMA Conciertos sv</title>
+<style>
+:root{color-scheme:light dark;--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#5d6773;--bd:#dfe3e8;--ac:#4f46e5;--ok:#168a4a;--wa:#c27803;--er:#c62828}
+@media(prefers-color-scheme:dark){:root{--bg:#14161a;--card:#1e2126;--tx:#eceff3;--mu:#9aa4b0;--bd:#323841;--ac:#8b87ff;--ok:#4cc380;--wa:#f0b13f;--er:#ff7b7b}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--tx)}
+main{max-width:960px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:1.5rem;margin:0 0 4px}h2{margin:0;font-size:1.2rem}h3{margin:20px 0 6px;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mu)}
+.mu{color:var(--mu)}.sm{font-size:.85rem}.r{text-align:right}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-top:14px;overflow-x:auto}
+#drop{border:2px dashed var(--bd);border-radius:14px;padding:28px 16px;text-align:center;background:var(--card);margin-top:16px}
+#drop.on{border-color:var(--ac)}
+button,label.btn{font:inherit;background:var(--ac);color:#fff;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;display:inline-block}
+button.g{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+#opts{margin-top:10px;display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+table{width:100%;border-collapse:collapse}
+th,td{padding:8px 10px;border-bottom:1px solid var(--bd);text-align:left}
+tbody tr{cursor:pointer}tbody tr:hover,tr.sel{background:color-mix(in srgb,var(--ac) 12%,transparent)}
+th.r,td.r{text-align:right}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:8px}
+.hd{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.big{font-size:2.4rem;font-weight:700;color:var(--ac)}.big small{font-size:1rem;color:var(--mu);font-weight:400}
+.it{margin:10px 0}.row{display:flex;justify-content:space-between;gap:12px}
+.pb{height:6px;background:var(--bd);border-radius:3px;margin:4px 0;overflow:hidden}.pb i{display:block;height:100%}
+.pb i.ok{background:var(--ok)}.pb i.wa{background:var(--wa)}.pb i.er{background:var(--er)}
+b.ok{color:var(--ok)}b.wa{color:var(--wa)}b.er{color:var(--er)}
+.warn{border-left:4px solid var(--wa);padding:6px 12px;margin-top:12px;font-size:.9rem}
+@media print{#drop,#opts,#list,.noprint{display:none!important}body{background:#fff}}
+</style>
+</head>
+<body>
+<main>
+<h1>Calificador · UMA Conciertos sv</h1>
+<div class="mu">Sube los archivos .xlsx de tus estudiantes. El nombre se toma de la celda <b>A1</b>.</div>
+
+<div id="drop">
+  Arrastra aquí los archivos Excel<br><br>
+  <label class="btn">Elegir archivos<input id="fi" type="file" accept=".xlsx,.xlsm" multiple hidden></label>
+</div>
+<div id="opts">
+  <label><input type="checkbox" id="needF" checked> Exigir fórmulas / funciones (no valores pegados)</label>
+  <button class="g" id="clr">Limpiar</button>
+</div>
+<div id="list"></div>
+<div id="detail"></div>
+<p class="mu sm">Se califica con los valores guardados en cada archivo (no se recalcula). Distribución: nombre 5 · tabla 65 · estadísticas 30 = 100 puntos; nota final sobre 10.</p>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+const DAYS=['lu','ma','mi','ju','vi','sa','do'],RAND=/RAND|ALEATORIO/i,NAMES={1:'Primer Piso',2:'Segundo Piso',3:'Luneta'};
+const ORIG={775:[75.9,36.6,57.9],776:[75.1,35.6,57.3],777:[93.2,38,43.9],778:[71.7,38.4,47],779:[88.7,33.1,56.2],780:[77.1,34.6,51],781:[93.5,33.7,45.4],782:[79.1,21.3,47.2],783:[97.4,34.1,58.2],784:[93.1,38.9,42.1],785:[96.3,26.6,40.5],786:[77,25.9,55]};
+const FILES=[],R=[];let SEL=0;
+const $=id=>document.getElementById(id);
+const num=x=>x===undefined||x===null||x===''?NaN:typeof x==='number'?x:Number(String(x).replace(',','.'));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function loc(x){const n=num(x);if([1,2,3].includes(n))return n;if(typeof x==='string'){const s=x.toLowerCase();if(s.includes('primer'))return 1;if(s.includes('segundo'))return 2;if(s.includes('luneta'))return 3}return NaN}
+
+async function grade(file){
+  const buf=await file.arrayBuffer(),NF=$('needF').checked;
+  const wb=XLSX.read(buf,{type:'array'});
+  let ws=wb.Sheets[wb.SheetNames[0]];
+  for(const n of wb.SheetNames){const s=wb.Sheets[n];if(s.A33&&String(s.A33.v).trim().toLowerCase()==='reserva'){ws=s;break}}
+  const cell=a=>ws[a]&&ws[a].t!=='e'?ws[a]:undefined,v=a=>cell(a)?.v,f=a=>ws[a]?.f;
+  const items=[],warn=[],P=(sec,label,max,pts,detail)=>items.push({sec,label,max,pts,detail});
+
+  const nm=String(v('A1')??'').trim();
+  P('Identificación','Nombre del estudiante en A1',5,nm?5:0,nm?'A1 = '+nm:'La celda A1 está vacía.');
+
+  const cat={};
+  for(let r=32;r<=43;r++){const k=num(v('J'+r));if(!isNaN(k))cat[k]={e:num(v('K'+r)),1:num(v('L'+r)),2:num(v('M'+r)),3:num(v('N'+r))}}
+  if(Object.entries(ORIG).some(([k,a])=>!cat[k]||a.some((p,i)=>!(Math.abs(p-cat[k][i+1])<0.001))))
+    warn.push('El Catálogo de conciertos (J31:N43) parece modificado; se calificó contra los precios que contiene el archivo.');
+
+  const rows=[];
+  for(let r=34;r<=83;r++){const g=k=>v(k+r);rows.push({r,A:num(g('A')),B:num(g('B')),C:num(g('C')),D:String(g('D')??'').trim().toLowerCase(),E:num(g('E')),F:g('F'),G:num(g('G')),H:num(g('H'))})}
+  const filled=rows.filter(x=>[...'ABCDEFGH'].some(k=>v(k+x.r)!==undefined)).length;
+  if(filled<50)warn.push(`Solo ${filled} de 50 filas (34 a 83) tienen datos.`);
+
+  const price=x=>(cat[x.B]||{})[loc(x.F)],tot=(p,x)=>p*x.C*(x.D==='sa'?1.05:1),near=(a,b)=>Math.abs(a-b)<0.011;
+  function colItem(label,max,key,ok,ft,wf,ftxt){
+    let o=0,fc=0;const bad=[];
+    rows.forEach(x=>{if(ok(x)){o++;if(ft(f(key+x.r)))fc++}else bad.push(x.r)});
+    const w=NF?wf:0;
+    P('Tabla',label,max,max*((1-w)*o/50+w*fc/50),`${o}/50 filas correctas`+(w?`; ${fc} con ${ftxt}`:'')+(bad.length?`. Revisar filas: ${bad.slice(0,8).join(', ')}${bad.length>8?'…':''}`:''));
+  }
+  const rnd=s=>RAND.test(s||''),any=s=>!!s;
+  colItem('Reserva (secuencial 1 al 50)',4,'A',x=>x.A===x.r-33,any,0,'');
+  colItem('Concierto aleatorio (775–786)',6,'B',x=>Number.isInteger(x.B)&&x.B>=775&&x.B<=786,rnd,.4,'función aleatoria');
+  colItem('Personas aleatorias (1–5)',6,'C',x=>Number.isInteger(x.C)&&x.C>=1&&x.C<=5,rnd,.4,'función aleatoria');
+  colItem('Día aleatorio (Lu a Do)',6,'D',x=>DAYS.includes(x.D),rnd,.4,'función aleatoria');
+  colItem('¿Quedan lugares? (según catálogo)',9,'E',x=>{const e=cat[x.B]?.e;return Number.isFinite(e)?x.E===e:(x.E===0||x.E===1)},any,.3,'fórmula');
+  colItem('Ubicación aleatoria (1–3)',6,'F',x=>!isNaN(loc(x.F)),rnd,.4,'función aleatoria');
+  colItem('Precio por persona (según ubicación)',12,'G',x=>near(x.G,price(x)),any,.3,'fórmula');
+  colItem('Total a pagar (+5% si es sábado)',16,'H',x=>near(x.H,tot(price(x),x))||near(x.H,tot(x.G,x)),any,.3,'fórmula');
+
+  const sumB=c=>rows.filter(x=>x.B===c).reduce((s,x)=>s+(x.C||0),0),cntB=c=>rows.filter(x=>x.B===c).length;
+  const ans=(r1,r2,skip)=>{const c=[];for(let r=r1;r<=r2;r++)for(const L of 'PQRSTU'){const a=L+r,k=cell(a);if(!k||a===skip||(typeof k.v==='string'&&(k.v[0]==='¿'||k.v.length>40)))continue;c.push({a,v:k.v,f:k.f})}return c.find(z=>z.f)||c[0]};
+  const S=(label,max,a,ok,exp)=>{
+    if(!a)return P('Estadísticas',label,max,0,'No se encontró respuesta bajo la pregunta (celdas P a U). Esperado: '+exp);
+    const good=ok(a.v),w=NF?.3:0;
+    P('Estadísticas',label,max,good?max*((1-w)+(a.f?w:0)):0,`Celda ${a.a} = ${a.v}${a.f?' (con fórmula)':' (valor sin fórmula)'}. Esperado: ${exp} ${good?'✓':'✗'}`);
+  };
+  S('Personas que iniciaron reserva · concierto 775',6,ans(29,31,'P29'),a=>num(a)===sumB(775),sumB(775));
+  const sab=rows.filter(x=>x.D==='sa').length;
+  S('Reservaciones del día sábado',6,ans(32,34,'P32'),a=>num(a)===sab,sab);
+  const pe={1:0,2:0,3:0},re={1:0,2:0,3:0};
+  rows.forEach(x=>{const l=loc(x.F);if(l in pe){pe[l]+=x.C||0;re[l]++}});
+  const top=o=>{const m=Math.max(...Object.values(o));return Object.keys(o).filter(k=>o[k]===m).map(Number)};
+  const acc=new Set(rows.some(x=>loc(x.F)>0)?[...top(pe),...top(re)]:[]);
+  S('Ubicación más vendida',7,ans(35,37,'P35'),a=>acc.has(loc(a)),[...acc].map(k=>NAMES[k]).join(' o ')||'—');
+
+  const r=[0,0],fr=[0,0];
+  for(let i=0;i<12;i++){const a='Q'+(50+i),q=num(v(a));[sumB(775+i),cntB(775+i)].forEach((e,j)=>{if(q===e){r[j]++;if(f(a))fr[j]++}})}
+  const j=r[1]>r[0]?1:0,w=NF?.3:0;
+  P('Estadísticas','Tabla auxiliar: reservas por concierto (Q50:Q61)',4,4*((1-w)*r[j]/12+w*fr[j]/12),`${r[j]}/12 celdas correctas (${j?'conteo de reservas':'suma de personas'}); ${fr[j]} con fórmula.`);
+
+  let ch=null;
+  try{const z=await JSZip.loadAsync(buf);const ns=Object.keys(z.files).filter(n=>/^xl\/charts\/chart\d*\.xml$/.test(n));
+    if(ns.length){const xml=await z.file(ns[0]).async('string');
+      ch={type:(xml.match(/<c:(\w+?)Chart>/)||[])[1]||'?',title:/<c:chart>\s*<c:title>[\s\S]*?<a:t>[^<]+/.test(xml),data:/<c:f>[^<]*\$?Q\$?50:\$?Q\$?61|<c:ptCount val="12"\/>/.test(xml)}}}catch(e){}
+  P('Estadísticas','Gráfica de personas por concierto',7,ch?4+(ch.data?2:0)+(ch.title?1:0):0,
+    ch?`Gráfica encontrada (${ch.type}); ${ch.data?'datos de 12 conciertos ✓':'no se detectan los 12 conciertos ✗'}; ${ch.title?'con título ✓':'sin título ✗'}.`:'No se encontró ninguna gráfica en el archivo.');
+
+  return{name:nm||file.name.replace(/\.[^.]+$/,''),file:file.name,items,warn,total:items.reduce((s,i)=>s+i.pts,0)};
+}
+
+const cls=(p,m)=>p>=m-.005?'ok':p<=.005?'er':'wa';
+function render(){
+  if(!R.length){$('list').innerHTML='';$('detail').innerHTML='';return}
+  $('list').innerHTML=`<div class="bar"><b>${R.length} archivo(s) calificado(s)</b><button onclick="csv()">Exportar CSV</button></div>
+  <div class="card"><table><thead><tr><th>Estudiante</th><th>Archivo</th><th class="r">Nota /10</th><th class="r">Puntos /100</th></tr></thead><tbody>${R.map((x,i)=>`<tr class="${i===SEL?'sel':''}" onclick="SEL=${i};render()"><td>${esc(x.name)}${x.warn?.length||x.err?' ⚠':''}</td><td class="mu">${esc(x.file)}</td><td class="r"><b>${(x.total/10).toFixed(1)}</b></td><td class="r">${x.total.toFixed(1)}</td></tr>`).join('')}</tbody></table></div>`;
+  const x=R[SEL];
+  const secs=[...new Set(x.items.map(i=>i.sec))].map(s=>`<h3>${s}</h3>`+x.items.filter(i=>i.sec===s).map(i=>`<div class="it"><div class="row"><span>${esc(i.label)}</span><b class="${cls(i.pts,i.max)}">${+i.pts.toFixed(2)} / ${i.max}</b></div><div class="pb"><i class="${cls(i.pts,i.max)}" style="width:${i.pts/i.max*100}%"></i></div><div class="mu sm">${esc(i.detail)}</div></div>`).join('')).join('');
+  $('detail').innerHTML=`<div class="card"><div class="hd"><div><h2>${esc(x.name)}</h2><div class="mu sm">${esc(x.file)}</div></div><div class="big">${(x.total/10).toFixed(1)}<small> / 10</small></div></div>
+  ${x.err?`<div class="warn">${esc(x.err)}</div>`:''}${(x.warn||[]).map(w=>`<div class="warn">${esc(w)}</div>`).join('')}${secs}
+  <p class="noprint"><button class="g" onclick="window.print()">Imprimir / guardar en PDF</button></p></div>`;
+}
+async function run(){
+  if(typeof XLSX==='undefined'||typeof JSZip==='undefined'){alert('No se pudieron cargar las librerías (se requiere conexión a internet).');return}
+  R.length=0;
+  for(const f of FILES){try{R.push(await grade(f))}catch(e){R.push({name:f.name,file:f.name,items:[],total:0,err:'No se pudo leer el archivo: '+e.message})}}
+  SEL=Math.max(0,Math.min(SEL,R.length-1));render();
+}
+function addFiles(fl){for(const f of fl)if(/\.xls[xm]$/i.test(f.name))FILES.push(f);run()}
+function csv(){
+  const keys=[...new Set(R.flatMap(x=>x.items.map(i=>i.label)))];
+  const rows=[['Estudiante','Archivo','Nota /10','Puntos /100',...keys],...R.map(x=>[x.name,x.file,(x.total/10).toFixed(2),x.total.toFixed(2),...keys.map(k=>{const i=x.items.find(i=>i.label===k);return i?+i.pts.toFixed(2):''})])];
+  const t='sep=,\r\n'+rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\ufeff'+t],{type:'text/csv;charset=utf-8'}));a.download='calificaciones_UMA_Conciertos.csv';a.click();
+}
+const dz=$('drop');
+['dragover','dragenter'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.add('on')}));
+['dragleave','drop'].forEach(e=>dz.addEventListener(e,ev=>{ev.preventDefault();dz.classList.remove('on')}));
+dz.addEventListener('drop',ev=>addFiles(ev.dataTransfer.files));
+$('fi').onchange=e=>{addFiles(e.target.files);e.target.value=''};
+$('needF').onchange=run;
+$('clr').onclick=()=>{FILES.length=0;R.length=0;SEL=0;render()};
+</script>
+</body>
+</html>
